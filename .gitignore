@@ -1,0 +1,51 @@
+# Node modules
+node_modules/
+.pnpm/
+.pnp.*
+*.log
+
+# Build output
+dist/
+.next/
+out/
+coverage/
+build/
+.cache/
+turbo/
+*.tsbuildinfo
+
+# Env files
+.env
+.env.*
+!.env.example
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Prisma
+prisma/dev.db
+prisma/dev.db-journal
+
+# Docker
+docker-compose.override.yml
+
+# Misc
+*.local
+*.sublime-workspace
+*.sublime-project
+
+# Test output
+test-results/
+playwright-report/
