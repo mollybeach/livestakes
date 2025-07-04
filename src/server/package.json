@@ -1,0 +1,38 @@
+{
+  "name": "livestakes-game-server",
+  "version": "1.0.0",
+  "description": "Server for livestakes game with provable fairness",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "node dist/index.js",
+    "dev": "nodemon --exec ts-node src/index.ts",
+    "dev-debug": "nodemon --inspect=9229 --watch src --exec \"ts-node src/index.ts\"",
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "migrate": "ts-node src/migrate.ts"
+  },
+  "dependencies": {
+    "@jup-ag/api": "^6.0.41",
+    "@solana/spl-token": "^0.4.0",
+    "@solana/web3.js": "^1.78.5",
+    "@types/pg": "^8.11.13",
+    "@types/seedrandom": "^3.0.8",
+    "bs58": "^5.0.0",
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "dotenv": "^16.5.0",
+    "express": "^4.18.2",
+    "pg": "^8.14.1",
+    "pg-pool": "^3.8.0",
+    "seedrandom": "^3.0.5",
+    "socket.io": "^4.7.2"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.14",
+    "@types/express": "^4.17.17",
+    "@types/node": "^20.5.9",
+    "nodemon": "^3.0.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  }
+}

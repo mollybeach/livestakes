@@ -1,0 +1,47 @@
+{
+  "name": "live-stakes",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "build:all": "next build && cd server && npm run build",
+    "start": "next start",
+    "lint": "next lint",
+    "server": "cd server && npm run dev",
+    "dev:all": "concurrently \"npm run dev\" \"npm run server\"",
+    "start:all": "concurrently \"npm run start\" \"npm run server\"",
+    "docker:dev": "docker-compose up livestakes-dev",
+    "docker:build": "docker-compose build",
+    "docker:prod": "docker-compose up livestakes-prod"
+  },
+  "dependencies": {
+    "@dynamic-labs/sdk-react-core": "^3.1.1",
+    "@dynamic-labs/solana": "^3.9.2",
+    "@react-spring/web": "^9.7.5",
+    "@solana/spl-token": "^0.4.13",
+    "@solana/web3.js": "^1.98.0",
+    "bs58": "^6.0.0",
+    "matter-js": "^0.20.0",
+    "next": "15.3.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-error-boundary": "^6.0.0",
+    "socket.io-client": "^4.8.1",
+    "swiper": "^11.2.6"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@types/matter-js": "^0.19.8",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "autoprefixer": "^10.4.19",
+    "concurrently": "^9.1.2",
+    "eslint": "^9",
+    "eslint-config-next": "15.3.0",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5"
+  }
+}

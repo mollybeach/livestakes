@@ -1,0 +1,36 @@
+[supervisord]
+nodaemon=true
+logfile=/dev/null
+logfile_maxbytes=0
+user=root
+pidfile=/run/supervisord.pid
+
+[program:]
+command=flask run --host=0.0.0.0
+user=root
+autorestart=true
+autostart=true
+stdout_logfile=/dev/stdout
+stdout_logfile_maxbytes=0
+stderr_logfile=/dev/stdout
+stderr_logfile_maxbytes=0
+
+[program:celery-worker]
+command=/usr/local/bin/python3 -m celery -A app.celery_worker.celery worker --loglevel=info
+user=root
+autorestart=true
+autostart=true
+stdout_logfile=/dev/stdout
+stdout_logfile_maxbytes=0
+stderr_logfile=/dev/stdout
+stderr_logfile_maxbytes=0
+
+[program:celery-beat]
+command=/usr/local/bin/python3 -m celery -A app.celery_worker.celery beat --loglevel=info
+user=root
+autorestart=true
+autostart=true
+stdout_logfile=/dev/stdout
+stdout_logfile_maxbytes=0
+stderr_logfile=/dev/stdout
+stderr_logfile_maxbytes=0

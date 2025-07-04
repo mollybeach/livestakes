@@ -1,0 +1,5 @@
+Please add a logo.png file to this directory (public/) before deploying your application.
+
+The logo will be used by the Privy provider for wallet connections.
+
+Recommended dimensions: 200x200 pixels. 

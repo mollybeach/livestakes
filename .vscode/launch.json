@@ -1,0 +1,18 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Start and Debug with Nodemon",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/src/server",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],      
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "sourceMaps": true,
+      "skipFiles": ["<node_internals>/**"],
+      "outFiles": ["${workspaceFolder}/src/server/**/*.ts"]
+    }
+  ]
+}

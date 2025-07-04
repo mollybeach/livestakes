@@ -1,0 +1,45 @@
+
+services:
+  livestakesmdb:
+    image: postgis/postgis:14-3.4-alpine
+    restart: always
+    container_name: livestakes-db
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DATABASE: livestakes
+    ports:
+      - "5489:5432"
+    expose:
+      - "5489"
+    volumes:
+      - livestakes-db-data:/var/lib/postgresql/data
+    networks:
+      - livestakes-network
+
+  livestakes-app:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+      # target: production
+      tags:
+        - livestakes-app-prod:latest
+    container_name: livestakes-app
+    restart: always
+    networks:
+      - livestakes-network
+    ports:
+      - "3000:80"
+    expose:
+      - 3000
+    depends_on:
+      - livestakesmdb
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+networks:
+  livestakes-network:
+    driver: "bridge"
+
+volumes:
+  livestakes-db-data:

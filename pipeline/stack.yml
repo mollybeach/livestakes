@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  app:
+    image: europe-north1-docker.pkg.dev/wobreeze-448419/livestakes-api/image:${IMAGE_TAG}
+    
+    ports:
+      - 8095:80
+    dns: 8.8.8.8
+    tty: true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 10m
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.role == worker]
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 3
+        window: 120s
+      update_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: pause
+        order: start-first
+      rollback_config:
+        parallelism: 1
+        delay: 10s
+        order: start-first

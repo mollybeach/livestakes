@@ -1,0 +1,50 @@
+FROM node:18-alpine
+
+# Set working directory
+WORKDIR /app
+
+# Install essential development tools
+RUN apk add --no-cache libc6-compat curl git
+
+# Create user/group for security
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+# Install global tools for development
+RUN npm install -g concurrently nodemon ts-node
+
+# Copy package.json files first for better caching
+COPY src/package.json ./package.json
+COPY src/package-lock.json* ./package-lock.json
+
+# Install frontend dependencies
+RUN npm install
+
+# Copy server package.json for backend dependencies
+WORKDIR /app/server
+COPY src/server/package.json ./package.json
+COPY src/server/package-lock.json* ./package-lock.json
+
+# Install backend dependencies
+RUN npm install
+
+# Go back to app directory
+WORKDIR /app
+
+# Change ownership to nodejs user
+RUN chown -R nextjs:nodejs /app
+
+# Switch to non-root user
+USER nextjs
+
+# Expose ports for frontend, backend, and development
+EXPOSE 3000 3334
+
+# Set environment variables for development
+ENV NODE_ENV=development
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV HOSTNAME=0.0.0.0
+ENV HOST=0.0.0.0
+
+# Development command that starts both frontend and backend
+CMD ["npm", "run", "dev:all"] 

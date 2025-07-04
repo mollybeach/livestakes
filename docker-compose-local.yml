@@ -1,0 +1,60 @@
+
+services:
+  livestakesmdb:
+    image: postgis/postgis:14-3.4-alpine
+    restart: always
+    container_name: livestakes-db
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DATABASE: livestakes
+    ports:
+      - "5492:5432"
+    expose:
+      - "5492"
+    volumes:
+      - livestakes-db-data:/var/lib/postgresql/data
+    networks:
+      - livestakes-network
+
+  livestakes-app:
+    build:
+      context: ./
+      dockerfile: Dockerfile.dev
+      tags:
+        - livestakes-app-dev:latest
+    volumes:
+      # Volume mappings for hot reload
+      - ./src:/app:cached
+      - ./src/server:/app/server:cached
+      # Exclude node_modules to avoid conflicts
+      - /app/node_modules
+      - /app/server/node_modules
+    container_name: livestakes-app-dev
+    restart: unless-stopped
+    networks:
+      - livestakes-network
+    ports:
+      - "3000:3000"  # Frontend Next.js
+      - "3334:3334"  # Backend server
+    expose:
+      - 3000
+      - 3334
+    depends_on:
+      - livestakesmdb
+    environment:
+      - NODE_ENV=development
+      - NEXT_TELEMETRY_DISABLED=1
+      - HOSTNAME=0.0.0.0
+      - HOST=0.0.0.0
+      # Add database connection if needed
+      - DATABASE_URL=postgresql://root:root@livestakesmdb:5432/livestakes
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+networks:
+  livestakes-network:
+    driver: "bridge"
+
+volumes:
+  livestakes-db-data:
