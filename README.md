@@ -10,21 +10,22 @@
 
 ## 1. Overview 🔍
 
-LiveStakes is an open source platform that lets viewers watch every ETHGlobal hackathon project in real time and place on-chain predictions on which ones will win prizes. Teams broadcast short demo clips through Livepeer while the protocol prices each project via an automated market maker. When official judges announce winners, the contracts settle and payout bettors instantly.
+LiveStakes is an open source platform that lets viewers watch every ETHGlobal hackathon project in real time and place on-chain predictions on which ones will win prizes. Teams broadcast live demos through WebRTC while the Hedera Agent Kit analyzes livestream environment and voice data to automatically create betting markets and predict winners using an automated market maker. When the AI makes final decisions, the Flow blockchain contracts settle and payout bettors instantly.
 
-This repository is a **monorepo** managed by Turborepo. It contains the Next.js frontend, Solidity smart contracts, Graph subgraph, and infrastructure as code required to deploy the complete system.
+This repository is a **monorepo** managed by Turborepo. It contains the Next.js frontend, Flow Cadence smart contracts, Hedera Agent Kit integration, WebRTC streaming server, and infrastructure as code required to deploy the complete system.
 
 ---
 
 ## 2. Feature Highlights ✨
 
-* 🎥 Live project video grid powered by Livepeer and IPFS storage
-* 📈 Prediction markets per project using UMA Long–Short Pair templates
-* 💹 Dynamic odds and trading with CPMM pricing
-* 🔁 Re-allocation of positions before judging closes
-* 🧑‍⚖️ Judge settlement oracle enforced by a multisig and Optimistic Oracle
-* 🔐 SIWE authentication for bettors and GitHub OAuth onboarding for teams
-* 📊 Real-time stats (bet volume, price movement, project commits) via The Graph and Supabase
+* 🎥 Live project video streaming powered by WebRTC and Express server
+* 🤖 AI-powered betting market creation using Hedera Agent Kit analysis
+* 🎙️ Voice and environment data processing for automated winner prediction
+* 📈 Dynamic prediction markets with CPMM pricing on Flow blockchain
+* 💹 Real-time odds adjustment based on AI insights
+* 🔁 Re-allocation of positions before AI makes final decisions
+* 🔐 Privy wallet authentication for seamless Web3 onboarding
+* 📊 Real-time stats (bet volume, price movement, AI confidence scores) via PostgreSQL
 
 ---
 
@@ -32,13 +33,14 @@ This repository is a **monorepo** managed by Turborepo. It contains the Next.js 
 
 | Layer               | Technology                                                |
 | ------------------- | --------------------------------------------------------- |
-| 💻 Frontend         | Next.js 14, React 18, TailwindCSS, shadcn/ui, wagmi, viem |
-| 📜 Smart contracts  | Solidity 0.8.x, Foundry, OpenZeppelin, UMA LSP            |
-| 📡 Indexing         | The Graph, GraphQL Codegen                                |
-| 🗂️ Storage & Media | Livepeer, IPFS (nft.storage)                              |
-| 🌐 Off-chain API    | Node 18 (Fastify), Supabase/PostgreSQL                    |
-| 🔐 Auth             | Sign-In With Ethereum, GitHub OAuth                       |
-| 🚀 DevOps           | Turborepo, GitHub Actions, Vercel, Alchemy, Tenderly      |
+| 💻 Frontend         | Next.js 14, React 18, TailwindCSS, shadcn/ui, Flow Client Library |
+| 📜 Smart contracts  | Cadence (Flow), Flow CLI, Flow Emulator                   |
+| 🤖 AI Decision Engine | Hedera Agent Kit, Voice Analysis, Environment Processing  |
+| 🎥 Live Streaming   | WebRTC, Express.js, Socket.io                            |
+| 🗂️ Database         | PostgreSQL, Prisma ORM                                   |
+| 🌐 Off-chain API    | Node 18 (Express), WebRTC signaling server               |
+| 🔐 Auth             | Privy (Wallet Connection), GitHub OAuth                  |
+| 🚀 DevOps           | Turborepo, GitHub Actions, Vercel, Flow Testnet          |
 
 ---
 
@@ -46,13 +48,19 @@ This repository is a **monorepo** managed by Turborepo. It contains the Next.js 
 
 ```mermaid
 flowchart TD
-  FE[Next.js Frontend] <--> SG[(The Graph)]
-  FE --> LP[(Livepeer)]
-  FE --> API[Node API]
-  API --> DB[(Supabase/Postgres)]
-  API --> SC[Smart Contracts]
-  OO[Judge Multisig / Optimistic Oracle] --> SC
-  SG --> FE
+  FE[Next.js Frontend] <--> API[Express API]
+  FE <--> WS[WebRTC Streaming]
+  FE --> PV[Privy Auth]
+  API --> DB[(PostgreSQL)]
+  API --> FC[Flow Contracts]
+  HAK[Hedera Agent Kit] --> API
+  HAK --> WS
+  WS --> VA[Voice Analysis]
+  WS --> ED[Environment Detection]
+  VA --> HAK
+  ED --> HAK
+  HAK --> BM[Bet Market Creation]
+  HAK --> WP[Winner Prediction]
 ```
 
 ---
@@ -62,33 +70,35 @@ flowchart TD
 ```
 livestakes/
 ├─ apps/
-│  └─ web/                 # Next.js frontend (App Router)
+│  ├─ web/                 # Next.js frontend (App Router)
+│  └─ streaming-server/    # Express WebRTC signaling server
 ├─ packages/
-│  ├─ contracts/           # Solidity source, tests, deployments
-│  ├─ subgraph/            # Graph protocol manifest and mappings
+│  ├─ contracts/           # Flow Cadence contracts and tests
+│  ├─ hedera-agent/        # Hedera Agent Kit integration and AI logic
 │  └─ ui/                  # Shared React component library (shadcn/ui wrappers)
 ├─ infra/
-│  ├─ terraform/           # Vercel, Supabase, Livepeer resources
+│  ├─ terraform/           # Vercel, PostgreSQL, Flow network resources
 │  └─ gh-actions/          # Reusable workflow templates
 ├─ scripts/                # Helper scripts (deploy, seed, data-export)
 ├─ docs/                   # Additional specs, diagrams, decision logs
 ├─ .github/
-│  └─ workflows/           # CI pipelines: lint, test, contract size, graph build
+│  └─ workflows/           # CI pipelines: lint, test, contract size, AI model validation
 ├─ turbo.json              # Turborepo pipeline config
-├─ foundry.toml            # Foundry toolchain settings
+├─ flow.json               # Flow network configuration
 └─ README.md               # You are here
 ```
 
 ### Directory Details 📦
 
-| Path                   | Purpose                                                                                                              |
-| ---------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| **apps/web**           | 🌐 Public site and dashboard. Contains pages, components, hooks, and api routes.                                     |
-| **packages/contracts** | 🔏 Solidity contracts, Foundry tests, deployment scripts, and ABI generation via Forge.                              |
-| **packages/subgraph**  | 🧬 Subgraph schema, mappings, and AssemblyScript tests for indexing on-chain events.                                 |
-| **packages/ui**        | 🎨 Design-system primitives wrapped around shadcn/ui for consistent styling.                                         |
-| **infra/terraform**    | 🏗️ Infrastructure definitions for Vercel projects, Supabase database, Livepeer API keys, and Alchemy RPC endpoints. |
-| **scripts**            | ⚙️ Type-scripted CLI utilities for project onboarding, market creation, and database seeding.                        |
+| Path                      | Purpose                                                                                                              |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| **apps/web**              | 🌐 Public site and dashboard. Contains pages, components, hooks, and Flow blockchain integration.                    |
+| **apps/streaming-server** | 📡 Express server handling WebRTC signaling, Socket.io connections, and livestream management.                       |
+| **packages/contracts**    | 🔏 Flow Cadence smart contracts, Flow CLI tests, and deployment scripts for prediction markets.                      |
+| **packages/hedera-agent** | 🤖 Hedera Agent Kit integration for AI analysis, voice processing, and automated betting decisions.                   |
+| **packages/ui**           | 🎨 Design-system primitives wrapped around shadcn/ui for consistent styling.                                         |
+| **infra/terraform**       | 🏗️ Infrastructure definitions for Vercel projects, PostgreSQL database, and Flow network endpoints.                  |
+| **scripts**               | ⚙️ Type-scripted CLI utilities for project onboarding, market creation, and database seeding.                        |
 
 ---
 
@@ -98,38 +108,17 @@ livestakes/
 
 * Node ≥ 18
 * pnpm ≥ 9
-* Foundry (`curl -L https://foundry.paradigm.xyz | bash`)
-* Docker (for Graph and Postgres)
+* Flow CLI
+* Docker (for PostgreSQL)
+* PostgreSQL ≥ 14
 
 ### 6.2 Installation 💾
 
-```bash
-# clone
-$ git clone https://github.com/your-org/livestakes.git && cd livestakes
-
-# install workspace deps
-$ pnpm install
-
-# copy env templates
-$ cp apps/web/.env.example apps/web/.env.local
-$ cp packages/contracts/.env.example packages/contracts/.env
-```
+Standard installation process for Node.js monorepo with workspace dependencies, environment configuration, and Flow blockchain setup.
 
 ### 6.3 Start All Services 🔧
 
-```bash
-# spin up local Postgres and Graph Node
-$ pnpm dev:infra   # uses Docker compose
-
-# run contracts on anvil
-$ pnpm dev:chain   # foundry anvil --fork-url $SEPOLIA_RPC
-
-# deploy core markets
-$ pnpm dev:deploy
-
-# run frontend & api
-$ pnpm dev:web     # turborepo triggers both apps/web and node api
-```
+Development environment includes PostgreSQL database, Flow emulator, Hedera Agent Kit AI service, WebRTC streaming server, and Next.js frontend all running concurrently through Turborepo.
 
 Navigate to `http://localhost:3000` to see LiveStakes in action.
 
@@ -138,22 +127,19 @@ Navigate to `http://localhost:3000` to see LiveStakes in action.
 ## 7. Deployment 🚢
 
 * **Frontend** — pushed to `main` automatically deploys to Vercel preview. `production` branch triggers production promotion.
-* **Contracts** — tagged releases run `forge script Deploy --broadcast` against Sepolia, then Mainnet on manual approval.
-* **Subgraph** — CI publishes to TheGraph hosted service.
+* **Streaming Server** — deployed to Vercel as serverless functions with WebRTC support.
+* **Contracts** — tagged releases deploy against Flow Testnet, then Mainnet on manual approval.
+* **Hedera Agent** — AI service deployed to cloud infrastructure with voice processing capabilities.
 
 ---
 
 ## 8. Testing 🧪
 
-* **Unit** — `forge test` for contracts, `vitest` for TypeScript.
-* **Integration** — GraphQL queries against a forked chain.
-* **End-to-end** — Playwright scripts simulating a bettor flow.
+* **Unit** — Flow testing for Cadence contracts, Vitest for TypeScript.
+* **Integration** — WebRTC streaming tests and AI prediction accuracy validation.
+* **End-to-end** — Playwright scripts simulating complete bettor and streaming flow.
 
-Run all tests:
-
-```bash
-$ pnpm test
-```
+Comprehensive testing suite covers all components from smart contracts to AI models.
 
 ---
 
