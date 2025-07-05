@@ -116,7 +116,88 @@ livestakes/
 
 Standard installation process for Node.js monorepo with workspace dependencies, environment configuration, and Flow blockchain setup.
 
-### 6.3 Start All Services 🔧
+### 6.3 Makefile Commands 🛠️
+
+The project includes a comprehensive Makefile with colored output and organized commands for all development tasks.
+
+#### Quick Start Commands
+```bash
+make setup          # Install dependencies and start database
+make dev           # Start all services in development mode
+make help          # Show all available commands
+```
+
+#### Frontend Commands
+```bash
+make frontend-install    # Install frontend dependencies
+make frontend-dev        # Start Next.js development server
+make frontend-build      # Build frontend for production
+make frontend-start      # Start frontend production server
+make frontend-lint       # Lint frontend code
+```
+
+#### Blockchain Commands
+```bash
+make blockchain-compile           # Compile smart contracts
+make blockchain-test             # Run blockchain tests
+make blockchain-test-coverage    # Run tests with coverage
+make blockchain-node             # Start local Hardhat node
+make blockchain-clean            # Clean blockchain artifacts
+
+# Deployment Commands
+make deploy-local               # Deploy to local network
+make deploy-sepolia            # Deploy to Sepolia testnet
+make deploy-mainnet            # Deploy to Ethereum mainnet
+make deploy-flow-testnet       # Deploy to Flow testnet
+make deploy-flow-mainnet       # Deploy to Flow mainnet
+```
+
+#### Server Commands
+```bash
+make server-install     # Install server dependencies
+make server-dev         # Start server in development mode
+make server-dev-debug   # Start server in debug mode
+make server-build       # Build server for production
+make server-start       # Start server in production mode
+make server-migrate     # Run database migrations
+```
+
+#### Docker Commands
+```bash
+make docker-dev         # Start development environment with Docker
+make docker-prod        # Start production environment with Docker
+make docker-build       # Build Docker images
+make docker-clean       # Clean Docker containers and images
+```
+
+#### Database Commands
+```bash
+make db-start          # Start database container
+make db-stop           # Stop database container
+make db-reset          # Reset database (stop, remove volumes, start)
+```
+
+#### Testing Commands
+```bash
+make test              # Run all tests
+make test-frontend     # Run frontend tests
+make test-server       # Run server tests
+```
+
+#### Cleanup Commands
+```bash
+make clean             # Clean all build artifacts
+make clean-all         # Clean everything including Docker
+```
+
+#### Combined Development Commands
+```bash
+make all-dev           # Start all services in development mode
+make all-build         # Build all services for production
+make all-start         # Start all services in production mode
+```
+
+### 6.4 Start All Services 🔧
 
 Development environment includes PostgreSQL database, Flow emulator, Hedera Agent Kit AI service, WebRTC streaming server, and Next.js frontend all running concurrently through Turborepo.
 

@@ -30,11 +30,13 @@ help: ## Show this help message
 # Installation
 # =============================================================================
 install: ## Install all dependencies
-	@echo "$(BLUE)Installing all dependencies...$(NC)"
+	@echo "$(BLUE)Installing all dependencies front end and backend...$(NC)"
 	cd $(FRONTEND_DIR) && pnpm install
 	cd $(BLOCKCHAIN_DIR) && pnpm install
 	cd $(SERVER_DIR) && pnpm install
 	@echo "$(GREEN)All dependencies installed!$(NC)"
+
+
 
 # =============================================================================
 # Frontend (Next.js)

@@ -7,9 +7,8 @@ contract MarketFactory {
     event MarketDeployed(address indexed marketAddress, string question);
 
     function deployMarket(string memory question) public returns (address) {
-        // In a real implementation, this would deploy a new PredictionMarket contract
-        // Deploy new PredictionMarket contract
-        PredictionMarket market = new PredictionMarket(question);
+        // Deploy new PredictionMarket contract (no constructor parameters needed)
+        PredictionMarket market = new PredictionMarket();
         emit MarketDeployed(address(market), question);
         return address(market);
     }
