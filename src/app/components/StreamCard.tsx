@@ -1,8 +1,10 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import Card from "./ui/card";
 import Button from "./ui/button";
 import CardContent from "./CardContent";
 import LiveBadge from "./LiveBadge";
+import BettingModal from "./BettingModal";
+import BettingIndicator from "./BettingIndicator";
 
 interface StreamCardProps {
   id?: number;
@@ -38,10 +40,22 @@ const StreamCard: React.FC<StreamCardProps> = ({
   const [videoError, setVideoError] = useState(false);
   const [isVideoReady, setIsVideoReady] = useState(false);
   const [isMuted, setIsMuted] = useState(false); // Start with sound on by default
+  const [showBettingModal, setShowBettingModal] = useState(false);
+
+  // Pause video when modal opens
+  useEffect(() => {
+    if (showBettingModal && videoRef.current) {
+      videoRef.current.pause();
+      setIsHovered(false);
+    }
+  }, [showBettingModal]);
 
 
 
   const handleMouseEnter = async () => {
+    // Don't trigger hover effects if betting modal is open
+    if (showBettingModal) return;
+    
     setIsHovered(true);
     if (videoRef.current && stream_url && isVideoReady && !videoError) {
       videoRef.current.currentTime = 0;
@@ -68,6 +82,9 @@ const StreamCard: React.FC<StreamCardProps> = ({
   };
 
   const handleMouseLeave = () => {
+    // Don't trigger hover effects if betting modal is open
+    if (showBettingModal) return;
+    
     setIsHovered(false);
     if (videoRef.current) {
       videoRef.current.pause();
@@ -99,14 +116,19 @@ const StreamCard: React.FC<StreamCardProps> = ({
   };
 
   return (
-    <Card className="relative rounded-lg shadow-lg bg-white hover:-translate-y-1 transition-transform overflow-hidden border-0">
-      {status === 'active' && <LiveBadge />}
+    <div className="relative">
+      <Card className={`rounded-lg shadow-lg bg-white transition-transform overflow-hidden border-0 ${
+        showBettingModal ? '' : 'hover:-translate-y-1'
+      }`}>
+        {status === 'active' && <LiveBadge />}
       
       {/* Video/Thumbnail Container - Portrait aspect ratio */}
       <div 
-        className="relative w-full aspect-[9/16] overflow-hidden bg-gray-900"
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
+        className={`relative w-full aspect-[9/16] overflow-hidden bg-gray-900 ${
+          showBettingModal ? 'pointer-events-none' : ''
+        }`}
+        onMouseEnter={showBettingModal ? undefined : handleMouseEnter}
+        onMouseLeave={showBettingModal ? undefined : handleMouseLeave}
       >
         {/* Video Element */}
         {stream_url ? (
@@ -195,6 +217,11 @@ const StreamCard: React.FC<StreamCardProps> = ({
             <div className="w-8 h-8 border-4 border-purple-400 border-t-transparent rounded-full animate-spin"></div>
           </div>
         )}
+
+        {/* Modal overlay - dims video when betting modal is open */}
+        {showBettingModal && (
+          <div className="absolute inset-0 bg-black bg-opacity-30 z-10"></div>
+        )}
       </div>
 
       {/* Content below video */}
@@ -234,14 +261,31 @@ const StreamCard: React.FC<StreamCardProps> = ({
               {new Date(start_time).toLocaleDateString()}
             </span>
           )}
+          {id && <BettingIndicator livestreamId={id} />}
         </div>
 
         {/* Action Button */}
-        <Button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg font-medium text-sm py-2.5 transition-all duration-200">
+        <Button 
+          onClick={() => setShowBettingModal(true)}
+          className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg font-medium text-sm py-2.5 transition-all duration-200"
+        >
           Bet Now
         </Button>
       </div>
-    </Card>
+
+      </Card>
+
+      {/* Betting Modal */}
+      {id && (
+        <BettingModal
+          isOpen={showBettingModal}
+          onClose={() => setShowBettingModal(false)}
+          livestreamId={id}
+          livestreamTitle={title}
+          livestreamDescription={description}
+        />
+      )}
+    </div>
   );
 };
 

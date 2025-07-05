@@ -20,14 +20,14 @@ module.exports = {
             accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
         },
         "flow-testnet": {
-            url: process.env.FLOW_TESTNET_URL || "https://access.devnet.nodes.onflow.org:9000",
+            url: process.env.FLOW_EVM_TESTNET_URL || "https://testnet.evm.nodes.onflow.org",
             accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
-            chainId: 3569
+            chainId: 545
         },
         "flow-mainnet": {
-            url: process.env.FLOW_MAINNET_URL || "https://access.mainnet.nodes.onflow.org:9000",
+            url: process.env.FLOW_EVM_MAINNET_URL || "https://mainnet.evm.nodes.onflow.org",
             accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
-            chainId: 1
+            chainId: 747
         }
     },
     gasReporter: {
