@@ -73,7 +73,7 @@ const Hero = () => (
           <div className="aspect-video bg-purple-200 flex items-center justify-center border-2 border-black">
             <div className="text-center">
               <div className="text-3xl mb-2">🎮</div>
-              <p className="text-xs">Nav Coming Soon</p>
+              <p className="text-xs">Coming Soon</p>
             </div>
           </div>
         </div>

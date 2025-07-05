@@ -45,7 +45,7 @@ export default function ClientWrapper({
         appearance: {
           theme: 'dark',
           accentColor: '#8B5CF6',
-          logo: '/logo.png',
+          logo: 'https://res.cloudinary.com/storagemanagementcontainer/image/upload/v1751729735/live-stakes-icon_cfc7t8.png',
         },
         defaultChain: flowEvmTestnet,
         supportedChains: [flowEvmTestnet],

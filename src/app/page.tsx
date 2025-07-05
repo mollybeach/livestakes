@@ -1,7 +1,6 @@
 // path: pages/index.tsx    /* or app/page.tsx if you’re on the App Router */
 import Head from "next/head";
 import Hero from "./components/Hero";
-import Footer from "./components/Footer";
 
 /**
  * Home page – pixel-window aesthetic

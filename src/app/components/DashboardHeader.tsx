@@ -11,7 +11,7 @@ interface DashboardHeaderProps {
   showStats?: boolean;
   totalStreams?: number;
   liveStreams?: number;
-  onMarketCreated?: (marketAddress: string, marketData: any) => void;
+  onMarketCreated?: (marketAddress: string) => void;
 }
 
 const DashboardHeader: React.FC<DashboardHeaderProps> = ({
@@ -24,11 +24,11 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 }) => {
   const [showMarketCreation, setShowMarketCreation] = useState(false);
 
-  const handleMarketCreated = (marketAddress: string, marketData: any) => {
-    console.log('Market created:', marketAddress, marketData);
+  const handleMarketCreated = (marketAddress: string) => {
+    console.log('Market created:', marketAddress);
     // Call parent callback if provided
     if (onMarketCreated) {
-      onMarketCreated(marketAddress, marketData);
+      onMarketCreated(marketAddress);
     }
     // TODO: Add notification system or refresh data
   };

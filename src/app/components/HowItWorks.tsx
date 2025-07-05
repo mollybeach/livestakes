@@ -1,27 +1,5 @@
 import React from "react";
-
-const steps = [
-  {
-    icon: "📝",
-    title: "1. Create a Market",
-    description: "Spin up a new prediction market for your project or event."
-  },
-  {
-    icon: "💸",
-    title: "2. Place Your Bets",
-    description: "Bet on outcomes using your custom coin or FLOW."
-  },
-  {
-    icon: "🎉",
-    title: "3. Watch Live Results",
-    description: "See odds and results update in real time as bets come in."
-  },
-  {
-    icon: "🏆",
-    title: "4. Claim Rewards",
-    description: "Winners claim instant payouts and climb the leaderboard!"
-  },
-];
+import { mockSteps } from "../data/howItWorks";
 
 const HowItWorks = () => (
   <section className="max-w-4xl mx-auto mb-12">
@@ -31,7 +9,7 @@ const HowItWorks = () => (
         <span className="text-yellow-200">?</span>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 bg-yellow-50 p-6">
-        {steps.map((s) => (
+        {mockSteps.map((s) => (
           <div key={s.title} className="border-2 border-black bg-pink-100 rounded-none p-4 shadow-window-pixel flex flex-col items-center">
             <span className="text-3xl mb-2">{s.icon}</span>
             <h3 className="text-lg font-bold text-pink-700 mb-1">{s.title}</h3>

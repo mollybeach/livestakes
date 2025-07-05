@@ -193,13 +193,14 @@ export default function MarketCreationModal({
       onKeyDown={handleEscapeKey}
       tabIndex={-1}
     >
-      <div className="bg-gray-800 rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-white">Create New Market</h2>
+      <div className="bg-pink-500/90 border-4 border-black rounded-none shadow-window-pixel w-full max-w-md max-h-[90vh] overflow-y-auto font-pixel">
+        {/* Title Bar */}
+        <div className="flex items-center justify-between px-3 py-1 bg-pink-600 text-yellow-50 border-b-4 border-black">
+          <span className="text-lg font-bold">Create New Market</span>
           <button
             onClick={handleClose}
             disabled={isLoading}
-            className="text-gray-400 hover:text-white disabled:opacity-50"
+            className="text-yellow-200 hover:text-yellow-50 disabled:opacity-50"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -208,23 +209,22 @@ export default function MarketCreationModal({
         </div>
 
         {/* Connection Test Section */}
-        <div className="mb-6 p-4 bg-gray-700 rounded-lg">
+        <div className="mb-4 p-4 bg-yellow-50 border-b-4 border-black">
           <div className="flex justify-between items-center mb-2">
-            <h3 className="text-sm font-medium text-gray-300">Contract Connection</h3>
+            <h3 className="text-xs font-bold text-plum">Contract Connection</h3>
             <button
               onClick={handleTestConnection}
               disabled={isTestingConnection}
-              className="text-xs bg-blue-600 hover:bg-blue-700 px-2 py-1 rounded disabled:opacity-50"
+              className="text-xs bg-plum hover:bg-pink-600 text-yellow-50 px-2 py-1 border border-black rounded-none font-pixel disabled:opacity-50"
             >
               {isTestingConnection ? 'Testing...' : 'Test Connection'}
             </button>
           </div>
-          
           {connectionTest && (
-            <div className={`text-xs p-2 rounded ${
+            <div className={`text-xs p-2 rounded-none border-2 mt-2 font-pixel ${
               connectionTest.isConnected 
-                ? 'bg-green-600/20 text-green-400' 
-                : 'bg-red-600/20 text-red-400'
+                ? 'bg-green-100 text-green-700 border-green-400' 
+                : 'bg-red-100 text-red-700 border-red-400'
             }`}>
               {connectionTest.isConnected ? (
                 <div>
@@ -242,78 +242,70 @@ export default function MarketCreationModal({
           )}
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 bg-yellow-50 p-6 border-t-4 border-black">
           {/* Question Field */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
-              Question *
-            </label>
+            <label className="block text-xs font-bold text-plum mb-1">Question *</label>
             <input
               type="text"
               name="question"
               value={formData.question}
               onChange={handleInputChange}
               placeholder="e.g., Will the presenter finish the demo without bugs?"
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+              className="w-full px-3 py-2 bg-white border-2 border-black rounded-none text-plum placeholder-gray-400 focus:outline-none focus:border-pink-500 font-pixel"
               disabled={isLoading}
             />
             {errors.question && (
-              <p className="text-red-400 text-xs mt-1">{errors.question}</p>
+              <p className="text-red-600 text-xs mt-1 font-pixel">{errors.question}</p>
             )}
           </div>
 
           {/* Title Field */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
-              Title *
-            </label>
+            <label className="block text-xs font-bold text-plum mb-1">Title *</label>
             <input
               type="text"
               name="title"
               value={formData.title}
               onChange={handleInputChange}
               placeholder="e.g., Bug-free Demo Prediction"
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+              className="w-full px-3 py-2 bg-white border-2 border-black rounded-none text-plum placeholder-gray-400 focus:outline-none focus:border-pink-500 font-pixel"
               disabled={isLoading}
             />
             {errors.title && (
-              <p className="text-red-400 text-xs mt-1">{errors.title}</p>
+              <p className="text-red-600 text-xs mt-1 font-pixel">{errors.title}</p>
             )}
           </div>
 
           {/* Description Field */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
-              Description
-            </label>
+            <label className="block text-xs font-bold text-plum mb-1">Description</label>
             <textarea
               name="description"
               value={formData.description}
               onChange={handleInputChange}
               placeholder="Additional details about the market..."
               rows={3}
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+              className="w-full px-3 py-2 bg-white border-2 border-black rounded-none text-plum placeholder-gray-400 focus:outline-none focus:border-pink-500 font-pixel"
               disabled={isLoading}
             />
             {errors.description && (
-              <p className="text-red-400 text-xs mt-1">{errors.description}</p>
+              <p className="text-red-600 text-xs mt-1 font-pixel">{errors.description}</p>
             )}
           </div>
 
           {/* Category Field */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
-              Category
-            </label>
+            <label className="block text-xs font-bold text-plum mb-1">Category</label>
             <select
               name="category"
               value={formData.category}
               onChange={handleInputChange}
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:border-blue-500"
+              className="w-full px-3 py-2 bg-white border-2 border-black rounded-none text-plum focus:outline-none focus:border-pink-500 font-pixel"
               disabled={isLoading}
             >
               {CATEGORIES.map(category => (
-                <option key={category} value={category}>
+                <option key={category} value={category} className="font-pixel">
                   {category.charAt(0).toUpperCase() + category.slice(1)}
                 </option>
               ))}
@@ -322,22 +314,20 @@ export default function MarketCreationModal({
 
           {/* Tags Field */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
-              Tags
-            </label>
+            <label className="block text-xs font-bold text-plum mb-1">Tags</label>
             <input
               type="text"
               name="tags"
               value={formData.tags}
               onChange={handleInputChange}
               placeholder="hackathon, demo, coding (comma separated)"
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+              className="w-full px-3 py-2 bg-white border-2 border-black rounded-none text-plum placeholder-gray-400 focus:outline-none focus:border-pink-500 font-pixel"
               disabled={isLoading}
             />
             {errors.tags && (
-              <p className="text-red-400 text-xs mt-1">{errors.tags}</p>
+              <p className="text-red-600 text-xs mt-1 font-pixel">{errors.tags}</p>
             )}
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-500 mt-1 font-pixel">
               Separate tags with commas. Maximum 10 tags.
             </p>
           </div>
@@ -348,21 +338,21 @@ export default function MarketCreationModal({
               type="button"
               onClick={handleClose}
               disabled={isLoading}
-              className="flex-1 px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 px-4 py-2 bg-plum text-yellow-50 border-2 border-black rounded-none hover:bg-pink-600 font-pixel disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isLoading || !authenticated}
-              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 px-4 py-2 bg-pink-600 text-yellow-50 border-2 border-black rounded-none hover:bg-yellow-400 hover:text-plum font-pixel disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? 'Creating...' : 'Create Market'}
             </button>
           </div>
 
           {!authenticated && (
-            <p className="text-yellow-400 text-sm text-center mt-2">
+            <p className="text-yellow-600 text-sm text-center mt-2 font-pixel">
               Please connect your wallet to create markets
             </p>
           )}

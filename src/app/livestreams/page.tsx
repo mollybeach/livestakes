@@ -93,7 +93,7 @@ const LivestreamsPage = () => {
               {exploreLivestreams.length > 0 ? (
                 exploreLivestreams.map((stream) => {
                   console.log('Rendering stream:', stream);
-                  return <StreamCard key={stream.id} {...stream} />;
+                  return <StreamCard key={stream.id} {...stream} status='live' />;
                 })
               ) : (
                 !loading && !error && (

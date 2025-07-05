@@ -1,12 +1,11 @@
 import React, { useRef, useState, useEffect } from "react";
 import Card from "./ui/card";
 import Button from "./ui/button";
-import CardContent from "./CardContent";
 import LiveBadge from "./LiveBadge";
 import BettingModal from "./BettingModal";
 import BettingIndicator from "./BettingIndicator";
 import MarketAssociationModal from "./MarketAssociationModal";
-import { MarketData } from "../lib/livestreamsApi";
+import { MarketData } from '../lib/livestreamsApi';
 
 interface StreamCardProps {
   id?: number;
@@ -15,7 +14,7 @@ interface StreamCardProps {
   creator_wallet_address: string;
   stream_url?: string;
   thumbnail_url?: string;
-  status: 'scheduled' | 'active' | 'ended';
+  status: 'scheduled' | 'live' | 'ended';
   start_time?: string;
   end_time?: string;
   view_count?: number;
@@ -126,7 +125,7 @@ const StreamCard: React.FC<StreamCardProps> = ({
       <Card className={`rounded-lg shadow-lg bg-white transition-transform overflow-hidden border-0 ${
         (showBettingModal || showMarketAssociation) ? '' : 'hover:-translate-y-1'
       }`}>
-        {status === 'active' && <LiveBadge />}
+        {status === 'live' && <LiveBadge />}
       
       {/* Video/Thumbnail Container - Portrait aspect ratio */}
       <div 

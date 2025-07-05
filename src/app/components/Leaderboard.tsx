@@ -1,5 +1,5 @@
 import React from "react";
-import { stream } from "../data/livestreams";
+import { Livestream } from "../data/livestreams";
 
 /* --------------------------------------------------------------
    Pixel-style leaderboard
@@ -11,14 +11,14 @@ const toNumber = (value = "") =>
     : parseFloat(value.replace(/[^\d.]/g, ""));
 
 interface LeaderboardProps {
-  streams: stream[]; // pass the full list; component will sort
+  streams: Livestream[]; // pass the full list; component will sort
 }
 
 const Leaderboard: React.FC<LeaderboardProps> = ({ streams }) => {
-  /* rank by totalVolume (desc) */
+  /* rank by view_count (desc) since we don't have totalVolume in new structure */
   const ranked = [...streams]
-    .filter((s) => s.totalVolume)
-    .sort((a, b) => toNumber(b.totalVolume!) - toNumber(a.totalVolume!))
+    .filter((s) => s.view_count && s.view_count > 0)
+    .sort((a, b) => (b.view_count || 0) - (a.view_count || 0))
     .slice(0, 8); // top 8 rows
 
   return (
@@ -40,8 +40,8 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ streams }) => {
               <tr className="text-purple-800 border-b-2 border-black">
                 <th className="py-1">#</th>
                 <th className="py-1">Project</th>
-                <th className="py-1">Team</th>
-                <th className="py-1 text-right">Volume</th>
+                <th className="py-1">Creator</th>
+                <th className="py-1 text-right">Views</th>
               </tr>
             </thead>
             <tbody>
@@ -55,14 +55,14 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ streams }) => {
                   <td className="py-1 px-1">{idx + 1}</td>
                   <td className="py-1 px-1 flex items-center gap-1">
                     <img
-                      src={s.avatar}
+                      src="https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg"
                       alt={s.title}
                       className="w-4 h-4 border-2 border-black"
                     />
                     {s.title}
                   </td>
-                  <td className="py-1 px-1">{s.team}</td>
-                  <td className="py-1 px-1 text-right">{s.totalVolume}</td>
+                  <td className="py-1 px-1">{s.creator_wallet_address.slice(0, 8)}...</td>
+                  <td className="py-1 px-1 text-right">{s.view_count}</td>
                 </tr>
               ))}
             </tbody>

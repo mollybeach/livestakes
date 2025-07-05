@@ -61,7 +61,7 @@ const SAMPLE_LIVESTREAMS: Livestream[] = [
     creator_wallet_address: "0x1234567890123456789012345678901234567890",
     stream_url: "https://twitch.tv/epic_gamer",
     thumbnail_url: "https://via.placeholder.com/400x225/6366f1/ffffff?text=LIVE+Fortnite",
-    status: "active" as const,
+    status: "live" as const,
     start_time: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
     view_count: 1250,
     category: "gaming",
@@ -75,7 +75,7 @@ const SAMPLE_LIVESTREAMS: Livestream[] = [
     creator_wallet_address: "0x2345678901234567890123456789012345678901",
     stream_url: "https://youtube.com/live/crypto_master",
     thumbnail_url: "https://via.placeholder.com/400x225/8b5cf6/ffffff?text=LIVE+Trading",
-    status: "active" as const,
+    status: "live" as const,
     start_time: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(), // 1 hour ago
     view_count: 892,
     category: "finance",
@@ -89,7 +89,7 @@ const SAMPLE_LIVESTREAMS: Livestream[] = [
     creator_wallet_address: "0x3456789012345678901234567890123456789012",
     stream_url: "https://twitch.tv/chef_challenge",
     thumbnail_url: "https://via.placeholder.com/400x225/ec4899/ffffff?text=LIVE+Cooking",
-    status: "active" as const,
+    status: "live" as const,
     start_time: new Date(Date.now() - 30 * 60 * 1000).toISOString(), // 30 minutes ago
     view_count: 567,
     category: "lifestyle",
@@ -101,6 +101,7 @@ const SAMPLE_LIVESTREAMS: Livestream[] = [
     title: "Late Night Jazz Session",
     description: "Smooth jazz improvisations to end your day. Relaxing vibes with surprise musical moments.",
     creator_wallet_address: "0x4567890123456789012345678901234567890123",
+    stream_url: "https://twitch.tv/jazz_session",
     thumbnail_url: "https://via.placeholder.com/400x225/6366f1/ffffff?text=Jazz+Session",
     status: "ended" as const,
     start_time: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(), // 5 hours ago
@@ -115,6 +116,7 @@ const SAMPLE_LIVESTREAMS: Livestream[] = [
     title: "Tomorrow's Big Tournament Prep",
     description: "Getting ready for the championship match. Strategy discussion and practice rounds.",
     creator_wallet_address: "0x5678901234567890123456789012345678901234",
+    stream_url: "https://twitch.tv/tournament_prep",
     thumbnail_url: "https://via.placeholder.com/400x225/8b5cf6/ffffff?text=Tournament+Prep",
     status: "scheduled" as const,
     start_time: new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString(), // 12 hours from now
@@ -128,6 +130,7 @@ const SAMPLE_LIVESTREAMS: Livestream[] = [
     title: "Art Stream: Digital Illustration Speed Paint",
     description: "Creating a fantasy character from scratch. Watch the magic happen in real-time!",
     creator_wallet_address: "0x6789012345678901234567890123456789012345",
+    stream_url: "https://twitch.tv/art_stream",
     thumbnail_url: "https://via.placeholder.com/400x225/ec4899/ffffff?text=Art+Stream",
     status: "ended" as const,
     start_time: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
@@ -332,7 +335,7 @@ export async function incrementViewCount(id: number): Promise<ApiResponse<Livest
  */
 export async function startLivestream(id: number): Promise<ApiResponse<Livestream>> {
   return updateLivestream(id, {
-    status: 'active',
+    status: 'live',
     start_time: new Date().toISOString(),
   });
 }
@@ -352,7 +355,7 @@ export async function endLivestream(id: number): Promise<ApiResponse<Livestream>
  */
 export async function getActiveLivestreams(): Promise<ApiResponse<Livestream[]>> {
   try {
-    const response = await fetch(`${API_BASE_URL}/livestreams?status=active`);
+    const response = await fetch(`${API_BASE_URL}/livestreams?status=live`);
     const rawData = await handleApiResponse<any[]>(response);
     
     // Normalize the backend data to match our Livestream interface
@@ -368,7 +371,7 @@ export async function getActiveLivestreams(): Promise<ApiResponse<Livestream[]>>
   } catch (error) {
     console.warn('Active livestreams API not available, using sample data:', error);
     // Return sample active livestreams
-    const activeSample = SAMPLE_LIVESTREAMS.filter(stream => stream.status === 'active');
+    const activeSample = SAMPLE_LIVESTREAMS.filter(stream => stream.status === 'live');
     return createSampleResponse(activeSample);
   }
 }
@@ -408,7 +411,7 @@ export function formatLivestreamTime(dateString?: string): string {
  */
 export function getStatusColor(status: string): string {
   switch (status) {
-    case 'active':
+    case 'live':
       return 'bg-green-500';
     case 'scheduled':
       return 'bg-yellow-500';

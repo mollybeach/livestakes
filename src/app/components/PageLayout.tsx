@@ -21,7 +21,7 @@ const PageLayout = ({ children, title, showNavigation = true }: PageLayoutProps)
               <span className="text-xl font-bold">livestakes.fun</span>
             </Link>
             <Navigation />
-            <Link href="/livestakes">
+            <Link href="/markets">
               <button className="bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-2 rounded-lg font-semibold hover:from-purple-700 hover:to-pink-700 transition-all">
                 Launch App
               </button>
@@ -31,7 +31,7 @@ const PageLayout = ({ children, title, showNavigation = true }: PageLayoutProps)
       )}
       <main>
         {title && (
-          <div className="px-6 py-8">
+          <div className="px-6 pt-8">
             <h1 className="text-3xl font-bold text-white">{title}</h1>
           </div>
         )}
