@@ -71,3 +71,8 @@ server/logs
 
 package-lock.json
 server/package-lock.json
+
+
+*.MOV
+*.mp4
+*.mov

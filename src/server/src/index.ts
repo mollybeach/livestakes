@@ -17,6 +17,7 @@ import {
 } from './database/transactions';
 import pool from './database/db';
 import { runMigrations } from './database/migrations';
+import videoUploadRoutes from './routes/videoUpload';
 
 const app = express();
 const server = http.createServer(app);
@@ -59,6 +60,9 @@ initializeDatabase()
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Routes
+app.use('/api', videoUploadRoutes);
 
 // API routes
 app.get('/api/health', (req: any, res: any) => {

@@ -15,6 +15,8 @@ export interface Livestream {
   end_time?: Date;
   view_count?: number;
   category?: string;
+  tags?: string[];
+  transcript?: string;
   created_at?: Date;
   updated_at?: Date;
 }
@@ -41,6 +43,8 @@ export async function initializeDatabase() {
           end_time TIMESTAMP WITH TIME ZONE,
           view_count INTEGER DEFAULT 0,
           category TEXT,
+          tags JSONB DEFAULT '[]',
+          transcript TEXT,
           created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
           updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
         );
@@ -62,6 +66,12 @@ export async function initializeDatabase() {
       await client.query(`
         CREATE INDEX IF NOT EXISTS idx_livestreams_start_time 
         ON livestreams(start_time DESC);
+      `);
+
+      // Create index on tags for faster queries
+      await client.query(`
+        CREATE INDEX IF NOT EXISTS idx_livestreams_tags 
+        ON livestreams USING gin(tags);
       `);
       
       console.log('Database initialized - all tables ready');
@@ -87,8 +97,8 @@ export async function createLivestream(livestream: Omit<Livestream, 'id' | 'crea
     const result = await client.query(`
       INSERT INTO livestreams (
         title, description, creator_wallet_address, stream_url, 
-        thumbnail_url, status, start_time, end_time, view_count, category
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        thumbnail_url, status, start_time, end_time, view_count, category, tags, transcript
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
       RETURNING *
     `, [
       livestream.title,
@@ -100,7 +110,9 @@ export async function createLivestream(livestream: Omit<Livestream, 'id' | 'crea
       livestream.start_time,
       livestream.end_time,
       livestream.view_count || 0,
-      livestream.category
+      livestream.category,
+      livestream.tags ? JSON.stringify(livestream.tags) : null,
+      livestream.transcript
     ]);
     
     return result.rows[0];
