@@ -353,7 +353,7 @@ const BettingModal: React.FC<BettingModalProps> = ({
               <div className="text-6xl mb-4">🏗️</div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Create Market</h3>
               <p className="text-sm text-gray-600 mb-4">
-                This hackathon project doesn't have a betting market yet. Create one to get started!
+                This hackathon project doesn&apos;t have a betting market yet. Create one to get started!
               </p>
               
               <div className="mb-4">

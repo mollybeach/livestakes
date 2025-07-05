@@ -85,9 +85,12 @@ const Chat: React.FC<ChatProps> = ({
   ]);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+    }
   };
 
   useEffect(() => {
@@ -138,7 +141,7 @@ const Chat: React.FC<ChatProps> = ({
         {/* Chat Container */}
         <div className="bg-periwinkle border-4 border-black h-[600px] flex flex-col">
           {/* Messages Area */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 space-y-4">
             {chatMessages.map((message) => (
               <div
                 key={message.id}

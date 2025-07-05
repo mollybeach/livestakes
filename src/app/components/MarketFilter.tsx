@@ -197,7 +197,7 @@ export default function MarketFilter({
               ))}
               {localSearchTerm && (
                 <span className="bg-green-600 text-white px-2 py-1 rounded text-xs">
-                  "{localSearchTerm}"
+                  &quot;{localSearchTerm}&quot;
                 </span>
               )}
             </div>

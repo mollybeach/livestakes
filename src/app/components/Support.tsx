@@ -233,12 +233,12 @@ const Support: React.FC<SupportProps> = ({ faqs = [] }) => {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-cream border-2 border-black p-4">
-              <h3 className="font-bold text-plum mb-2">Can't connect wallet?</h3>
+              <h3 className="font-bold text-plum mb-2">Can&apos;t connect wallet?</h3>
               <ul className="text-purple-700 text-sm space-y-1">
                 <li>• Make sure your wallet extension is installed</li>
                 <li>• Try refreshing the page</li>
                 <li>• Check if your wallet is unlocked</li>
-                <li>• Ensure you're on the correct network</li>
+                <li>• Ensure you&apos;re on the correct network</li>
               </ul>
             </div>
             <div className="bg-cream border-2 border-black p-4">

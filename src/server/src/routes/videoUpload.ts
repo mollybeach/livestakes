@@ -7,6 +7,7 @@ import multer, { FileFilterCallback } from 'multer';
 import pool from '../database/db';
 import ffmpeg from 'fluent-ffmpeg';
 import VideoAnalysisService from '../services/videoAnalysis';
+import { VideoMetadata } from '../services/videoAnalysis';
 
 const router = Router();
 
@@ -180,7 +181,7 @@ router.post('/upload-video-simple', upload.single('video'), async (req: any, res
     }
     
     // Always use AI analysis for automatic title/description generation
-    let aiMetadata = null;
+    let aiMetadata: VideoMetadata | null = null;
     try {
       console.log('🤖 Starting AI analysis of uploaded video...');
       aiMetadata = await videoAnalysisService.analyzeVideoFromBuffer(
@@ -357,7 +358,7 @@ router.post('/upload-video', upload.single('video'), async (req: any, res: any) 
     }
     
     // AI Analysis (if enabled)
-    let aiMetadata = null;
+    let aiMetadata: VideoMetadata | null = null;
     console.log('use_ai_analysis', use_ai_analysis);
     if (use_ai_analysis === 'true' || use_ai_analysis === true) {
       try {

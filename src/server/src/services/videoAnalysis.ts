@@ -298,4 +298,4 @@ Make the title and description engaging and clickable while accurately represent
 }
 
 export default VideoAnalysisService;
-export { VideoMetadata, AnalysisOptions }; 
+export type { VideoMetadata, AnalysisOptions }; 

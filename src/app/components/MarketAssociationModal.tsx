@@ -5,7 +5,6 @@ import { usePrivy } from '@privy-io/react-auth';
 import { 
   associateMarketWithLivestream,
   getMarketInfo,
-  getMarketsForLivestream,
   getNetworkInfo 
 } from '../lib/contractsApi';
 
@@ -109,7 +108,7 @@ const MarketAssociationModal: React.FC<MarketAssociationModalProps> = ({
       setMarketInfo({
         address: marketAddress,
         question: info.question,
-        title: info.livestreamTitle,
+        title: info.livestreamTitles?.[0] || '',
         state: info.state,
         totalPool: info.totalPool,
         isAssociated: associatedMarkets.includes(marketAddress)

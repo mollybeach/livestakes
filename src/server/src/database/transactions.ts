@@ -266,8 +266,8 @@ export async function getLivestreamById(id: number): Promise<Livestream | null> 
 export async function updateLivestream(id: number, updates: Partial<Livestream>): Promise<Livestream | null> {
   const client = await pool.connect();
   try {
-    const setClause = [];
-    const params = [];
+    const setClause: string[] = [];
+    const params: any[] = [];
     let paramIndex = 1;
 
     // Add updated_at automatically
