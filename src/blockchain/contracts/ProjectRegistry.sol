@@ -27,7 +27,6 @@ contract ProjectRegistry {
         
         projects[id] = project;
         nextProjectId = id + 1;
-        
         emit ProjectRegistered(id, name, msg.sender);
         return id;
     }

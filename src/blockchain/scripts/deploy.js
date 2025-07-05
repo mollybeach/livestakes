@@ -15,6 +15,16 @@ async function main() {
     await predictionMarket.deployed();
     console.log("PredictionMarket deployed to:", predictionMarket.address);
 
+    // Create a test market
+    const tx = await predictionMarket.createMarket("Will ETH reach $10k?");
+    const receipt = await tx.wait();
+    const event = receipt.events.find(e => e.event === "MarketCreated");
+    if (event) {
+        console.log("Test market created with ID:", event.args.id.toString());
+    } else {
+        console.log("Test market created, but event not found.");
+    }
+
     // Deploy MarketFactory
     const MarketFactory = await hre.ethers.getContractFactory("MarketFactory");
     const marketFactory = await MarketFactory.deploy();

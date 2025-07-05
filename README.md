@@ -155,3 +155,113 @@ Comprehensive testing suite covers all components from smart contracts to AI mod
 ## 10. License 📄
 
 MIT © 2025 LiveStakes Contributors
+
+
+## Project Structure
+
+```
+livestakes/
+├── .git/
+├── common/
+│   ├── ecosystem.config.js
+│   ├── nginx.conf
+│   ├── supervisord.conf
+│   ├── supervisord.conf.dev
+│   ├── uwsgi_params
+│   └── wsgi.ini
+├── pipeline/
+│   ├── .dockerignore
+│   ├── ansible.cfg
+│   ├── check.sh
+│   ├── deploy_buildx.sh
+│   ├── deploy_home.sh
+│   ├── deploy_ubuntu.sh
+│   ├── deploy.sh
+│   ├── Dockerfile
+│   ├── main.yaml
+│   └── stack.yml
+├── scripts/
+│   └── generate-flow-json.js
+├── src/
+│   ├── .next/
+│   ├── app/
+│   │   ├── components/
+│   │   │   ├── clientwrapper/
+│   │   │   │   └── index.tsx
+│   │   │   └── PWAProvider.tsx
+│   │   ├── context/
+│   │   │   └── AuthContext.tsx
+│   │   ├── globals.css
+│   │   ├── layout.tsx
+│   │   ├── not-found.tsx
+│   │   └── page.tsx
+│   ├── blockchain/
+│   │   ├── contracts/
+│   │   │   ├── .DS_Store
+│   │   │   ├── MarketFactory.sol
+│   │   │   ├── PredictionMarket.sol
+│   │   │   └── ProjectRegistry.sol
+│   │   ├── node_modules/
+│   │   ├── scripts/
+│   │   │   ├── deploy.js
+│   │   │   ├── getMarket.js
+│   │   │   └── getProject.js
+│   │   ├── test/
+│   │   │   ├── MarketFactory.test.js
+│   │   │   ├── PredictionMarket.test.js
+│   │   │   └── ProjectRegistry.test.js
+│   │   ├── transactions/
+│   │   │   ├── claimPayout.js
+│   │   │   ├── createMarket.js
+│   │   │   ├── placeBet.js
+│   │   │   ├── registerProject.js
+│   │   │   └── resolveMarket.js
+│   │   ├── .DS_Store
+│   │   ├── hardhat.config.js
+│   │   ├── package.json
+│   │   ├── pnpm-lock.yaml
+│   │   └── README.md
+│   ├── node_modules/
+│   ├── public/
+│   ├── server/
+│   │   ├── node_modules/
+│   │   ├── src/
+│   │   │   ├── database/
+│   │   │   │   ├── db.ts
+│   │   │   │   ├── dbInitialization.ts
+│   │   │   │   ├── migrations.ts
+│   │   │   │   └── transactions.ts
+│   │   │   ├── index.ts
+│   │   │   └── migrate.ts
+│   │   ├── .env
+│   │   ├── MIGRATION.md
+│   │   ├── package.json
+│   │   ├── README.md
+│   │   └── tsconfig.json
+│   ├── .DS_Store
+│   ├── .env
+│   ├── .env.example
+│   ├── .gitignore
+│   ├── eslint.config.mjs
+│   ├── next-env.d.ts
+│   ├── next.config.js
+│   ├── package.json
+│   ├── postcss.config.js
+│   ├── README.md
+│   ├── tailwind.config.js
+│   └── tsconfig.json
+├── .dockerignore
+├── .DS_Store
+├── deploy.sh
+├── docker-compose-local.yml
+├── docker-compose.yml
+├── docker-entrypoint.sh
+├── Dockerfile
+├── Dockerfile.dev
+├── flow.json
+├── Makefile
+├── pnpm-lock.yaml
+└── README.md
+
+```
+
