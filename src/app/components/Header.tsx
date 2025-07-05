@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
 import {
@@ -11,6 +13,7 @@ import {
   Store,
 } from "lucide-react";
 import { LIVE_STAKES_LOGO_URL } from '../lib/cloudinary';
+import ConnectWallet from './ConnectWallet';
 
 const Header = () => {
   return (
@@ -70,10 +73,7 @@ const Header = () => {
             </a>
           </div>
         </div>
-        <button className="flex items-center gap-2 bg-yellow-400 hover:bg-yellow-300 text-black px-6 py-2 border-2 border-black rounded-none font-pixel uppercase tracking-wider transition-colors">
-          <Wallet size={16} />
-          <span>Connect Wallet</span>
-        </button>
+        <ConnectWallet style="header" />
       </nav>
     </header>
   );

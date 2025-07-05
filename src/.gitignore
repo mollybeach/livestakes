@@ -77,9 +77,4 @@ server/package-lock.json
 *.mp4
 *.mov
 
-.lock.yaml
-.yaml
-*.lock.yml
-*.lock.yaml
-lock.yml
-lock.yaml
+pnpm-lock.yaml

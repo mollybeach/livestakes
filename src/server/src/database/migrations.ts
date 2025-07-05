@@ -158,6 +158,54 @@ export async function addTagsAndTranscriptColumns(): Promise<void> {
 }
 
 /**
+ * Migration: Add market_ids column to livestreams table
+ */
+export async function addMarketIdsColumn(): Promise<void> {
+  const migrationName = 'add_market_ids_column';
+  
+  // Skip if already applied
+  if (await hasMigrationBeenApplied(migrationName)) {
+    console.log(`Migration ${migrationName} already applied, skipping`);
+    return;
+  }
+  
+  const client = await pool.connect();
+  try {
+    // Start transaction
+    await client.query('BEGIN');
+    
+    console.log('Applying migration: add_market_ids_column');
+    
+    // Add market_ids column (JSON array of market addresses)
+    await client.query(`
+      ALTER TABLE livestreams 
+      ADD COLUMN IF NOT EXISTS market_ids JSONB DEFAULT '[]';
+    `);
+    
+    // Add index on market_ids for faster queries
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS idx_livestreams_market_ids 
+      ON livestreams USING gin(market_ids);
+    `);
+    
+    // Record migration as applied
+    await markMigrationAsApplied(migrationName);
+    
+    // Commit transaction
+    await client.query('COMMIT');
+    
+    console.log('Migration applied successfully: add_market_ids_column');
+  } catch (error) {
+    // Rollback on error
+    await client.query('ROLLBACK');
+    console.error('Migration failed:', error);
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
+/**
  * Run all migrations in sequence
  */
 export async function runMigrations(): Promise<void> {
@@ -169,6 +217,7 @@ export async function runMigrations(): Promise<void> {
     
     // Run individual migrations
     await addTagsAndTranscriptColumns();
+    await addMarketIdsColumn();
     
     console.log('All migrations completed successfully');
   } catch (error) {
