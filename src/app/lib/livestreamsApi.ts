@@ -34,7 +34,6 @@ export interface MarketData {
   no_bets?: string;
   total_pool?: string;
   total_bettors?: number;
-  created_at?: string;
   livestream_ids?: number[]; // New: supports multiple livestreams
   transcript?: string;
   market_address?: string; // Single contract address for 1:1 relationship
