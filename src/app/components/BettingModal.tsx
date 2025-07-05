@@ -190,7 +190,7 @@ const BettingModal: React.FC<BettingModalProps> = ({
   };
 
   const handlePlaceBet = async () => {
-    if (!selectedMarket || !authenticated || !user?.wallet?.address || !selectedLivestreamId) {
+    if (!selectedMarket || !authenticated || !user?.wallet?.address || !livestreamId) {
       setError('Please connect your wallet and select a project to bet on');
       return;
     }
@@ -200,9 +200,9 @@ const BettingModal: React.FC<BettingModalProps> = ({
       setError(null);
       setSuccess(null);
       
-      console.log(`🎯 Placing bet: ${betAmount} FLOW on livestream ${selectedLivestreamId}`);
+      console.log(`🎯 Placing bet: ${betAmount} FLOW on livestream ${livestreamId}`);
       
-      const txHash = await placeBet(selectedMarket, selectedLivestreamId, betAmount);
+      const txHash = await placeBet(selectedMarket, livestreamId, betAmount);
       console.log(`✅ Bet placed successfully! Transaction: ${txHash}`);
       
       setSuccess(`Bet placed successfully! 🎉`);
@@ -465,10 +465,7 @@ const BettingModal: React.FC<BettingModalProps> = ({
 
                   {/* Place Bet Button */}
                   <button
-                    onClick={() => {
-                      setSelectedLivestreamId(livestreamId);
-                      handlePlaceBet();
-                    }}
+                    onClick={handlePlaceBet}
                     disabled={isPlacingBet || !authenticated}
                     className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center"
                   >
