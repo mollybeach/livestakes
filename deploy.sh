@@ -121,3 +121,31 @@ docker run -it --rm --name deploy_$APP \
         -v ${SSH_KEY_PATH}:/root/.ssh/id_rsa:ro \
         -v /var/run/docker.sock:/var/run/docker.sock \
         deploy-img
+
+
+# export OS=$OS
+# export ARCH=$ARCH
+
+# echo "Running deploy.sh"
+# echo "--------------------------------"
+# echo "pwd: $(pwd)"
+# echo "dirname: $(dirname "$0")"
+# echo "--------------------------------"
+
+# export GOOGLE_APPLICATION_CREDENTIALS=${SERVICE_ACCOUNT_KEY}
+# export PROJECT_ID=${PROJECT_ID}
+# export REGION=${REGION}
+# export ARTIFACT_REGISTRY=${ARTIFACT_REGISTRY}
+# export APP=${APP}
+# export DOCKER_REPO=${DOCKER_REPO}
+# export IMAGE_TAG=${IMAGE_TAG}
+# export HOST=${HOST}
+# export ARCH=${ARCH}
+# export OS=${OS}
+# export APP_DIR=${APP_DIR}
+# export GOOGLE_APPLICATION_CREDENTIALS=${SERVICE_ACCOUNT_KEY}
+# export SSH_KEY=${SSH_KEY_PATH}
+# export DEPLOYMENT_TARGET=${DEPLOYMENT_TARGET}
+
+
+# exec "$(dirname "$0")/pipeline/deploy.sh" "$@"

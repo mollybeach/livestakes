@@ -34,7 +34,7 @@ const VideoUploadModal: React.FC<VideoUploadModalProps> = ({ isOpen, onClose, us
     setError(null);
     try {
       // Fetch markets from backend API
-      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3334';
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
       const response = await fetch(`${API_BASE_URL}/markets/metadata?limit=50`);
       
       if (response.ok) {
@@ -87,7 +87,7 @@ const VideoUploadModal: React.FC<VideoUploadModalProps> = ({ isOpen, onClose, us
       formData.append('market_address', marketAddress);
       formData.append('creator_wallet_address', userWalletAddress);
 
-      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3334';
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
       const response = await fetch(`${API_BASE_URL}/upload-video-simple`, {
         method: 'POST',
         body: formData,

@@ -38,7 +38,7 @@ const Chat: React.FC<ChatProps> = ({
       id: 1,
       user: "CryptoQueen",
       avatar: DEFAULT_AVATAR,
-      message: "Anyone else bullish on that Solana DeFi protocol? 🚀",
+      message: "Anyone else bullish on that Livestakes DeFi protocol? 🚀",
       timestamp: "2:34 PM",
       isOwn: false,
     },

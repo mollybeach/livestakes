@@ -64,8 +64,8 @@ export async function GET(request: NextRequest) {
     const mockMarkets: MarketData[] = [
       {
         id: 1,
-        title: "Solana DeFi Protocol",
-        description: "Will the new Solana DeFi protocol reach $200 by end of year? This innovative protocol promises to revolutionize DeFi with its unique approach to liquidity provision.",
+        title: "Livestakes DeFi Protocol",
+        description: "Will the new Livestakes DeFi protocol reach $200 by end of year? This innovative protocol promises to revolutionize DeFi with its unique approach to liquidity provision.",
         creator_wallet_address: "0x1234567890123456789012345678901234567890",
         status: "active",
         start_time: "2024-01-15T10:00:00Z",

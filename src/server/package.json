@@ -17,8 +17,6 @@
   "dependencies": {
     "@google-cloud/storage": "^7.16.0",
     "@jup-ag/api": "^6.0.41",
-    "@solana/spl-token": "^0.4.0",
-    "@solana/web3.js": "^1.78.5",
     "@types/pg": "^8.11.13",
     "@types/seedrandom": "^3.0.8",
     "bs58": "^5.0.0",

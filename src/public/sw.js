@@ -4,7 +4,7 @@ const urlsToCache = [
   '/manifest.json',
   '/favicon.ico',
   '/logo_no_bg.png',
-  '/solana-logo.svg',
+  '/Livestakes-logo.svg',
   // Add more assets to cache as needed
 ];
 

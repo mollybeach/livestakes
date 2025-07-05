@@ -98,7 +98,7 @@ export const mockProfileData: ProfileData = {
   recentBets: [
     {
       id: 1,
-      title: "Solana DeFi",
+      title: "Livestakes DeFi",
       date: "2024-01-15",
       amount: "$500",
       status: "pending",
@@ -121,7 +121,7 @@ export const mockProfileData: ProfileData = {
   projects: [
     {
       id: 1,
-      title: "Solana DeFi Protocol",
+      title: "Livestakes DeFi Protocol",
       description: "Will reach $200 by EOY",
       status: "active",
       volume: "$125,000",

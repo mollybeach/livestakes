@@ -1,25 +1,28 @@
-FROM node:18-alpine
+FROM node:20-alpine
 
 # Set working directory
 WORKDIR /app
 
-# Install dependencies
+# Install dependencies including build tools for native modules
+# Split into separate RUN commands for better caching
 RUN apk add --no-cache libc6-compat supervisor nginx curl
+RUN apk add --no-cache python3 make g++ gcc linux-headers
 
 # Create user/group
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copy frontend files
+# Copy and install frontend dependencies (cached layer)
 COPY src/package.json ./package.json
-COPY src/package-lock.json* ./
-RUN npm install
+# Note: Frontend doesn't have package-lock.json, so we use npm install
+RUN npm install && npm cache clean --force
 
-# Copy backend files
+# Copy and install backend dependencies (cached layer)
 WORKDIR /app/server
 COPY src/server/package.json ./package.json
-COPY src/server/package-lock.json* ./
-RUN npm install
+COPY src/server/package-lock.json ./package-lock.json
+# Server has package-lock.json, so we can use npm ci for deterministic installs
+RUN npm ci && npm cache clean --force
 
 # Copy all frontend source files
 WORKDIR /app
@@ -32,13 +35,16 @@ COPY src/next-env.d.ts ./next-env.d.ts
 COPY src/tsconfig.json ./tsconfig.json
 COPY src/.env* ./
 
+# Copy blockchain artifacts (required for contractsApi.ts imports)
+COPY src/blockchain/artifacts ./blockchain/artifacts
+
 # Copy all server source files
 WORKDIR /app/server
 COPY src/server/src ./src
 COPY src/server/tsconfig.json ./tsconfig.json
 COPY src/server/.env* ./
 
-# Build
+# Build applications
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
