@@ -15,10 +15,6 @@ const BettingIndicator: React.FC<BettingIndicatorProps> = ({ livestreamId, marke
   const [totalPool, setTotalPool] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    loadMarketStatus();
-  }, [livestreamId, market]);
-
   const loadMarketStatus = async () => {
     try {
       setIsLoading(true);
@@ -76,6 +72,10 @@ const BettingIndicator: React.FC<BettingIndicatorProps> = ({ livestreamId, marke
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadMarketStatus();
+  }, [livestreamId, market, loadMarketStatus]);
 
   if (isLoading) {
     return (
