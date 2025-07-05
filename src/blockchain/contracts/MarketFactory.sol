@@ -7,13 +7,15 @@ contract MarketFactory {
     address public owner;
     
     // Events
-    event MarketCreated(address indexed marketAddress, uint256 indexed livestreamId, string question);
-    event MarketClosed(address indexed marketAddress, uint256 indexed livestreamId);
+    event MarketCreated(address indexed marketAddress, uint256[] livestreamIds, string question);
+    event MarketClosed(address indexed marketAddress, uint256[] livestreamIds);
+    event LivestreamAddedToMarket(address indexed marketAddress, uint256 indexed livestreamId);
+    event LivestreamRemovedFromMarket(address indexed marketAddress, uint256 indexed livestreamId);
     
     // Mappings
     mapping(uint256 => address[]) public livestreamMarkets; // livestreamId => market addresses
     mapping(address => bool) public validMarkets;
-    mapping(address => uint256) public marketToLivestream; // market address => livestream ID
+    mapping(address => uint256[]) public marketToLivestreams; // market address => livestream IDs
     
     // Arrays for enumeration
     address[] public allMarkets;
@@ -32,31 +34,96 @@ contract MarketFactory {
         owner = msg.sender;
     }
 
-    // Create a new prediction market for a livestream
+    // Create a new prediction market for multiple livestreams
     function createMarket(
-        uint256 livestreamId, 
+        uint256[] memory livestreamIds, 
         string memory question,
-        string memory livestreamTitle
+        string[] memory livestreamTitles
     ) external onlyOwner returns (address) {
+        require(livestreamIds.length > 0, "Must have at least one livestream");
+        require(livestreamIds.length == livestreamTitles.length, "Mismatched arrays");
         
         // Create new prediction market
         PredictionMarket market = new PredictionMarket(
-            livestreamId, 
+            livestreamIds, 
             question, 
-            livestreamTitle,
+            livestreamTitles,
             owner
         );
         
         address marketAddress = address(market);
         
         // Store market info
-        livestreamMarkets[livestreamId].push(marketAddress);
         validMarkets[marketAddress] = true;
-        marketToLivestream[marketAddress] = livestreamId;
+        marketToLivestreams[marketAddress] = livestreamIds;
         allMarkets.push(marketAddress);
         
-        emit MarketCreated(marketAddress, livestreamId, question);
+        // Add market to each livestream's market list
+        for (uint256 i = 0; i < livestreamIds.length; i++) {
+            livestreamMarkets[livestreamIds[i]].push(marketAddress);
+        }
+        
+        emit MarketCreated(marketAddress, livestreamIds, question);
         return marketAddress;
+    }
+
+    // Add a livestream to an existing market
+    function addLivestreamToMarket(
+        address marketAddress,
+        uint256 livestreamId,
+        string memory livestreamTitle
+    ) external onlyOwner {
+        require(validMarkets[marketAddress], "Invalid market");
+        
+        // Check if livestream is already in market
+        uint256[] memory currentLivestreams = marketToLivestreams[marketAddress];
+        for (uint256 i = 0; i < currentLivestreams.length; i++) {
+            require(currentLivestreams[i] != livestreamId, "Livestream already in market");
+        }
+        
+        // Add to market contract
+        PredictionMarket market = PredictionMarket(marketAddress);
+        market.addLivestream(livestreamId, livestreamTitle);
+        
+        // Update mappings
+        marketToLivestreams[marketAddress].push(livestreamId);
+        livestreamMarkets[livestreamId].push(marketAddress);
+        
+        emit LivestreamAddedToMarket(marketAddress, livestreamId);
+    }
+
+    // Remove a livestream from a market
+    function removeLivestreamFromMarket(
+        address marketAddress,
+        uint256 livestreamId
+    ) external onlyOwner {
+        require(validMarkets[marketAddress], "Invalid market");
+        
+        // Remove from market contract
+        PredictionMarket market = PredictionMarket(marketAddress);
+        market.removeLivestream(livestreamId);
+        
+        // Update marketToLivestreams mapping
+        uint256[] storage marketLivestreams = marketToLivestreams[marketAddress];
+        for (uint256 i = 0; i < marketLivestreams.length; i++) {
+            if (marketLivestreams[i] == livestreamId) {
+                marketLivestreams[i] = marketLivestreams[marketLivestreams.length - 1];
+                marketLivestreams.pop();
+                break;
+            }
+        }
+        
+        // Update livestreamMarkets mapping
+        address[] storage livestreamMarketList = livestreamMarkets[livestreamId];
+        for (uint256 i = 0; i < livestreamMarketList.length; i++) {
+            if (livestreamMarketList[i] == marketAddress) {
+                livestreamMarketList[i] = livestreamMarketList[livestreamMarketList.length - 1];
+                livestreamMarketList.pop();
+                break;
+            }
+        }
+        
+        emit LivestreamRemovedFromMarket(marketAddress, livestreamId);
     }
 
     // Get all markets for a specific livestream
@@ -91,15 +158,61 @@ contract MarketFactory {
         return result;
     }
 
-    // Get livestream ID for a market
-    function getLivestreamForMarket(address marketAddress) external view returns (uint256) {
+    // Get livestream IDs for a market
+    function getLivestreamsForMarket(address marketAddress) external view returns (uint256[] memory) {
         require(validMarkets[marketAddress], "Invalid market");
-        return marketToLivestream[marketAddress];
+        return marketToLivestreams[marketAddress];
+    }
+
+    // Check if a livestream is in a specific market
+    function isLivestreamInMarket(address marketAddress, uint256 livestreamId) external view returns (bool) {
+        require(validMarkets[marketAddress], "Invalid market");
+        
+        uint256[] memory livestreamIds = marketToLivestreams[marketAddress];
+        for (uint256 i = 0; i < livestreamIds.length; i++) {
+            if (livestreamIds[i] == livestreamId) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Get all livestreams that have markets
+    function getAllLivestreamsWithMarkets() external view returns (uint256[] memory) {
+        // This is a simplified implementation - in production you might want to maintain a separate mapping
+        uint256[] memory result = new uint256[](allMarkets.length * 10); // Rough estimate
+        uint256 count = 0;
+        
+        for (uint256 i = 0; i < allMarkets.length; i++) {
+            uint256[] memory livestreamIds = marketToLivestreams[allMarkets[i]];
+            for (uint256 j = 0; j < livestreamIds.length; j++) {
+                // Check if already added (simple duplicate check)
+                bool exists = false;
+                for (uint256 k = 0; k < count; k++) {
+                    if (result[k] == livestreamIds[j]) {
+                        exists = true;
+                        break;
+                    }
+                }
+                if (!exists) {
+                    result[count] = livestreamIds[j];
+                    count++;
+                }
+            }
+        }
+        
+        // Resize array to actual count
+        uint256[] memory finalResult = new uint256[](count);
+        for (uint256 i = 0; i < count; i++) {
+            finalResult[i] = result[i];
+        }
+        
+        return finalResult;
     }
 
     // Called by markets when they are closed
-    function notifyMarketClosed(uint256 livestreamId) external onlyValidMarket {
-        emit MarketClosed(msg.sender, livestreamId);
+    function notifyMarketClosed(uint256[] calldata livestreamIds) external onlyValidMarket {
+        emit MarketClosed(msg.sender, livestreamIds);
     }
 
     // Owner functions

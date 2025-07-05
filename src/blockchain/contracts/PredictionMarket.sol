@@ -2,16 +2,16 @@
 pragma solidity ^0.8.19;
 
 interface IMarketFactory {
-    function notifyMarketClosed(uint256 livestreamId) external;
+    function notifyMarketClosed(uint256[] calldata livestreamIds) external;
 }
 
 contract PredictionMarket {
     enum Side { Yes, No }
     enum State { Open, Closed, Resolved }
 
-    uint256 public livestreamId;
+    uint256[] public livestreamIds;
     string public question;
-    string public livestreamTitle;
+    string[] public livestreamTitles;
     address public oracle;
     address public factory;
     State public state;
@@ -33,6 +33,8 @@ contract PredictionMarket {
     event MarketClosed(uint256 timestamp);
     event MarketResolved(Side outcome, uint256 timestamp);
     event PayoutClaimed(address indexed user, uint256 amount, uint256 timestamp);
+    event LivestreamAdded(uint256 indexed livestreamId, string title);
+    event LivestreamRemoved(uint256 indexed livestreamId);
 
     modifier onlyOracle() {
         require(msg.sender == oracle, "Not oracle");
@@ -50,18 +52,55 @@ contract PredictionMarket {
     }
 
     constructor(
-        uint256 _livestreamId, 
+        uint256[] memory _livestreamIds, 
         string memory _question, 
-        string memory _livestreamTitle,
+        string[] memory _livestreamTitles,
         address _oracle
     ) {
-        livestreamId = _livestreamId;
+        require(_livestreamIds.length > 0, "Must have at least one livestream");
+        require(_livestreamIds.length == _livestreamTitles.length, "Mismatched arrays");
+        
+        livestreamIds = _livestreamIds;
         question = _question;
-        livestreamTitle = _livestreamTitle;
+        livestreamTitles = _livestreamTitles;
         oracle = _oracle;
         factory = msg.sender;
         state = State.Open;
         createdAt = block.timestamp;
+    }
+
+    function addLivestream(uint256 _livestreamId, string memory _title) external onlyOracle inState(State.Open) {
+        // Check if livestream already exists
+        for (uint256 i = 0; i < livestreamIds.length; i++) {
+            require(livestreamIds[i] != _livestreamId, "Livestream already exists");
+        }
+        
+        livestreamIds.push(_livestreamId);
+        livestreamTitles.push(_title);
+        
+        emit LivestreamAdded(_livestreamId, _title);
+    }
+
+    function removeLivestream(uint256 _livestreamId) external onlyOracle inState(State.Open) {
+        require(livestreamIds.length > 1, "Must have at least one livestream");
+        
+        // Find and remove the livestream
+        for (uint256 i = 0; i < livestreamIds.length; i++) {
+            if (livestreamIds[i] == _livestreamId) {
+                // Move last element to this position
+                livestreamIds[i] = livestreamIds[livestreamIds.length - 1];
+                livestreamTitles[i] = livestreamTitles[livestreamTitles.length - 1];
+                
+                // Remove last element
+                livestreamIds.pop();
+                livestreamTitles.pop();
+                
+                emit LivestreamRemoved(_livestreamId);
+                return;
+            }
+        }
+        
+        revert("Livestream not found");
     }
 
     function placeBet(Side side) external payable inState(State.Open) {
@@ -85,8 +124,8 @@ contract PredictionMarket {
         state = State.Closed;
         closedAt = block.timestamp;
         
-        // Notify factory
-        IMarketFactory(factory).notifyMarketClosed(livestreamId);
+        // Notify factory about all associated livestreams
+        IMarketFactory(factory).notifyMarketClosed(livestreamIds);
         
         emit MarketClosed(block.timestamp);
     }
@@ -121,9 +160,9 @@ contract PredictionMarket {
 
     // View functions
     function getMarketInfo() external view returns (
-        uint256 _livestreamId,
+        uint256[] memory _livestreamIds,
         string memory _question,
-        string memory _livestreamTitle,
+        string[] memory _livestreamTitles,
         State _state,
         Side _outcome,
         uint256 _yesBets,
@@ -135,9 +174,9 @@ contract PredictionMarket {
         uint256 _resolvedAt
     ) {
         return (
-            livestreamId,
+            livestreamIds,
             question,
-            livestreamTitle,
+            livestreamTitles,
             state,
             outcome,
             totalBets[uint8(Side.Yes)],
@@ -148,6 +187,37 @@ contract PredictionMarket {
             closedAt,
             resolvedAt
         );
+    }
+
+    function getLivestreamCount() external view returns (uint256) {
+        return livestreamIds.length;
+    }
+
+    function getLivestreamId(uint256 index) external view returns (uint256) {
+        require(index < livestreamIds.length, "Index out of bounds");
+        return livestreamIds[index];
+    }
+
+    function getLivestreamTitle(uint256 index) external view returns (string memory) {
+        require(index < livestreamTitles.length, "Index out of bounds");
+        return livestreamTitles[index];
+    }
+
+    function getAllLivestreamIds() external view returns (uint256[] memory) {
+        return livestreamIds;
+    }
+
+    function getAllLivestreamTitles() external view returns (string[] memory) {
+        return livestreamTitles;
+    }
+
+    function isLivestreamInMarket(uint256 _livestreamId) external view returns (bool) {
+        for (uint256 i = 0; i < livestreamIds.length; i++) {
+            if (livestreamIds[i] == _livestreamId) {
+                return true;
+            }
+        }
+        return false;
     }
 
     function getUserBets(address user) external view returns (uint256 yesBets, uint256 noBets) {
