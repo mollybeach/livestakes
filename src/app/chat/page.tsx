@@ -14,7 +14,7 @@ const ChatPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex font-pixel bg-purple-200">
+    <div className="min-h-screen flex bg-purple-200">
         {/* Chat Content */}
         <div className="flex-1 overflow-y-auto">
           <Chat 

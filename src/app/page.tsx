@@ -46,7 +46,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen flex font-pixel bg-purple-200">
+    <div className="min-h-screen flex bg-purple-200">
       <HomeModal isOpen={modalOpen} onClose={() => setModalOpen(false)}>
         <HomeModalContent />
       </HomeModal>

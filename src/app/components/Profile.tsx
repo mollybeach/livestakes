@@ -78,7 +78,7 @@ const Profile: React.FC<ProfileProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-mauve font-pixel p-6">
+    <div className="min-h-screen bg-mauve p-6">
       <div className="max-w-6xl mx-auto">
         {/* Header Section */}
         <div className="bg-plum border-4 border-black p-6 mb-6">
@@ -93,7 +93,7 @@ const Profile: React.FC<ProfileProps> = ({
               <div className="flex items-center gap-4 flex-wrap">
                 <div className="flex items-center gap-2 bg-butter text-black px-3 py-1 border-2 border-black">
                   <Wallet size={16} />
-                  <span className="font-pixel text-sm">{profileData.address}</span>
+                  <span className="text-sm">{profileData.address}</span>
                   <button 
                     onClick={copyAddress}
                     className="ml-2 hover:pink transition-colors p-1"
@@ -108,21 +108,21 @@ const Profile: React.FC<ProfileProps> = ({
                   className="flex items-center gap-2 bg-steel text-white px-3 py-1 border-2 border-black hover:bg-gray-700 transition-colors"
                 >
                   <Github size={16} />
-                  <span className="font-pixel text-sm">GitHub</span>
+                  <span className="text-sm">GitHub</span>
                 </a>
                 {copied && (
-                  <span className="text-green-400 text-sm font-pixel">Copied!</span>
+                  <span className="text-green-400 text-sm">Copied!</span>
                 )}
               </div>
             </div>
             <div className="text-right">
               <div className="flex items-center gap-2 mb-2">
                 <Trophy size={20} className="text-gold" />
-                <span className="text-cream font-pixel">{profileData.rank}</span>
+                <span className="text-cream">{profileData.rank}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Star size={20} className="text-gold" />
-                <span className="text-cream font-pixel">{profileData.rating}</span>
+                <span className="text-cream">{profileData.rating}</span>
               </div>
             </div>
           </div>
@@ -132,19 +132,19 @@ const Profile: React.FC<ProfileProps> = ({
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <div className="bg-coral border-4 border-black p-4 text-center">
             <div className="text-pink-600 text-2xl font-bold">{profileData.stats.totalBets}</div>
-            <div className="text-cream text-sm font-pixel">Total Bets</div>
+            <div className="text-cream text-sm">Total Bets</div>
           </div>
           <div className="bg-coral border-4 border-black p-4 text-center">
             <div className="text-pink-600 text-2xl font-bold">{profileData.stats.winRate}</div>
-            <div className="text-cream text-sm font-pixel">Win Rate</div>
+            <div className="text-cream text-sm">Win Rate</div>
           </div>
           <div className="bg-coral border-4 border-black p-4 text-center">
             <div className="text-pink-600 text-2xl font-bold">{profileData.stats.totalWinnings}</div>
-            <div className="text-cream text-sm font-pixel">Total Winnings</div>
+            <div className="text-cream text-sm">Total Winnings</div>
           </div>
           <div className="bg-coral border-4 border-black p-4 text-center">
             <div className="text-pink-600 text-2xl font-bold">{profileData.stats.activeProjects}</div>
-            <div className="text-cream text-sm font-pixel">Active Projects</div>
+            <div className="text-cream text-sm">Active Projects</div>
           </div>
         </div>
 
@@ -168,7 +168,7 @@ const Profile: React.FC<ProfileProps> = ({
                     <div className="flex-1">
                       <div className="flex justify-between items-start mb-2">
                         <h3 className="font-bold text-plum text-sm">{stream.title}</h3>
-                        <span className={`px-2 py-1 text-xs font-pixel border border-black ${getStatusColor(stream.status)}`}>
+                        <span className={`px-2 py-1 text-xs border border-black ${getStatusColor(stream.status)}`}>
                           {stream.status}
                         </span>
                       </div>
@@ -228,7 +228,7 @@ const Profile: React.FC<ProfileProps> = ({
               <div key={project.id} className="bg-cream border-2 border-black p-4">
                 <div className="flex justify-between items-start mb-2">
                   <h3 className="font-bold text-plum">{project.title}</h3>
-                  <span className={`px-2 py-1 text-xs font-pixel border-2 border-black ${getStatusColor(project.status)}`}>
+                  <span className={`px-2 py-1 text-xs border-2 border-black ${getStatusColor(project.status)}`}>
                     {project.status}
                   </span>
                 </div>
@@ -246,7 +246,7 @@ const Profile: React.FC<ProfileProps> = ({
                 </div>
                 {project.result && (
                   <div className="mt-2">
-                    <span className={`px-2 py-1 text-xs font-pixel border border-black ${getBetStatusColor(project.result)}`}>
+                    <span className={`px-2 py-1 text-xs border border-black ${getBetStatusColor(project.result)}`}>
                       {project.result}
                     </span>
                   </div>
@@ -268,7 +268,7 @@ const Profile: React.FC<ProfileProps> = ({
               return (
                 <div key={achievement.id} className="bg-sage border-2 border-black p-4 text-center">
                   <IconComponent size={32} className="mx-auto mb-2 text-black" />
-                  <div className="font-bold text-black font-pixel">{achievement.title}</div>
+                  <div className="font-bold text-black">{achievement.title}</div>
                   <div className="text-xs text-black">{achievement.description}</div>
                 </div>
               );

@@ -8,13 +8,13 @@ interface OutcomeTableProps {
 const OutcomeTable: React.FC<OutcomeTableProps> = ({ streams }) => (
   <div className="border-4 border-black bg-butter shadow-window-pixel my-8 max-w-xl w-full mx-auto">
     <div className="flex items-center justify-between bg-plum text-cream px-3 py-1 border-b-4 border-black">
-      <span className="font-pixel text-xs">OUTCOMES</span>
-      <button className="bg-gold text-black px-1 border border-black leading-none font-pixel">
+      <span className="text-xs">OUTCOMES</span>
+      <button className="bg-gold text-black px-1 border border-black leading-none">
         ✕
       </button>
     </div>
 
-    <table className="w-full bg-coral font-pixel text-xs">
+    <table className="w-full bg-coral text-xs">
       <thead>
         <tr className="border-b-2 border-black">
           <th className="py-1 text-left pl-3">Project</th>

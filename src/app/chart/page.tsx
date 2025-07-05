@@ -26,7 +26,7 @@ const ChartPage = () => {
   }));
 
   return (
-    <main className="min-h-screen bg-mauve text-plum font-pixel p-4">
+    <main className="min-h-screen bg-mauve text-plum p-4">
       {/* --- header like Polymarket's event card --- */}
       <MarketHeader
         title="EthGlobal Championship"

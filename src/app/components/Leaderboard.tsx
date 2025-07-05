@@ -1,25 +1,99 @@
-import React from "react";
-import { Livestream } from "../data/livestreams";
+"use client";
+
+import React, { useState, useEffect } from "react";
+import { fetchMarketLeaderboardData, MarketLeaderboardEntry, MarketState } from "../lib/contractsApi";
 
 /* --------------------------------------------------------------
-   Pixel-style leaderboard
+   Pixel-style leaderboard with real market betting data
    -------------------------------------------------------------- */
-/* Helpers */
-const toNumber = (value = "") =>
-  value.includes("K")
-    ? parseFloat(value.replace(/[^\d.]/g, "")) * 1_000
-    : parseFloat(value.replace(/[^\d.]/g, ""));
 
 interface LeaderboardProps {
-  streams: Livestream[]; // pass the full list; component will sort
+  limit?: number;
 }
 
-const Leaderboard: React.FC<LeaderboardProps> = ({ streams }) => {
-  /* rank by view_count (desc) since we don't have totalVolume in new structure */
-  const ranked = [...streams]
-    .filter((s) => s.view_count && s.view_count > 0)
-    .sort((a, b) => (b.view_count || 0) - (a.view_count || 0))
-    .slice(0, 8); // top 8 rows
+const Leaderboard: React.FC<LeaderboardProps> = ({ limit = 8 }) => {
+  const [leaderboardData, setLeaderboardData] = useState<MarketLeaderboardEntry[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadLeaderboardData = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const data = await fetchMarketLeaderboardData(limit);
+        setLeaderboardData(data);
+      } catch (err) {
+        console.error('Error loading leaderboard data:', err);
+        setError('Failed to load leaderboard data');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadLeaderboardData();
+  }, [limit]);
+
+  const formatMarketAddress = (address: string) => {
+    return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  };
+
+  const formatAmount = (amount: string) => {
+    const num = parseFloat(amount);
+    if (num >= 1000) {
+      return `${(num / 1000).toFixed(1)}K`;
+    }
+    return num.toFixed(1);
+  };
+
+  const getMarketStateColor = (state: MarketState) => {
+    switch (state) {
+      case MarketState.Open:
+        return 'text-green-600';
+      case MarketState.Closed:
+        return 'text-yellow-600';
+      case MarketState.Resolved:
+        return 'text-blue-600';
+      default:
+        return 'text-gray-600';
+    }
+  };
+
+  const getMarketStateLabel = (state: MarketState) => {
+    switch (state) {
+      case MarketState.Open:
+        return '🟢 Open';
+      case MarketState.Closed:
+        return '🟡 Closed';
+      case MarketState.Resolved:
+        return '🔵 Resolved';
+      default:
+        return '⚪ Unknown';
+    }
+  };
+
+  const getCategoryIcon = (category: string) => {
+    const icons: { [key: string]: string } = {
+      hackathon: '🏆',
+      gaming: '🎮',
+      technology: '💻',
+      education: '📚',
+      entertainment: '🎬',
+      sports: '⚽',
+      music: '🎵',
+      lifestyle: '🌟',
+      news: '📰',
+      art: '🎨',
+      cooking: '👨‍🍳',
+      fitness: '💪',
+      travel: '✈️',
+      business: '💼',
+      comedy: '😂',
+      science: '🔬',
+      other: '📦'
+    };
+    return icons[category] || '📦';
+  };
 
   return (
     <section className="max-w-lg mx-auto my-8">
@@ -27,46 +101,84 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ streams }) => {
       <div className="border-4 border-black bg-yellow-300 shadow-window-pixel">
         {/* title-bar */}
         <div className="flex items-center justify-between bg-purple-600 text-yellow-50 px-3 py-1 border-b-4 border-black">
-          <span className="font-pixel text-xs">LEADERBOARD</span>
-          <button className="bg-yellow-400 text-black px-1 border border-black leading-none font-pixel">
+          <span className="text-xs">🏆 MARKET LEADERBOARD</span>
+          <button className="bg-yellow-400 text-black px-1 border border-black leading-none">
             ✕
           </button>
         </div>
 
         {/* table */}
         <div className="bg-pink-100 p-4 overflow-x-auto">
-          <table className="w-full font-pixel text-xs text-left">
-            <thead>
-              <tr className="text-purple-800 border-b-2 border-black">
-                <th className="py-1">#</th>
-                <th className="py-1">Project</th>
-                <th className="py-1">Creator</th>
-                <th className="py-1 text-right">Views</th>
-              </tr>
-            </thead>
-            <tbody>
-              {ranked.map((s, idx) => (
-                <tr
-                  key={s.id}
-                  className={`border-b border-black ${
-                    idx % 2 ? "bg-purple-200/40" : ""
-                  }`}
-                >
-                  <td className="py-1 px-1">{idx + 1}</td>
-                  <td className="py-1 px-1 flex items-center gap-1">
-                    <img
-                      src="https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg"
-                      alt={s.title}
-                      className="w-4 h-4 border-2 border-black"
-                    />
-                    {s.title}
-                  </td>
-                  <td className="py-1 px-1">{s.creator_wallet_address.slice(0, 8)}...</td>
-                  <td className="py-1 px-1 text-right">{s.view_count}</td>
+          {isLoading ? (
+            <div className="text-center py-8">
+              <div className="animate-spin w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+              <p className="text-sm text-purple-800">Loading markets...</p>
+            </div>
+          ) : error ? (
+            <div className="text-center py-8">
+              <p className="text-sm text-red-600">{error}</p>
+              <button 
+                onClick={() => window.location.reload()}
+                className="mt-2 bg-purple-600 text-white px-3 py-1 border-2 border-black text-xs hover:bg-purple-700"
+              >
+                Retry
+              </button>
+            </div>
+          ) : (
+            <table className="w-full text-xs text-left">
+              <thead>
+                <tr className="text-purple-800 border-b-2 border-black">
+                  <th className="py-1">#</th>
+                  <th className="py-1">Market</th>
+                  <th className="py-1 text-right">Pool</th>
+                  <th className="py-1 text-right">Bettors</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {leaderboardData.map((entry) => (
+                  <tr
+                    key={entry.marketAddress}
+                    className={`border-b border-black ${
+                      entry.rank <= 3 ? "bg-yellow-200/60" : entry.rank % 2 ? "bg-purple-200/40" : ""
+                    }`}
+                  >
+                    <td className="py-1 px-1">
+                      {entry.rank === 1 ? "🥇" : entry.rank === 2 ? "🥈" : entry.rank === 3 ? "🥉" : `#${entry.rank}`}
+                    </td>
+                    <td className="py-1 px-1">
+                      <div className="flex items-center gap-1">
+                        <span className="text-lg">{getCategoryIcon(entry.category)}</span>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-bold truncate" title={entry.question}>
+                            {entry.question.length > 30 ? entry.question.slice(0, 30) + '...' : entry.question}
+                          </div>
+                          <div className="text-xs text-purple-600">
+                            {entry.livestreamTitles[0] || 'Unknown Project'}
+                          </div>
+                          <div className={`text-xs ${getMarketStateColor(entry.state)}`}>
+                            {getMarketStateLabel(entry.state)}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-1 px-1 text-right font-bold">
+                      {formatAmount(entry.totalPool)} FLOW
+                    </td>
+                    <td className="py-1 px-1 text-right">
+                      {entry.totalBettors}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+          
+          {!isLoading && !error && leaderboardData.length === 0 && (
+            <div className="text-center py-8">
+              <p className="text-sm text-purple-800">No markets found</p>
+              <p className="text-xs text-purple-600 mt-1">Create markets to see them on the leaderboard!</p>
+            </div>
+          )}
         </div>
       </div>
     </section>

@@ -34,20 +34,19 @@ function getRandomComments() {
 
 function TitleDescriptionOverlay({ title, description }: { title: string; description?: string }) {
   const [expanded, setExpanded] = useState(false);
-  if (!description && !title) return null;
-  const maxLength = 80;
+  const maxLength = 100;
   const isLong = description && description.length > maxLength;
   const displayText = expanded || !isLong ? description : description?.slice(0, maxLength) + '...';
   return (
     <div className="absolute bottom-8 left-0 w-full z-30 px-4 flex flex-col items-start pointer-events-none">
       <div className="max-w-[70%] w-fit flex flex-col items-start">
-        <span className="font-pixel font-bold text-base md:text-lg text-white mb-1 pointer-events-auto" style={{textShadow: '0 2px 8px #000, 0 1px 1px #000'}}>{title}</span>
+        <span className="font-bold text-base md:text-lg text-white mb-1 pointer-events-auto" style={{textShadow: '0 2px 8px #000, 0 1px 1px #000'}}>{title}</span>
         {description && (
-          <span className="text-white text-sm font-pixel w-full break-words pointer-events-auto" style={{textShadow: '0 1px 4px #000a'}}>
+          <span className="text-white text-sm w-full break-words pointer-events-auto" style={{textShadow: '0 1px 4px #000a'}}>
             {displayText}
             {isLong && !expanded && (
               <button
-                className="ml-2 text-fuchsia underline text-xs font-pixel"
+                className="ml-2 text-fuchsia underline text-xs"
                 onClick={() => setExpanded(true)}
               >
                 More
@@ -55,7 +54,7 @@ function TitleDescriptionOverlay({ title, description }: { title: string; descri
             )}
             {isLong && expanded && (
               <button
-                className="ml-2 text-fuchsia underline text-xs font-pixel"
+                className="ml-2 text-fuchsia underline text-xs"
                 onClick={() => setExpanded(false)}
               >
                 Less
@@ -133,7 +132,7 @@ const FeedPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-pink-200 font-pixel">
+    <div className="min-h-screen bg-pink-200">
       {loading ? (
         <div className="text-center py-8 text-purple-800">
           <div className="text-4xl mb-4">🔄</div>
@@ -186,7 +185,7 @@ const FeedPage = () => {
                     {/* Creator address icon */}
                     <div className="flex flex-col items-center text-xl opacity-90 pointer-events-auto">
                       <FaWallet style={{ color: '#fff', filter: 'drop-shadow(0 1px 4px #000a)' }} />
-                      <span className="text-[10px] font-pixel mt-1 max-w-[60px] truncate text-white/80" title={stream.creator_wallet_address}>
+                      <span className="text-[10px] mt-1 max-w-[60px] truncate text-white/80" title={stream.creator_wallet_address}>
                         {stream.creator_wallet_address.slice(0, 6)}...{stream.creator_wallet_address.slice(-4)}
                       </span>
                     </div>
@@ -197,7 +196,7 @@ const FeedPage = () => {
                       style={{ textShadow: '0 1px 4px #000a' }}
                     >
                       <FaHeart />
-                      <span className="text-[11px] font-pixel mt-1 text-white/80" style={{ textShadow: '0 1px 4px #000a' }}>{likeCounts[stream.id] || 0}</span>
+                      <span className="text-[11px] mt-1 text-white/80" style={{ textShadow: '0 1px 4px #000a' }}>{likeCounts[stream.id] || 0}</span>
                     </button>
                     {/* Bet */}
                     <button
@@ -206,7 +205,7 @@ const FeedPage = () => {
                       // onClick={...} // Add modal or action here
                     >
                       <FaBullseye />
-                      <span className="text-[11px] font-pixel mt-1 text-white/80" style={{ textShadow: '0 1px 4px #000a' }}>Bet</span>
+                      <span className="text-[11px] mt-1 text-white/80" style={{ textShadow: '0 1px 4px #000a' }}>Bet</span>
                     </button>
                     {/* Comment */}
                     <button
@@ -215,7 +214,7 @@ const FeedPage = () => {
                       style={{ textShadow: '0 1px 4px #000a' }}
                     >
                       <FaCommentDots />
-                      <span className="text-[11px] font-pixel mt-1 text-white/80" style={{ textShadow: '0 1px 4px #000a' }}>{comments.length}</span>
+                      <span className="text-[11px] mt-1 text-white/80" style={{ textShadow: '0 1px 4px #000a' }}>{comments.length}</span>
                     </button>
                   </div>
                   {/* Overlay UI */}
@@ -265,12 +264,12 @@ const FeedPage = () => {
                               value={commentInputs[stream.id] || ''}
                               onChange={e => handleCommentInput(stream.id, e.target.value)}
                               placeholder="Add a comment..."
-                              className="flex-1 px-2 py-1 rounded-lg border-2 border-black font-pixel text-xs bg-white focus:outline-none focus:ring-2 focus:ring-fuchsia"
+                              className="flex-1 px-2 py-1 rounded-lg border-2 border-black text-xs bg-white focus:outline-none focus:ring-2 focus:ring-fuchsia"
                               maxLength={120}
                             />
                             <button
                               type="submit"
-                              className="px-3 py-1 rounded-2xl border-2 border-black bg-fuchsia text-white font-pixel text-xs shadow-window-pixel hover:bg-yellow-400 hover:text-fuchsia transition-colors"
+                              className="px-3 py-1 rounded-2xl border-2 border-black bg-fuchsia text-white text-xs shadow-window-pixel hover:bg-yellow-400 hover:text-fuchsia transition-colors"
                             >
                               Send
                             </button>

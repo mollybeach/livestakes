@@ -343,7 +343,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   return (
     <>
       <div className="bg-pink-500/90 border-4 border-black rounded-none shadow-window-pixel mb-6">
-        <div className="flex items-center justify-between px-3 py-1 bg-pink-600 text-yellow-50 font-pixel">
+        <div className="flex items-center justify-between px-3 py-1 bg-pink-600 text-yellow-50">
           <div className="flex items-center gap-4">
             {showBackButton && (
               <Link href="/" className="text-yellow-50 hover:text-yellow-200 transition-colors">
@@ -374,25 +374,25 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
         </div>
         
         {/* Action Buttons */}
-        <div className="bg-yellow-50 p-4 text-black font-pixel text-sm">
+        <div className="bg-yellow-50 p-4 text-black text-sm">
           <div className="flex items-center gap-3">
             <button 
               onClick={() => setShowMarketCreation(true)}
-              className="bg-pink-600 hover:bg-pink-700 text-yellow-50 px-3 py-1 border border-black rounded-none font-pixel uppercase text-xs transition-colors"
+              className="bg-pink-600 hover:bg-pink-700 text-yellow-50 px-3 py-1 border border-black rounded-none uppercase text-xs transition-colors"
             >
               Create Market
             </button>
             <button 
               onClick={() => setShowVideoUpload(true)}
               disabled={!authenticated}
-              className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-yellow-50 px-3 py-1 border border-black rounded-none font-pixel uppercase text-xs transition-colors"
+              className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-yellow-50 px-3 py-1 border border-black rounded-none uppercase text-xs transition-colors"
             >
               📹 Upload Video
             </button>
-            <button className="bg-yellow-400 hover:bg-yellow-300 text-black px-3 py-1 border border-black rounded-none font-pixel uppercase text-xs transition-colors">
+            <button className="bg-yellow-400 hover:bg-yellow-300 text-black px-3 py-1 border border-black rounded-none uppercase text-xs transition-colors">
               Browse Categories
             </button>
-            <button className="bg-yellow-400 hover:bg-yellow-300 text-black px-3 py-1 border border-black rounded-none font-pixel uppercase text-xs transition-colors">
+            <button className="bg-yellow-400 hover:bg-yellow-300 text-black px-3 py-1 border border-black rounded-none uppercase text-xs transition-colors">
               View History
             </button>
           </div>

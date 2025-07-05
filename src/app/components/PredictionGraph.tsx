@@ -61,8 +61,8 @@ const PredictionGraph: React.FC<PredictionGraphProps> = ({ series, streams }) =>
       <div className="border-4 border-black bg-yellow-300 shadow-window-pixel">
         {/* title bar */}
         <div className="flex items-center justify-between bg-purple-600 text-yellow-50 px-3 py-1 border-b-4 border-black">
-          <span className="font-pixel text-xs">ODDS CHART</span>
-          <button className="bg-yellow-400 text-black px-1 border border-black leading-none font-pixel">
+          <span className="text-xs">ODDS CHART</span>
+          <button className="bg-yellow-400 text-black px-1 border border-black leading-none">
             ✕
           </button>
         </div>

@@ -786,3 +786,65 @@ export async function fetchAvailableCategories(): Promise<string[]> {
     return [];
   }
 }
+
+// Market leaderboard entry interface
+export interface MarketLeaderboardEntry {
+  rank: number;
+  marketAddress: string;
+  question: string;
+  totalPool: string;
+  totalBettors: number;
+  category: string;
+  state: MarketState;
+  createdAt: number;
+  livestreamTitles: string[];
+}
+
+// Fetch market leaderboard data based on betting activity
+export async function fetchMarketLeaderboardData(limit: number = 20): Promise<MarketLeaderboardEntry[]> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/leaderboard/markets?limit=${limit}`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch market leaderboard data');
+    }
+
+    const data = await response.json();
+    if (!data.success) {
+      throw new Error(data.error || 'Failed to fetch market leaderboard data');
+    }
+
+    return data.leaderboard;
+  } catch (error) {
+    console.error('Error fetching market leaderboard data:', error);
+    // Return mock data as fallback
+    return generateMockMarketLeaderboardData(limit);
+  }
+}
+
+// Generate mock market leaderboard data for development/testing
+function generateMockMarketLeaderboardData(limit: number): MarketLeaderboardEntry[] {
+  const mockData: MarketLeaderboardEntry[] = [];
+  
+  for (let i = 0; i < limit; i++) {
+    const totalPool = (Math.random() * 1000 + 50).toFixed(2);
+    const totalBettors = Math.floor(Math.random() * 50) + 5;
+    const categories = ['hackathon', 'gaming', 'technology', 'education', 'entertainment'];
+    const category = categories[Math.floor(Math.random() * categories.length)];
+    const states = [MarketState.Open, MarketState.Closed, MarketState.Resolved];
+    const state = states[Math.floor(Math.random() * states.length)];
+    
+    mockData.push({
+      rank: i + 1,
+      marketAddress: `0x${Math.random().toString(16).substring(2, 42)}`,
+      question: `Will this ${category} project win the hackathon?`,
+      totalPool,
+      totalBettors,
+      category,
+      state,
+      createdAt: Date.now() - Math.floor(Math.random() * 7 * 24 * 60 * 60 * 1000),
+      livestreamTitles: [`${category.charAt(0).toUpperCase() + category.slice(1)} Project ${i + 1}`]
+    });
+  }
+  
+  return mockData.sort((a, b) => parseFloat(b.totalPool) - parseFloat(a.totalPool));
+}

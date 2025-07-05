@@ -294,42 +294,33 @@ const BettingModal: React.FC<BettingModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+      <div className="bg-white border-4 border-black shadow-window-pixel w-full max-w-md max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-xl">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-900">
-              🎯 Bet on Project
-            </h2>
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-          <p className="text-sm text-gray-600 mt-1 truncate">{livestreamTitle}</p>
+        <div className="flex items-center justify-between bg-purple-600 text-yellow-50 px-3 py-1 border-b-4 border-black">
+          <span className="text-xs">🎯 BETTING MODAL</span>
+          <button
+            onClick={onClose}
+            className="bg-yellow-400 text-black px-1 border border-black leading-none"
+          >
+            ✕
+          </button>
         </div>
 
         {/* Content */}
-        <div className="px-6 py-4">
+        <div className="bg-pink-100 p-4">
           {/* Loading State */}
           {isLoading && (
             <div className="text-center py-8">
-              <div className="w-8 h-8 border-4 border-purple-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading market data...</p>
+              <div className="animate-spin w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+              <p className="text-sm text-purple-800">Loading market data...</p>
             </div>
           )}
 
           {/* Error State */}
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+            <div className="bg-red-100 border-2 border-red-400 rounded-none p-4 mb-4">
               <div className="flex items-center">
-                <svg className="w-5 h-5 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+                <span className="text-red-600 mr-2">⚠️</span>
                 <p className="text-red-700 text-sm">{error}</p>
               </div>
             </div>
@@ -337,11 +328,9 @@ const BettingModal: React.FC<BettingModalProps> = ({
 
           {/* Success State */}
           {success && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+            <div className="bg-green-100 border-2 border-green-400 rounded-none p-4 mb-4">
               <div className="flex items-center">
-                <svg className="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+                <span className="text-green-600 mr-2">✅</span>
                 <p className="text-green-700 text-sm">{success}</p>
               </div>
             </div>
@@ -351,13 +340,13 @@ const BettingModal: React.FC<BettingModalProps> = ({
           {showCreateMarket && !isLoading && (
             <div className="text-center py-6">
               <div className="text-6xl mb-4">🏗️</div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Create Market</h3>
-              <p className="text-sm text-gray-600 mb-4">
+              <h3 className="text-lg font-bold text-purple-900 mb-2">Create Market</h3>
+              <p className="text-sm text-purple-700 mb-4">
                 This hackathon project doesn&apos;t have a betting market yet. Create one to get started!
               </p>
               
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-bold text-purple-800 mb-2">
                   Market Question
                 </label>
                 <input
@@ -365,18 +354,18 @@ const BettingModal: React.FC<BettingModalProps> = ({
                   value={newMarketQuestion}
                   onChange={(e) => setNewMarketQuestion(e.target.value)}
                   placeholder="Will this project win the hackathon?"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border-2 border-black bg-white text-purple-900 focus:outline-none focus:border-purple-500"
                 />
               </div>
               
               <button
                 onClick={handleCreateMarket}
                 disabled={isCreatingMarket || !newMarketQuestion.trim()}
-                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center"
+                className="w-full bg-purple-600 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-yellow-50 font-bold py-3 px-4 border-2 border-black transition-colors flex items-center justify-center"
               >
                 {isCreatingMarket ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                    <div className="w-4 h-4 border-2 border-yellow-50 border-t-transparent rounded-full animate-spin mr-2"></div>
                     Creating Market...
                   </>
                 ) : (
@@ -393,34 +382,34 @@ const BettingModal: React.FC<BettingModalProps> = ({
           {!showCreateMarket && selectedMarket && marketInfo && !isLoading && (
             <div className="space-y-4">
               {/* Market Question */}
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h3 className="font-semibold text-gray-900 mb-1">
+              <div className="bg-cream border-2 border-black p-4">
+                <h3 className="font-bold text-purple-900 mb-1">
                   {marketInfo.question}
                 </h3>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-purple-700">
                   Total Pool: {parseFloat(marketInfo.totalPool).toFixed(2)} FLOW
                 </p>
               </div>
 
               {/* Market Status */}
               <div className="flex items-center justify-between">
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                <span className={`px-3 py-1 border-2 border-black text-sm font-bold ${
                   Number(marketInfo.state) === MarketState.Open 
-                    ? 'bg-green-100 text-green-800' 
-                    : 'bg-gray-100 text-gray-800'
+                    ? 'bg-green-400 text-green-900' 
+                    : 'bg-gray-400 text-gray-900'
                 }`}>
                   {Number(marketInfo.state) === MarketState.Open ? '🟢 Active' : '🔴 Closed'}
                 </span>
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-purple-700 font-bold">
                   Hackathon Competition
                 </div>
               </div>
 
               {/* Current Project Info */}
-              <div className="bg-purple-50 rounded-lg p-4">
-                <h4 className="font-semibold text-purple-900 mb-1">Betting on this Project</h4>
-                <p className="text-sm text-purple-700">{livestreamTitle}</p>
-                <p className="text-xs text-purple-600 mt-1">
+              <div className="bg-purple-200 border-2 border-black p-4">
+                <h4 className="font-bold text-purple-900 mb-1">Betting on this Project</h4>
+                <p className="text-sm text-purple-800">{livestreamTitle}</p>
+                <p className="text-xs text-purple-700 mt-1">
                   Bet FLOW tokens on whether this project will win the hackathon
                 </p>
               </div>
@@ -430,7 +419,7 @@ const BettingModal: React.FC<BettingModalProps> = ({
                 <div className="space-y-4">
                   {/* Amount Slider */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-bold text-purple-800 mb-2">
                       Bet Amount: {betAmount} FLOW
                     </label>
                     <div className="space-y-3">
@@ -440,9 +429,9 @@ const BettingModal: React.FC<BettingModalProps> = ({
                         max="100"
                         value={sliderValue}
                         onChange={handleSliderChange}
-                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                        className="w-full h-2 bg-gray-200 rounded-none appearance-none cursor-pointer slider border-2 border-black"
                       />
-                      <div className="flex justify-between text-xs text-gray-500">
+                      <div className="flex justify-between text-xs text-purple-700 font-bold">
                         <span>0.01 FLOW</span>
                         <span>10.0 FLOW</span>
                       </div>
@@ -456,9 +445,9 @@ const BettingModal: React.FC<BettingModalProps> = ({
                           min="0.01"
                           max="10"
                           step="0.01"
-                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                          className="flex-1 px-3 py-2 border-2 border-black bg-white text-purple-900 focus:outline-none focus:border-purple-500"
                         />
-                        <span className="text-sm text-gray-600 font-medium">FLOW</span>
+                        <span className="text-sm text-purple-800 font-bold">FLOW</span>
                       </div>
                     </div>
                   </div>
@@ -467,11 +456,11 @@ const BettingModal: React.FC<BettingModalProps> = ({
                   <button
                     onClick={handlePlaceBet}
                     disabled={isPlacingBet || !authenticated}
-                    className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center"
+                    className="w-full bg-purple-600 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-yellow-50 font-bold py-3 px-4 border-2 border-black transition-colors flex items-center justify-center"
                   >
                     {isPlacingBet ? (
                       <>
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                        <div className="w-4 h-4 border-2 border-yellow-50 border-t-transparent rounded-full animate-spin mr-2"></div>
                         Placing Bet...
                       </>
                     ) : (
@@ -486,11 +475,11 @@ const BettingModal: React.FC<BettingModalProps> = ({
 
               {/* User Bets */}
               {authenticated && userBets.livestreamIds.length > 0 && (
-                <div className="bg-blue-50 rounded-lg p-4">
-                  <h4 className="font-semibold text-blue-900 mb-2">Your Bets</h4>
+                <div className="bg-blue-200 border-2 border-black p-4">
+                  <h4 className="font-bold text-blue-900 mb-2">Your Bets</h4>
                   <div className="space-y-1 text-sm">
                     {userBets.livestreamIds.map((id, index) => (
-                      <div key={id} className="flex justify-between text-blue-800">
+                      <div key={id} className="flex justify-between text-blue-800 font-bold">
                         <span>🎯 Project {id}</span>
                         <span>{userBets.amounts[index]} FLOW</span>
                       </div>
@@ -502,7 +491,7 @@ const BettingModal: React.FC<BettingModalProps> = ({
                     <button
                       onClick={handleClaimPayout}
                       disabled={isClaiming}
-                      className="w-full mt-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 flex items-center justify-center"
+                      className="w-full mt-3 bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-2 px-4 border-2 border-black transition-colors flex items-center justify-center"
                     >
                       {isClaiming ? (
                         <>

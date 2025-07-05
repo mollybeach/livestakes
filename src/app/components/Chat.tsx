@@ -120,7 +120,7 @@ const Chat: React.FC<ChatProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-mauve font-pixel p-6">
+    <div className="min-h-screen bg-mauve p-6">
       <div className="max-w-4xl mx-auto">
         {/* Chat Header */}
         <div className="bg-plum border-4 border-black p-4 mb-6">
@@ -130,7 +130,7 @@ const Chat: React.FC<ChatProps> = ({
               <h1 className="text-2xl font-bold text-cream">LiveStakes Chat</h1>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-cream text-sm font-pixel">Online: 1,234</span>
+              <span className="text-cream text-sm">Online: 1,234</span>
               <button className="text-cream hover:text-butter transition-colors">
                 <MoreVertical size={20} />
               </button>
@@ -156,7 +156,7 @@ const Chat: React.FC<ChatProps> = ({
                 )}
                 <div className={`max-w-[70%] ${message.isOwn ? 'order-first' : ''}`}>
                   {!message.isOwn && (
-                    <div className="text-xs text-butter mb-1 font-pixel">
+                    <div className="text-xs text-butter mb-1">
                       {message.user}
                     </div>
                   )}
@@ -167,9 +167,9 @@ const Chat: React.FC<ChatProps> = ({
                         : 'bg-lavender text-plum'
                     }`}
                   >
-                    <p className="text-sm font-pixel">{message.message}</p>
+                    <p className="text-sm">{message.message}</p>
                   </div>
-                  <div className="text-xs text-butter mt-1 font-pixel">
+                  <div className="text-xs text-butter mt-1">
                     {message.timestamp}
                   </div>
                 </div>
@@ -201,13 +201,13 @@ const Chat: React.FC<ChatProps> = ({
                   onChange={(e) => setNewMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="Type your message..."
-                  className="w-full px-3 py-2 border-2 border-black bg-cream text-plum font-pixel text-sm focus:outline-none focus:border-purple-500"
+                  className="w-full px-3 py-2 border-2 border-black bg-cream text-plum text-sm focus:outline-none focus:border-purple-500"
                 />
               </div>
               <Button
                 onClick={handleSendMessage}
                 disabled={!newMessage.trim()}
-                className="bg-yellow-400 hover:bg-yellow-300 text-black border-2 border-black font-pixel px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-yellow-400 hover:bg-yellow-300 text-black border-2 border-black px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Send size={16} />
               </Button>
@@ -220,19 +220,19 @@ const Chat: React.FC<ChatProps> = ({
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
             <div>
               <div className="text-yellow-400 text-xl font-bold">1,234</div>
-              <div className="text-yellow-50 text-sm font-pixel">Online Users</div>
+              <div className="text-yellow-50 text-sm">Online Users</div>
             </div>
             <div>
               <div className="text-yellow-400 text-xl font-bold">89</div>
-              <div className="text-yellow-50 text-sm font-pixel">Active Markets</div>
+              <div className="text-yellow-50 text-sm">Active Markets</div>
             </div>
             <div>
               <div className="text-yellow-400 text-xl font-bold">$2.4M</div>
-              <div className="text-yellow-50 text-sm font-pixel">Total Volume</div>
+              <div className="text-yellow-50 text-sm">Total Volume</div>
             </div>
             <div>
               <div className="text-yellow-400 text-xl font-bold">156</div>
-              <div className="text-yellow-50 text-sm font-pixel">Live Streams</div>
+              <div className="text-yellow-50 text-sm">Live Streams</div>
             </div>
           </div>
         </div>

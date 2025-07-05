@@ -7,7 +7,7 @@ import { mockMarqueeMessage } from "../data/marquee";
 const Marquee = () => {
   return (
     <motion.div
-      className="bg-pink-500 text-yellow-50 border-4 border-black py-1 mb-4 whitespace-nowrap overflow-hidden font-pixel"
+      className="bg-pink-500 text-yellow-50 border-4 border-black py-1 mb-4 whitespace-nowrap overflow-hidden"
       initial={{ x: 0 }}
       animate={{ x: "-100%" }}
       transition={{ repeat: Infinity, duration: 15, ease: "linear" }}

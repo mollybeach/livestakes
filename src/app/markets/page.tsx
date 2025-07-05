@@ -54,7 +54,7 @@ const MarketsPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex font-pixel bg-purple-200">
+      <div className="min-h-screen flex bg-purple-200">
         <div className="flex-1 overflow-y-auto flex items-center justify-center">
           <div className="text-2xl text-purple-800">Loading markets...</div>
         </div>
@@ -64,7 +64,7 @@ const MarketsPage = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen flex font-pixel bg-purple-200">
+      <div className="min-h-screen flex bg-purple-200">
         <div className="flex-1 overflow-y-auto flex items-center justify-center">
           <div className="text-2xl text-red-600">Error: {error}</div>
         </div>
@@ -73,7 +73,7 @@ const MarketsPage = () => {
   }
 
   return (
-    <div className="min-h-screen flex font-pixel bg-purple-200">
+    <div className="min-h-screen flex bg-purple-200">
       {/* Markets Content */}
       <div className="flex-1 overflow-y-auto">
         <Markets markets={markets} />

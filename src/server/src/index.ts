@@ -21,6 +21,7 @@ import { runMigrations } from './database/migrations';
 import videoUploadRoutes from './routes/videoUpload';
 import marketRoutes from './routes/markets';
 import marketsMetadataRoutes from './routes/marketsMetadata';
+import leaderboardRoutes from './routes/leaderboard';
 
 const app = express();
 const server = http.createServer(app);
@@ -68,6 +69,7 @@ app.use(express.json());
 app.use('/api', videoUploadRoutes);
 app.use('/api/markets', marketRoutes);
 app.use('/api/markets/metadata', marketsMetadataRoutes);
+app.use('/api/leaderboard', leaderboardRoutes);
 
 // API routes
 app.get('/api/health', (req: any, res: any) => {

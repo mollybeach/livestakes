@@ -20,7 +20,7 @@ const Hero = () => (
       />
     </Head>
 
-    <section className="relative px-4 py-16 bg-pink-200 font-pixel text-purple-900">
+    <section className="relative px-4 py-16 bg-pink-200 text-purple-900">
       <div className="max-w-5xl mx-auto text-center">
         {/* Hero Title */}
         <div className="border-4 border-black bg-yellow-300 shadow-window-pixel p-4 mb-8">
@@ -32,14 +32,14 @@ const Hero = () => (
         {/* Description */}
         <div className="border-4 border-black bg-purple-100 shadow-window-pixel max-w-3xl mx-auto mb-10">
         <div className="flex items-center justify-between bg-purple-600 text-yellow-50 px-3 py-1 border-b-4 border-black">
-        <span className="font-pixel text-sm">♡  Action!</span>
-        <button className="bg-yellow-400 text-black px-1 border border-black leading-none font-pixel">
+        <span className="text-sm">♡  Action!</span>
+        <button className="bg-yellow-400 text-black px-1 border border-black leading-none">
           ✕
         </button>
       </div>
 
              {/* content */}
-      <div className="p-6 text-center font-pixel text-purple-900">
+      <div className="p-6 text-center text-purple-900">
         <h2 className="text-lg sm:text-xl md:text-2xl mb-4">
           Ready&nbsp;to&nbsp;Start&nbsp;Earning?
         </h2>

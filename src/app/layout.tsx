@@ -5,7 +5,6 @@ import ClientWrapper from "./components/clientwrapper";
 import Script from "next/script";
 import { Suspense } from "react";
 import PWAProvider from "./components/PWAProvider";
-import Head from "next/head";
 import SideNav from "./components/SideNav";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -74,8 +73,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="font-pixel">
-      <Head>
+    <html lang="en">
+      <head>
         {/* Pixel font */}
         <link
           href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
@@ -93,9 +92,6 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="livestakes" />
         <link rel="apple-touch-icon" href="https://res.cloudinary.com/storagemanagementcontainer/image/upload/v1751729735/live-stakes-icon_cfc7t8.png" />
         <meta name="theme-color" content="#fcd34d" />
-      </Head>
-
-      <head>
         {/* Google Analytics */}
         <Script
           strategy="afterInteractive"

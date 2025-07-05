@@ -12,7 +12,7 @@ export const HomeModalContent: React.FC = () => (
   <div className="flex flex-col items-center justify-center min-w-[420px] min-h-[340px] max-w-2xl mx-auto">
     {/* Yellow Banner */}
     <div className="w-full border-4 border-black bg-yellow-300 shadow-window-pixel px-4 py-2 mb-4 flex items-center justify-center">
-      <span className="text-2xl font-pixel tracking-wider">♡ WATCH. BET. WIN.</span>
+      <span className="text-2xl tracking-wider">♡ WATCH. BET. WIN.</span>
     </div>
     {/* Tri-split row */}
     <div className="w-full flex flex-col md:flex-row items-center justify-between gap-4 mb-4">
@@ -28,7 +28,7 @@ export const HomeModalContent: React.FC = () => (
       {/* Logo and Title */}
       <div className="flex flex-col items-center flex-shrink-0 px-2">
         <Image src="https://res.cloudinary.com/storagemanagementcontainer/image/upload/v1751729735/live-stakes-icon_cfc7t8.png" alt="LiveStakes Logo" width={160} height={160} className="mb-2" />
-        <span className="font-pixel text-3xl sm:text-4xl text-fuchsia tracking-widest leading-tight font-extrabold" style={{textShadow: '2px 2px 0 #000, 0 2px 0 #000, 2px 0 0 #000'}}>
+        <span className="text-2xl sm:text-3xl text-fuchsia tracking-widest leading-tight font-extrabold" style={{textShadow: '2px 2px 0 #000, 0 2px 0 #000, 2px 0 0 #000'}}>
           livestakes.fun
         </span>
       </div>
@@ -60,10 +60,10 @@ const HomeModal: React.FC<HomeModalProps> = ({ isOpen, onClose, children }) => {
       <div className="border-4 border-black bg-purple-100 shadow-window-pixel max-w-2xl w-full mx-4">
         {/* Title bar */}
         <div className="flex items-center justify-between bg-purple-600 text-yellow-50 px-3 py-1 border-b-4 border-black">
-          <span className="font-pixel text-sm">♡ Action!</span>
+          <span className="text-sm">♡ Action!</span>
           <button
             onClick={onClose}
-            className="bg-yellow-400 text-black px-2 border border-black leading-none font-pixel text-lg hover:bg-yellow-300 transition-colors"
+            className="bg-yellow-400 text-black px-2 border border-black leading-none text-lg hover:bg-yellow-300 transition-colors"
             aria-label="Close modal"
           >
             ✕

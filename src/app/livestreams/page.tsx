@@ -51,7 +51,7 @@ const LivestreamsPage = () => {
     fetchLivestreams();
   }, []);
   return (
-      <div className="min-h-screen flex font-pixel bg-purple-200">
+      <div className="min-h-screen flex bg-purple-200">
         {/* Main content */}
         <main className="flex-1 overflow-y-auto">
           <div className="p-6">
