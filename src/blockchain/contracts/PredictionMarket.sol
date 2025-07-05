@@ -3,112 +3,87 @@ pragma solidity ^0.8.19;
 
 contract PredictionMarket {
     enum Side { Yes, No }
+    enum State { Open, Closed, Resolved }
 
-    struct Market {
-        uint64 id;
-        string question;
-        address creator;
-        bool isOpen;
-        Side outcome;
-        mapping(address => mapping(uint8 => uint256)) bets;
-        mapping(uint8 => uint256) totalBets;
+    uint64 public projectId;
+    string public projectName;
+    address public oracle;
+    State public state;
+    Side public outcome;
+
+    mapping(address => mapping(uint8 => uint256)) public bets;
+    mapping(uint8 => uint256) public totalBets;
+    uint256 public totalPool;
+
+    event BetPlaced(address indexed user, Side side, uint256 amount);
+    event MarketClosed();
+    event MarketResolved(Side outcome);
+    event PayoutClaimed(address indexed user, uint256 amount);
+
+    modifier onlyOracle() {
+        require(msg.sender == oracle, "Not oracle");
+        _;
+    }
+    modifier inState(State _state) {
+        require(state == _state, "Invalid state");
+        _;
     }
 
-    mapping(uint64 => Market) public markets;
-    uint64 public nextMarketId = 1;
-
-    event MarketCreated(uint64 indexed id, string question, address indexed creator);
-    event BetPlaced(uint64 indexed id, address indexed user, Side outcome, uint256 amount);
-    event MarketResolved(uint64 indexed id, Side outcome);
-    event PayoutClaimed(uint64 indexed id, address indexed user, uint256 amount);
-
-    function _toSide(string memory s) internal pure returns (Side) {
-        bytes32 h = keccak256(bytes(_lower(s)));
-        if (h == keccak256("yes")) return Side.Yes;
-        if (h == keccak256("no"))  return Side.No;
-        revert("Invalid outcome");
+    constructor(uint64 _projectId, string memory _projectName, address _oracle) {
+        projectId = _projectId;
+        projectName = _projectName;
+        oracle = _oracle;
+        state = State.Open;
     }
 
-    function _lower(string memory s) internal pure returns (string memory) {
-        bytes memory b = bytes(s);
-        for (uint i; i < b.length; ++i)
-            if (b[i] >= 0x41 && b[i] <= 0x5A) b[i] = bytes1(uint8(b[i]) + 32); // A-Z → a-z
-        return string(b);
+    function placeBet(Side side) external payable inState(State.Open) {
+        require(msg.value > 0, "No ETH sent");
+        bets[msg.sender][uint8(side)] += msg.value;
+        totalBets[uint8(side)] += msg.value;
+        totalPool += msg.value;
+        emit BetPlaced(msg.sender, side, msg.value);
     }
 
-    function createMarket(string memory question) external returns (uint64 id) {
-        id = nextMarketId++;
-        Market storage m = markets[id];
-        m.id = id;
-        m.question = question;
-        m.creator = msg.sender;
-        m.isOpen = true;
-        emit MarketCreated(id, question, msg.sender);
-        return id;
+    function closeMarket() external onlyOracle inState(State.Open) {
+        state = State.Closed;
+        emit MarketClosed();
     }
 
-    function placeBet(uint64 id, string memory outcome, uint256 amount) external {
-        Market storage m = markets[id];
-        require(m.id != 0, "Market not found");
-        require(m.isOpen, "Market closed");
-        require(amount > 0, "Zero bet");
-
-        Side side = _toSide(outcome);
-        m.bets[msg.sender][uint8(side)] += amount;
-        m.totalBets[uint8(side)] += amount;
-        emit BetPlaced(id, msg.sender, side, amount);
+    function resolveMarket(Side _outcome) external onlyOracle inState(State.Closed) {
+        outcome = _outcome;
+        state = State.Resolved;
+        emit MarketResolved(_outcome);
     }
 
-    function resolveMarket(uint64 id, string memory outcome) external {
-        Market storage m = markets[id];
-        require(m.id != 0, "Market not found");
-        require(m.isOpen, "Already resolved");
-        Side side = _toSide(outcome);
-        m.isOpen = false;
-        m.outcome = side;
-        emit MarketResolved(id, side);
+    function claimPayout() external inState(State.Resolved) {
+        uint256 userBet = bets[msg.sender][uint8(outcome)];
+        require(userBet > 0, "No winning bet");
+        uint256 winners = totalBets[uint8(outcome)];
+        require(winners > 0, "No winners");
+        uint256 payout = (userBet * totalPool) / winners;
+        bets[msg.sender][uint8(outcome)] = 0;
+        (bool sent, ) = msg.sender.call{value: payout}("");
+        require(sent, "Payout failed");
+        emit PayoutClaimed(msg.sender, payout);
     }
 
-    function claimPayout(uint64 id) external {
-        Market storage m = markets[id];
-        require(!m.isOpen, "Market not resolved");
-        uint256 userBet = m.bets[msg.sender][uint8(m.outcome)];
-        uint256 winners = m.totalBets[uint8(m.outcome)];
-        require(userBet > 0, "Nothing to claim");
-
-        uint256 pool = m.totalBets[uint8(Side.Yes)] + m.totalBets[uint8(Side.No)];
-        uint256 payout = (userBet * pool) / winners;
-
-        // TODO: transfer payout (ether or ERC-20) to msg.sender
-        emit PayoutClaimed(id, msg.sender, payout);
-    }
-
-    function getMarket(uint64 id) external view returns (
-        string memory question,
-        address creator,
-        bool isOpen,
-        Side outcome,
-        uint256 totalYes,
-        uint256 totalNo
+    function getInfo() external view returns (
+        uint64 _projectId,
+        string memory _projectName,
+        State _state,
+        Side _outcome,
+        uint256 yesBets,
+        uint256 noBets,
+        uint256 _totalPool
     ) {
-        Market storage m = markets[id];
         return (
-            m.question,
-            m.creator,
-            m.isOpen,
-            m.outcome,
-            m.totalBets[uint8(Side.Yes)],
-            m.totalBets[uint8(Side.No)]
+            projectId,
+            projectName,
+            state,
+            outcome,
+            totalBets[uint8(Side.Yes)],
+            totalBets[uint8(Side.No)],
+            totalPool
         );
-    }
-
-    function getUserBet(uint64 id, address user, string memory outcome)
-        external view returns (uint256)
-    {
-        return markets[id].bets[user][uint8(_toSide(outcome))];
-    }
-
-    function marketExists(uint64 id) external view returns (bool) {
-        return markets[id].id != 0;
     }
 } 

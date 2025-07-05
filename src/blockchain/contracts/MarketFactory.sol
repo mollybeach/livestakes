@@ -4,17 +4,28 @@ pragma solidity ^0.8.19;
 import "./PredictionMarket.sol";
 
 contract MarketFactory {
-    event MarketDeployed(address indexed marketAddress, string question);
+    address public owner;
+    event MarketCreated(address indexed market, uint64 indexed projectId);
+    mapping(uint64 => address) public projectMarkets;
 
-    function deployMarket(string memory question) public returns (address) {
-        // Deploy new PredictionMarket contract (no constructor parameters needed)
-        PredictionMarket market = new PredictionMarket();
-        emit MarketDeployed(address(market), question);
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Not owner");
+        _;
+    }
+
+    constructor() {
+        owner = msg.sender;
+    }
+
+    function createMarket(uint64 projectId, string memory projectName) external onlyOwner returns (address) {
+        require(projectMarkets[projectId] == address(0), "Market already exists");
+        PredictionMarket market = new PredictionMarket(projectId, projectName, owner);
+        projectMarkets[projectId] = address(market);
+        emit MarketCreated(address(market), projectId);
         return address(market);
     }
 
-    // Helper function to create a market through the factory
-    function createMarket(string memory question) public returns (address) {
-        return deployMarket(question);
+    function getMarket(uint64 projectId) external view returns (address) {
+        return projectMarkets[projectId];
     }
 }

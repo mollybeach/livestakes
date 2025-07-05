@@ -12,7 +12,7 @@
 
 LiveStakes is an open source platform that lets viewers watch every ETHGlobal hackathon project in real time and place on-chain predictions on which ones will win prizes. Teams broadcast live demos through WebRTC while the Hedera Agent Kit analyzes livestream environment and voice data to automatically create betting markets and predict winners using an automated market maker. When the AI makes final decisions, the Flow blockchain contracts settle and payout bettors instantly.
 
-This repository is a **monorepo** managed by Turborepo. It contains the Next.js frontend, Flow Cadence smart contracts, Hedera Agent Kit integration, WebRTC streaming server, and infrastructure as code required to deploy the complete system.
+It contains the Next.js frontend, Flow  smart contracts, Hedera Agent Kit integration, WebRTC streaming server, and infrastructure as code required to deploy the complete system.
 
 ---
 
