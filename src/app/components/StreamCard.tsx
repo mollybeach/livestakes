@@ -37,17 +37,17 @@ const StreamCard: React.FC<StreamCardProps> = ({
   const [isHovered, setIsHovered] = useState(false);
   const [videoError, setVideoError] = useState(false);
   const [isVideoReady, setIsVideoReady] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
+  const [isMuted, setIsMuted] = useState(true); // Start muted to allow autoplay
 
-  // Debug logging
-  console.log('StreamCard render:', { title, stream_url, videoError, isVideoReady });
+
 
   const handleMouseEnter = () => {
     setIsHovered(true);
     if (videoRef.current && stream_url && isVideoReady && !videoError) {
+      // Ensure video is muted for autoplay (browsers require this)
+      videoRef.current.muted = true;
       videoRef.current.currentTime = 0;
-      videoRef.current.play().catch((error) => {
-        console.log('Play error for:', title, error);
+      videoRef.current.play().catch(() => {
         setVideoError(true);
       });
     }
@@ -62,26 +62,25 @@ const StreamCard: React.FC<StreamCardProps> = ({
   };
 
   const handleVideoLoadedData = () => {
-    console.log('Video loaded successfully for:', title);
     setIsVideoReady(true);
     setVideoError(false); // Reset error state when video loads successfully
-    // Set to first frame when video loads
+    // Set to first frame when video loads and ensure proper mute state
     if (videoRef.current) {
       videoRef.current.currentTime = 0;
-      videoRef.current.muted = isMuted;
+      videoRef.current.muted = true; // Always start muted for autoplay compatibility
     }
   };
 
   const toggleMute = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsMuted(!isMuted);
+    const newMutedState = !isMuted;
+    setIsMuted(newMutedState);
     if (videoRef.current) {
-      videoRef.current.muted = !isMuted;
+      videoRef.current.muted = newMutedState;
     }
   };
 
-  const handleVideoError = (e: any) => {
-    console.log('Video error for:', title, 'URL:', stream_url, 'Error:', e);
+  const handleVideoError = () => {
     setVideoError(true);
   };
 
