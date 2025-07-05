@@ -31,7 +31,7 @@ const BettingIndicator: React.FC<BettingIndicatorProps> = ({ livestreamId, marke
         setTotalPool(0);
         return;
       }
-
+      
       // Always fetch on-chain data for accurate market status
       try {
         console.log(`📡 Fetching on-chain data for market ${market.contract_address}`);
@@ -39,7 +39,10 @@ const BettingIndicator: React.FC<BettingIndicatorProps> = ({ livestreamId, marke
         
         console.log(`📈 Market info:`, info);
         
-        if (info.state === MarketState.Open) {
+        // Convert BigInt to number for comparison
+        const stateNumber = Number(info.state);
+        
+        if (stateNumber === MarketState.Open) {
           setHasActiveMarket(true);
           const poolAmount = parseFloat(info.totalPool) || 0;
           setTotalPool(poolAmount);
@@ -47,7 +50,7 @@ const BettingIndicator: React.FC<BettingIndicatorProps> = ({ livestreamId, marke
         } else {
           setHasActiveMarket(false);
           setTotalPool(0);
-          console.log(`❌ BettingIndicator: Market closed (state: ${info.state})`);
+          console.log(`❌ BettingIndicator: Market closed (state: ${stateNumber})`);
         }
       } catch (contractError) {
         console.error(`❌ Could not fetch on-chain data for ${market.contract_address}:`, contractError);

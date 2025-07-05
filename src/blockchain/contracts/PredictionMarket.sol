@@ -6,7 +6,6 @@ interface IMarketFactory {
 }
 
 contract PredictionMarket {
-    enum Side { Yes, No }
     enum State { Open, Closed, Resolved }
 
     struct LivestreamData {
@@ -23,13 +22,14 @@ contract PredictionMarket {
     address public oracle;
     address public factory;
     State public state;
-    Side public outcome;
+    uint256 public winningLivestreamId; // Changed from Side outcome to winning livestream ID
     uint256 public createdAt;
     uint256 public closedAt;
     uint256 public resolvedAt;
 
-    mapping(address => mapping(uint8 => uint256)) public bets;
-    mapping(uint8 => uint256) public totalBets;
+    // Per-livestream betting instead of Yes/No
+    mapping(address => mapping(uint256 => uint256)) public bets; // user -> livestreamId -> amount
+    mapping(uint256 => uint256) public totalBets; // livestreamId -> total amount
     uint256 public totalPool;
     
     // Track unique bettors for analytics
@@ -37,9 +37,9 @@ contract PredictionMarket {
     address[] public bettors;
     uint256 public totalBettors;
 
-    event BetPlaced(address indexed user, Side side, uint256 amount, uint256 timestamp);
+    event BetPlaced(address indexed user, uint256 indexed livestreamId, uint256 amount, uint256 timestamp);
     event MarketClosed(uint256 timestamp);
-    event MarketResolved(Side outcome, uint256 timestamp);
+    event MarketResolved(uint256 indexed winningLivestreamId, uint256 timestamp);
     event PayoutClaimed(address indexed user, uint256 amount, uint256 timestamp);
     event LivestreamAdded(uint256 indexed livestreamId, string title);
     event LivestreamRemoved(uint256 indexed livestreamId);
@@ -125,8 +125,10 @@ contract PredictionMarket {
         emit LivestreamRemoved(_livestreamId);
     }
 
-    function placeBet(Side side) external payable inState(State.Open) {
+    // Updated betting function - bet on specific livestream
+    function placeBet(uint256 _livestreamId) external payable inState(State.Open) {
         require(msg.value > 0, "Must send ETH");
+        require(livestreams[_livestreamId].id != 0, "Livestream not in market");
         
         // Track new bettor
         if (!hasBet[msg.sender]) {
@@ -135,11 +137,11 @@ contract PredictionMarket {
             totalBettors++;
         }
         
-        bets[msg.sender][uint8(side)] += msg.value;
-        totalBets[uint8(side)] += msg.value;
+        bets[msg.sender][_livestreamId] += msg.value;
+        totalBets[_livestreamId] += msg.value;
         totalPool += msg.value;
         
-        emit BetPlaced(msg.sender, side, msg.value, block.timestamp);
+        emit BetPlaced(msg.sender, _livestreamId, msg.value, block.timestamp);
     }
 
     function closeMarket() external onlyOracle inState(State.Open) {
@@ -152,26 +154,29 @@ contract PredictionMarket {
         emit MarketClosed(block.timestamp);
     }
 
-    function resolveMarket(Side _outcome) external onlyOracle inState(State.Closed) {
-        outcome = _outcome;
+    // Updated resolution function - specify winning livestream
+    function resolveMarket(uint256 _winningLivestreamId) external onlyOracle inState(State.Closed) {
+        require(livestreams[_winningLivestreamId].id != 0, "Invalid winning livestream");
+        
+        winningLivestreamId = _winningLivestreamId;
         state = State.Resolved;
         resolvedAt = block.timestamp;
         
-        emit MarketResolved(_outcome, block.timestamp);
+        emit MarketResolved(_winningLivestreamId, block.timestamp);
     }
 
     function claimPayout() external inState(State.Resolved) {
-        uint256 userBet = bets[msg.sender][uint8(outcome)];
+        uint256 userBet = bets[msg.sender][winningLivestreamId];
         require(userBet > 0, "No winning bet");
         
-        uint256 winningPool = totalBets[uint8(outcome)];
+        uint256 winningPool = totalBets[winningLivestreamId];
         require(winningPool > 0, "No winning bets");
         
         // Calculate payout: user's proportion of winning pool gets proportional share of total pool
         uint256 payout = (userBet * totalPool) / winningPool;
         
         // Reset user's bet to prevent double claiming
-        bets[msg.sender][uint8(outcome)] = 0;
+        bets[msg.sender][winningLivestreamId] = 0;
         
         // Transfer payout
         (bool success, ) = msg.sender.call{value: payout}("");
@@ -180,15 +185,13 @@ contract PredictionMarket {
         emit PayoutClaimed(msg.sender, payout, block.timestamp);
     }
 
-    // View functions
+    // View functions - Updated to return per-livestream data
     function getMarketInfo() external view returns (
         uint256[] memory _livestreamIds,
         string memory _question,
         string[] memory _livestreamTitles,
         State _state,
-        Side _outcome,
-        uint256 _yesBets,
-        uint256 _noBets,
+        uint256 _winningLivestreamId,
         uint256 _totalPool,
         uint256 _totalBettors,
         uint256 _createdAt,
@@ -206,9 +209,7 @@ contract PredictionMarket {
             question,
             titles,
             state,
-            outcome,
-            totalBets[uint8(Side.Yes)],
-            totalBets[uint8(Side.No)],
+            winningLivestreamId,
             totalPool,
             totalBettors,
             createdAt,
@@ -217,10 +218,88 @@ contract PredictionMarket {
         );
     }
 
-    function getLivestreamCount() external view returns (uint256) {
-        return livestreamIds.length;
+    // New function: Get per-livestream betting data
+    function getLivestreamBets(uint256 _livestreamId) external view returns (
+        uint256 totalBetsAmount,
+        uint256 percentage,
+        bool isActive
+    ) {
+        require(livestreams[_livestreamId].active, "Livestream not active");
+        
+        uint256 amount = totalBets[_livestreamId];
+        uint256 percent = totalPool > 0 ? (amount * 100) / totalPool : 0;
+        
+        return (amount, percent, livestreams[_livestreamId].active);
     }
 
+    // New function: Get all livestreams with their betting data
+    function getAllLivestreamBets() external view returns (
+        uint256[] memory _livestreamIds,
+        string[] memory _titles,
+        uint256[] memory _amounts,
+        uint256[] memory _percentages
+    ) {
+        uint256 activeCount = 0;
+        
+        // Count active livestreams
+        for (uint256 i = 0; i < livestreamIds.length; i++) {
+            if (livestreams[livestreamIds[i]].active) {
+                activeCount++;
+            }
+        }
+        
+        // Build arrays
+        uint256[] memory ids = new uint256[](activeCount);
+        string[] memory titles = new string[](activeCount);
+        uint256[] memory amounts = new uint256[](activeCount);
+        uint256[] memory percentages = new uint256[](activeCount);
+        
+        uint256 index = 0;
+        for (uint256 i = 0; i < livestreamIds.length; i++) {
+            uint256 livestreamId = livestreamIds[i];
+            if (livestreams[livestreamId].active) {
+                ids[index] = livestreamId;
+                titles[index] = livestreams[livestreamId].title;
+                amounts[index] = totalBets[livestreamId];
+                percentages[index] = totalPool > 0 ? (amounts[index] * 100) / totalPool : 0;
+                index++;
+            }
+        }
+        
+        return (ids, titles, amounts, percentages);
+    }
+
+    // Helper function: Get user's bets on all livestreams
+    function getUserBets(address _user) external view returns (
+        uint256[] memory _livestreamIds,
+        uint256[] memory _amounts
+    ) {
+        uint256 activeCount = 0;
+        
+        // Count active livestreams
+        for (uint256 i = 0; i < livestreamIds.length; i++) {
+            if (livestreams[livestreamIds[i]].active) {
+                activeCount++;
+            }
+        }
+        
+        uint256[] memory ids = new uint256[](activeCount);
+        uint256[] memory amounts = new uint256[](activeCount);
+        
+        uint256 index = 0;
+        for (uint256 i = 0; i < livestreamIds.length; i++) {
+            uint256 livestreamId = livestreamIds[i];
+            if (livestreams[livestreamId].active) {
+                ids[index] = livestreamId;
+                amounts[index] = bets[_user][livestreamId];
+                index++;
+            }
+        }
+        
+        return (ids, amounts);
+    }
+
+    // Helper function: Get livestream data
     function getLivestreamData(uint256 _livestreamId) external view returns (
         uint256 id,
         string memory title,
@@ -229,97 +308,5 @@ contract PredictionMarket {
     ) {
         LivestreamData memory data = livestreams[_livestreamId];
         return (data.id, data.title, data.active, data.addedAt);
-    }
-
-    function getAllLivestreamIds() external view returns (uint256[] memory) {
-        return livestreamIds;
-    }
-
-    function getAllLivestreamData() external view returns (
-        uint256[] memory ids,
-        string[] memory titles,
-        bool[] memory activeStates,
-        uint256[] memory addedTimes
-    ) {
-        uint256 length = livestreamIds.length;
-        ids = new uint256[](length);
-        titles = new string[](length);
-        activeStates = new bool[](length);
-        addedTimes = new uint256[](length);
-        
-        for (uint256 i = 0; i < length; i++) {
-            uint256 livestreamId = livestreamIds[i];
-            LivestreamData memory data = livestreams[livestreamId];
-            ids[i] = data.id;
-            titles[i] = data.title;
-            activeStates[i] = data.active;
-            addedTimes[i] = data.addedAt;
-        }
-    }
-
-    function isLivestreamInMarket(uint256 _livestreamId) external view returns (bool) {
-        return livestreams[_livestreamId].active;
-    }
-
-    function getUserBets(address user) external view returns (uint256 yesBets, uint256 noBets) {
-        return (
-            bets[user][uint8(Side.Yes)],
-            bets[user][uint8(Side.No)]
-        );
-    }
-
-    function getOdds() external view returns (uint256 yesOdds, uint256 noOdds) {
-        if (totalPool == 0) return (100, 100); // 50/50 if no bets
-        
-        uint256 yesPool = totalBets[uint8(Side.Yes)];
-        uint256 noPool = totalBets[uint8(Side.No)];
-        
-        if (yesPool == 0) return (0, 200);
-        if (noPool == 0) return (200, 0);
-        
-        // Calculate implied probability as percentage
-        yesOdds = (yesPool * 100) / totalPool;
-        noOdds = (noPool * 100) / totalPool;
-    }
-
-    function getPotentialPayout(address user, Side side) external view returns (uint256) {
-        if (state != State.Open) return 0;
-        
-        uint256 userBet = bets[user][uint8(side)];
-        if (userBet == 0) return 0;
-        
-        uint256 sidePool = totalBets[uint8(side)];
-        if (sidePool == 0) return 0;
-        
-        return (userBet * totalPool) / sidePool;
-    }
-
-    function getBettorsList(uint256 offset, uint256 limit) external view returns (address[] memory) {
-        require(offset < bettors.length, "Offset out of bounds");
-        
-        uint256 end = offset + limit;
-        if (end > bettors.length) {
-            end = bettors.length;
-        }
-        
-        address[] memory result = new address[](end - offset);
-        for (uint256 i = offset; i < end; i++) {
-            result[i - offset] = bettors[i];
-        }
-        
-        return result;
-    }
-
-    // Emergency functions
-    function emergencyClose() external onlyOracle {
-        require(state == State.Open, "Market not open");
-        state = State.Closed;
-        closedAt = block.timestamp;
-        emit MarketClosed(block.timestamp);
-    }
-
-    function changeOracle(address newOracle) external onlyOracle {
-        require(newOracle != address(0), "Invalid address");
-        oracle = newOracle;
     }
 } 

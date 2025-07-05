@@ -14,7 +14,7 @@ const CONTRACTS = {
   },
   // Flow EVM Testnet
   'flow-testnet': {
-    MarketFactory: '0xa95F10E9329445603F005A6D1a7bA211FbD9bC8D',
+    MarketFactory: '0x1d15e865a9B39C938379CdAaBe575561E91ED6F7',
     chainId: 545,
     rpcUrl: 'https://testnet.evm.nodes.onflow.org'
   },
@@ -83,15 +83,47 @@ const MARKET_FACTORY_ABI = MarketFactoryArtifact.abi;
 
 const PREDICTION_MARKET_ABI = PredictionMarketArtifact.abi;
 
-export enum BetSide {
-  Yes = 0,
-  No = 1
-}
-
 export enum MarketState {
   Open = 0,
   Closed = 1,
   Resolved = 2
+}
+
+// Helper function to convert market state to readable string
+export function getMarketStateLabel(state: MarketState): string {
+  switch (state) {
+    case MarketState.Open:
+      return 'Open';
+    case MarketState.Closed:
+      return 'Closed';
+    case MarketState.Resolved:
+      return 'Resolved';
+    default:
+      return 'Unknown';
+  }
+}
+
+// Helper function to get market state status with color
+export function getMarketStateStatus(state: MarketState): { label: string; color: string } {
+  switch (state) {
+    case MarketState.Open:
+      return { label: 'Open', color: 'green' };
+    case MarketState.Closed:
+      return { label: 'Closed', color: 'yellow' };
+    case MarketState.Resolved:
+      return { label: 'Resolved', color: 'blue' };
+    default:
+      return { label: 'Unknown', color: 'gray' };
+  }
+}
+
+// Per-livestream betting data
+export interface LivestreamBet {
+  livestreamId: number;
+  title: string;
+  amount: string;
+  percentage: number;
+  isActive: boolean;
 }
 
 export interface MarketInfo {
@@ -99,9 +131,7 @@ export interface MarketInfo {
   question: string;
   livestreamTitles: string[];
   state: MarketState;
-  outcome: BetSide;
-  yesBets: string;
-  noBets: string;
+  winningLivestreamId: number;
   totalPool: string;
   totalBettors: number;
   createdAt: number;
@@ -110,13 +140,12 @@ export interface MarketInfo {
 }
 
 export interface UserBets {
-  yesBets: string;
-  noBets: string;
+  livestreamIds: number[];
+  amounts: string[];
 }
 
 export interface MarketOdds {
-  yesOdds: number;
-  noOdds: number;
+  livestreamBets: LivestreamBet[];
 }
 
 // Get Ethereum provider
@@ -405,14 +434,12 @@ export async function getMarketInfo(marketAddress: string): Promise<MarketInfo> 
       question: info[1],
       livestreamTitles: info[2],
       state: info[3],
-      outcome: info[4],
-      yesBets: formatEther(info[5]),
-      noBets: formatEther(info[6]),
-      totalPool: formatEther(info[7]),
-      totalBettors: Number(info[8]),
-      createdAt: Number(info[9]),
-      closedAt: Number(info[10]),
-      resolvedAt: Number(info[11])
+      winningLivestreamId: Number(info[4]),
+      totalPool: formatEther(info[5]),
+      totalBettors: Number(info[6]),
+      createdAt: Number(info[7]),
+      closedAt: Number(info[8]),
+      resolvedAt: Number(info[9])
     };
   } catch (error) {
     console.error('Error fetching market info:', error);
@@ -420,19 +447,19 @@ export async function getMarketInfo(marketAddress: string): Promise<MarketInfo> 
   }
 }
 
-// Place a bet on a market
+// Place a bet on a specific livestream in a market
 export async function placeBet(
   marketAddress: string,
-  side: BetSide,
+  livestreamId: number,
   amount: string
 ): Promise<string> {
   try {
     const signer = await getSigner();
     const contract = new Contract(marketAddress, PREDICTION_MARKET_ABI, signer);
     
-    console.log(`Placing bet: ${amount} FLOW on ${side === BetSide.Yes ? 'Yes' : 'No'}`);
+    console.log(`Placing bet: ${amount} FLOW on livestream ${livestreamId}`);
     
-    const tx = await contract.placeBet(side, {
+    const tx = await contract.placeBet(livestreamId, {
       value: parseEther(amount)
     });
     
@@ -458,6 +485,8 @@ export async function placeBet(
         throw new Error('This market is closed for betting');
       } else if (error.message.includes('InvalidAmount')) {
         throw new Error('Invalid bet amount - must be greater than 0');
+      } else if (error.message.includes('Livestream not active')) {
+        throw new Error('This livestream is not available for betting');
       }
     }
     
@@ -465,7 +494,7 @@ export async function placeBet(
   }
 }
 
-// Get user's bets for a market
+// Get user's bets for a market (per-livestream)
 export async function getUserBets(marketAddress: string, userAddress: string): Promise<UserBets> {
   try {
     const provider = getProvider();
@@ -474,44 +503,77 @@ export async function getUserBets(marketAddress: string, userAddress: string): P
     const bets = await contract.getUserBets(userAddress);
     
     return {
-      yesBets: formatEther(bets.yesBets),
-      noBets: formatEther(bets.noBets)
+      livestreamIds: bets[0].map((id: any) => Number(id)),
+      amounts: bets[1].map((amount: any) => formatEther(amount))
     };
   } catch (error) {
     console.error('Error fetching user bets:', error);
-    return { yesBets: '0', noBets: '0' };
+    return { livestreamIds: [], amounts: [] };
   }
 }
 
-// Get market odds
+// Get market odds (per-livestream betting data)
 export async function getMarketOdds(marketAddress: string): Promise<MarketOdds> {
   try {
     const provider = getProvider();
     const contract = new Contract(marketAddress, PREDICTION_MARKET_ABI, provider);
     
-    const odds = await contract.getOdds();
+    const betsData = await contract.getAllLivestreamBets();
+    
+    const livestreamBets: LivestreamBet[] = [];
+    for (let i = 0; i < betsData[0].length; i++) {
+      livestreamBets.push({
+        livestreamId: Number(betsData[0][i]),
+        title: betsData[1][i],
+        amount: formatEther(betsData[2][i]),
+        percentage: Number(betsData[3][i]),
+        isActive: true
+      });
+    }
     
     return {
-      yesOdds: Number(odds.yesOdds),
-      noOdds: Number(odds.noOdds)
+      livestreamBets
     };
   } catch (error) {
     console.error('Error fetching odds:', error);
-    return { yesOdds: 50, noOdds: 50 };
+    return { livestreamBets: [] };
   }
 }
 
-// Get potential payout for a user's bet
+// Get potential payout for a user's bet on a specific livestream
 export async function getPotentialPayout(
   marketAddress: string,
   userAddress: string,
-  side: BetSide
+  livestreamId: number
 ): Promise<string> {
   try {
     const provider = getProvider();
     const contract = new Contract(marketAddress, PREDICTION_MARKET_ABI, provider);
     
-    const payout = await contract.getPotentialPayout(userAddress, side);
+    // Calculate potential payout based on current pool distribution
+    const [userBets, marketInfo] = await Promise.all([
+      contract.getUserBets(userAddress),
+      contract.getMarketInfo()
+    ]);
+    
+    // Find user's bet on this livestream
+    const livestreamIds = userBets[0].map((id: any) => Number(id));
+    const amounts = userBets[1];
+    
+    const index = livestreamIds.indexOf(livestreamId);
+    if (index === -1) return '0';
+    
+    const userBet = amounts[index];
+    const totalPool = marketInfo[5]; // totalPool is at index 5
+    
+    // Get total bets on this livestream
+    const livestreamBetData = await contract.getLivestreamBets(livestreamId);
+    const livestreamPool = livestreamBetData[0];
+    
+    if (livestreamPool.toString() === '0') return '0';
+    
+    // Calculate potential payout: (userBet / livestreamPool) * totalPool
+    const payout = (userBet * totalPool) / livestreamPool;
     return formatEther(payout);
   } catch (error) {
     console.error('Error fetching potential payout:', error);
@@ -650,18 +712,16 @@ export async function fetchMarketsWithMetadata(filters: {
         const onChainInfo = await contract.getMarketInfo();
         
         const marketWithMetadata: MarketWithMetadata = {
-          livestreamIds: onChainInfo[0],
+          livestreamIds: onChainInfo[0].map((id: any) => Number(id)),
           question: onChainInfo[1],
           livestreamTitles: onChainInfo[2],
           state: onChainInfo[3],
-          outcome: onChainInfo[4],
-          yesBets: formatEther(onChainInfo[5]),
-          noBets: formatEther(onChainInfo[6]),
-          totalPool: formatEther(onChainInfo[7]),
-          totalBettors: Number(onChainInfo[8]),
-          createdAt: Number(onChainInfo[9]),
-          closedAt: Number(onChainInfo[10]),
-          resolvedAt: Number(onChainInfo[11]),
+          winningLivestreamId: Number(onChainInfo[4]),
+          totalPool: formatEther(onChainInfo[5]),
+          totalBettors: Number(onChainInfo[6]),
+          createdAt: Number(onChainInfo[7]),
+          closedAt: Number(onChainInfo[8]),
+          resolvedAt: Number(onChainInfo[9]),
           // Metadata
           contractAddress: metadata.contract_address,
           creator: metadata.creator_wallet_address,

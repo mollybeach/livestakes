@@ -9,11 +9,11 @@ import {
   getMarketOdds,
   createMarket,
   claimPayout,
-  BetSide,
   MarketState,
   MarketInfo,
   UserBets,
   MarketOdds,
+  LivestreamBet,
   connectWallet,
   isWalletAvailable,
   getNetworkInfo,
@@ -43,11 +43,11 @@ const BettingModal: React.FC<BettingModalProps> = ({
   // Market state
   const [selectedMarket, setSelectedMarket] = useState<string>('');
   const [marketInfo, setMarketInfo] = useState<MarketInfo | null>(null);
-  const [userBets, setUserBets] = useState<UserBets>({ yesBets: '0', noBets: '0' });
-  const [marketOdds, setMarketOdds] = useState<MarketOdds>({ yesOdds: 50, noOdds: 50 });
+  const [userBets, setUserBets] = useState<UserBets>({ livestreamIds: [], amounts: [] });
+  const [marketOdds, setMarketOdds] = useState<MarketOdds>({ livestreamBets: [] });
   
   // Betting state
-  const [betSide, setBetSide] = useState<BetSide>(BetSide.Yes);
+  const [selectedLivestreamId, setSelectedLivestreamId] = useState<number | null>(null);
   const [betAmount, setBetAmount] = useState<string>('0.1');
   const [sliderValue, setSliderValue] = useState<number>(10); // 10 = 0.1 FLOW
   const [isPlacingBet, setIsPlacingBet] = useState(false);
@@ -75,6 +75,9 @@ const BettingModal: React.FC<BettingModalProps> = ({
       console.log(`🔍 BettingModal: Loading markets for livestream ${livestreamId}...`);
       console.log(`📊 Markets data:`, market);
       
+      // Always set the current livestream as selected for betting
+      setSelectedLivestreamId(livestreamId);
+      
       if (market && market.contract_address) {
         console.log(`✅ Found market ${market.contract_address}`);
         setSelectedMarket(market.contract_address);
@@ -82,7 +85,7 @@ const BettingModal: React.FC<BettingModalProps> = ({
       } else {
         console.log(`⚠️ No market found for livestream ${livestreamId}, showing create market interface`);
         // Set a default market question for hackathon projects
-        setNewMarketQuestion(`Will ${livestreamTitle} win the hackathon?`);
+        setNewMarketQuestion(`Which hackathon project will win?`);
         setShowCreateMarket(true);
       }
     } catch (error) {
@@ -113,13 +116,11 @@ const BettingModal: React.FC<BettingModalProps> = ({
         // Use backend data
         console.log(`✅ Using backend market data for ${selectedMarket}`);
         setMarketInfo({
-          livestreamId: livestreamId,
-          question: marketData.question || `Will ${livestreamTitle} win?`,
-          livestreamTitle: livestreamTitle,
+          livestreamIds: [livestreamId], // Current livestream
+          question: marketData.question || `Which hackathon project will win?`,
+          livestreamTitles: [livestreamTitle],
           state: marketData.state as MarketState,
-          outcome: marketData.state === 2 ? BetSide.Yes : BetSide.No, // Default to Yes if resolved
-          yesBets: marketData.yes_bets || '0',
-          noBets: marketData.no_bets || '0',
+          winningLivestreamId: 0, // Default to 0 if not resolved
           totalPool: marketData.total_pool || '0',
           totalBettors: 0,
           createdAt: marketData.created_at ? new Date(marketData.created_at).getTime() : Date.now(),
@@ -127,10 +128,9 @@ const BettingModal: React.FC<BettingModalProps> = ({
           resolvedAt: marketData.state === 2 ? Date.now() : 0
         });
         
-        // Set odds from backend data
+        // Set default odds (empty for now)
         setMarketOdds({
-          yesOdds: marketData.yes_odds || 50,
-          noOdds: marketData.no_odds || 50
+          livestreamBets: []
         });
       } else {
         // Fallback to on-chain data
@@ -151,7 +151,7 @@ const BettingModal: React.FC<BettingModalProps> = ({
           setUserBets(bets);
         } catch (error) {
           console.warn('Could not load user bets:', error);
-          setUserBets({ yesBets: '0', noBets: '0' });
+          setUserBets({ livestreamIds: [], amounts: [] });
         }
       }
     } catch (error) {
@@ -190,8 +190,8 @@ const BettingModal: React.FC<BettingModalProps> = ({
   };
 
   const handlePlaceBet = async () => {
-    if (!selectedMarket || !authenticated || !user?.wallet?.address) {
-      setError('Please connect your wallet to place a bet');
+    if (!selectedMarket || !authenticated || !user?.wallet?.address || !selectedLivestreamId) {
+      setError('Please connect your wallet and select a project to bet on');
       return;
     }
 
@@ -200,9 +200,9 @@ const BettingModal: React.FC<BettingModalProps> = ({
       setError(null);
       setSuccess(null);
       
-      console.log(`🎯 Placing bet: ${betAmount} FLOW on ${betSide === BetSide.Yes ? 'Yes' : 'No'}`);
+      console.log(`🎯 Placing bet: ${betAmount} FLOW on livestream ${selectedLivestreamId}`);
       
-      const txHash = await placeBet(selectedMarket, betSide, betAmount);
+      const txHash = await placeBet(selectedMarket, selectedLivestreamId, betAmount);
       console.log(`✅ Bet placed successfully! Transaction: ${txHash}`);
       
       setSuccess(`Bet placed successfully! 🎉`);
@@ -236,9 +236,13 @@ const BettingModal: React.FC<BettingModalProps> = ({
       console.log(`🏗️ Creating market: ${newMarketQuestion}`);
       
       const contractAddress = await createMarket(
-        livestreamId,
         newMarketQuestion,
-        livestreamTitle
+        livestreamTitle,
+        '', // description
+        'hackathon', // category
+        [], // tags
+        [], // livestreamIds - empty for now
+        [] // livestreamTitles - empty for now
       );
       
       console.log(`✅ Market created successfully! Address: ${contractAddress}`);
@@ -401,52 +405,29 @@ const BettingModal: React.FC<BettingModalProps> = ({
               {/* Market Status */}
               <div className="flex items-center justify-between">
                 <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  marketInfo.state === MarketState.Open 
+                  Number(marketInfo.state) === MarketState.Open 
                     ? 'bg-green-100 text-green-800' 
                     : 'bg-gray-100 text-gray-800'
                 }`}>
-                  {marketInfo.state === MarketState.Open ? '🟢 Active' : '🔴 Closed'}
+                  {Number(marketInfo.state) === MarketState.Open ? '🟢 Active' : '🔴 Closed'}
                 </span>
                 <div className="text-sm text-gray-600">
-                  Yes: {marketOdds.yesOdds}% • No: {marketOdds.noOdds}%
+                  Hackathon Competition
                 </div>
               </div>
 
-              {/* Betting Form */}
-              {marketInfo.state === MarketState.Open && (
-                <div className="space-y-4">
-                  {/* Bet Side Selection */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Choose Your Prediction
-                    </label>
-                    <div className="grid grid-cols-2 gap-3">
-                      <button
-                        onClick={() => setBetSide(BetSide.Yes)}
-                        className={`p-3 rounded-lg border-2 transition-all ${
-                          betSide === BetSide.Yes
-                            ? 'border-green-500 bg-green-50 text-green-700'
-                            : 'border-gray-200 hover:border-gray-300'
-                        }`}
-                      >
-                        <div className="text-lg font-semibold">✅ Yes</div>
-                        <div className="text-sm opacity-75">{marketOdds.yesOdds}% odds</div>
-                      </button>
-                      
-                      <button
-                        onClick={() => setBetSide(BetSide.No)}
-                        className={`p-3 rounded-lg border-2 transition-all ${
-                          betSide === BetSide.No
-                            ? 'border-red-500 bg-red-50 text-red-700'
-                            : 'border-gray-200 hover:border-gray-300'
-                        }`}
-                      >
-                        <div className="text-lg font-semibold">❌ No</div>
-                        <div className="text-sm opacity-75">{marketOdds.noOdds}% odds</div>
-                      </button>
-                    </div>
-                  </div>
+              {/* Current Project Info */}
+              <div className="bg-purple-50 rounded-lg p-4">
+                <h4 className="font-semibold text-purple-900 mb-1">Betting on this Project</h4>
+                <p className="text-sm text-purple-700">{livestreamTitle}</p>
+                <p className="text-xs text-purple-600 mt-1">
+                  Bet FLOW tokens on whether this project will win the hackathon
+                </p>
+              </div>
 
+              {/* Betting Form */}
+              {Number(marketInfo.state) === MarketState.Open && (
+                <div className="space-y-4">
                   {/* Amount Slider */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -484,7 +465,10 @@ const BettingModal: React.FC<BettingModalProps> = ({
 
                   {/* Place Bet Button */}
                   <button
-                    onClick={handlePlaceBet}
+                    onClick={() => {
+                      setSelectedLivestreamId(livestreamId);
+                      handlePlaceBet();
+                    }}
                     disabled={isPlacingBet || !authenticated}
                     className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center"
                   >
@@ -496,7 +480,7 @@ const BettingModal: React.FC<BettingModalProps> = ({
                     ) : (
                       <>
                         <span className="mr-2">🎯</span>
-                        Place Bet {betAmount} FLOW on {betSide === BetSide.Yes ? 'Yes' : 'No'}
+                        Bet {betAmount} FLOW on {livestreamTitle}
                       </>
                     )}
                   </button>
@@ -504,26 +488,20 @@ const BettingModal: React.FC<BettingModalProps> = ({
               )}
 
               {/* User Bets */}
-              {authenticated && (parseFloat(userBets.yesBets) > 0 || parseFloat(userBets.noBets) > 0) && (
+              {authenticated && userBets.livestreamIds.length > 0 && (
                 <div className="bg-blue-50 rounded-lg p-4">
                   <h4 className="font-semibold text-blue-900 mb-2">Your Bets</h4>
                   <div className="space-y-1 text-sm">
-                    {parseFloat(userBets.yesBets) > 0 && (
-                      <div className="flex justify-between text-blue-800">
-                        <span>✅ Yes</span>
-                        <span>{userBets.yesBets} FLOW</span>
+                    {userBets.livestreamIds.map((id, index) => (
+                      <div key={id} className="flex justify-between text-blue-800">
+                        <span>🎯 Project {id}</span>
+                        <span>{userBets.amounts[index]} FLOW</span>
                       </div>
-                    )}
-                    {parseFloat(userBets.noBets) > 0 && (
-                      <div className="flex justify-between text-blue-800">
-                        <span>❌ No</span>
-                        <span>{userBets.noBets} FLOW</span>
-                      </div>
-                    )}
+                    ))}
                   </div>
                   
                   {/* Claim Payout Button */}
-                  {marketInfo.state === MarketState.Resolved && (
+                  {Number(marketInfo.state) === MarketState.Resolved && (
                     <button
                       onClick={handleClaimPayout}
                       disabled={isClaiming}
