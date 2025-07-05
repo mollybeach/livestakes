@@ -124,6 +124,25 @@ async function handleApiResponse<T>(response: Response): Promise<ApiResponse<T>>
   return data;
 }
 
+// Helper function to normalize backend livestream data
+function normalizeLivestreamData(rawData: any): Livestream {
+  return {
+    id: rawData.id,
+    title: rawData.title || 'Untitled Stream',
+    description: rawData.description || '',
+    creator_wallet_address: rawData.creator_wallet_address || '',
+    stream_url: rawData.stream_url || '',
+    thumbnail_url: rawData.thumbnail_url || 'https://via.placeholder.com/400x225/6366f1/ffffff?text=Live+Stream',
+    status: rawData.status || (rawData.end_time ? 'ended' : 'active') as 'scheduled' | 'active' | 'ended',
+    start_time: rawData.start_time || rawData.created_at,
+    end_time: rawData.end_time,
+    view_count: rawData.view_count || 0,
+    category: rawData.category || 'general',
+    created_at: rawData.created_at,
+    updated_at: rawData.updated_at
+  };
+}
+
 // Helper function to simulate API response with sample data
 function createSampleResponse<T>(data: T): ApiResponse<T> {
   return {
@@ -155,7 +174,19 @@ export async function getAllLivestreams(filters?: {
   
   try {
     const response = await fetch(url);
-    return await handleApiResponse<Livestream[]>(response);
+    const rawData = await handleApiResponse<any[]>(response);
+    
+    // Normalize the backend data to match our Livestream interface
+    if (rawData.success && rawData.data && Array.isArray(rawData.data)) {
+      const normalizedData = rawData.data.map(normalizeLivestreamData);
+      return {
+        success: true,
+        data: normalizedData,
+        count: normalizedData.length
+      };
+    }
+    
+    return rawData;
   } catch (error) {
     console.warn('API not available, using sample data:', error);
     
@@ -188,7 +219,18 @@ export async function getAllLivestreams(filters?: {
 export async function getLivestreamById(id: number): Promise<ApiResponse<Livestream>> {
   try {
     const response = await fetch(`${API_BASE_URL}/livestreams/${id}`);
-    return await handleApiResponse<Livestream>(response);
+    const rawData = await handleApiResponse<any>(response);
+    
+    // Normalize the backend data to match our Livestream interface
+    if (rawData.success && rawData.data) {
+      const normalizedData = normalizeLivestreamData(rawData.data);
+      return {
+        success: true,
+        data: normalizedData
+      };
+    }
+    
+    return rawData;
   } catch (error) {
     console.error('Error fetching livestream:', error);
     throw error;
@@ -302,7 +344,27 @@ export async function endLivestream(id: number): Promise<ApiResponse<Livestream>
  * Get active livestreams
  */
 export async function getActiveLivestreams(): Promise<ApiResponse<Livestream[]>> {
-  return getAllLivestreams({ status: 'active' });
+  try {
+    const response = await fetch(`${API_BASE_URL}/livestreams?status=active`);
+    const rawData = await handleApiResponse<any[]>(response);
+    
+    // Normalize the backend data to match our Livestream interface
+    if (rawData.success && rawData.data && Array.isArray(rawData.data)) {
+      const normalizedData = rawData.data.map(normalizeLivestreamData);
+      return {
+        success: true,
+        data: normalizedData,
+        count: normalizedData.length
+      };
+    }
+    
+    return rawData;
+  } catch (error) {
+    console.warn('Active livestreams API not available, using sample data:', error);
+    // Return sample active livestreams
+    const activeSample = SAMPLE_LIVESTREAMS.filter(stream => stream.status === 'active');
+    return createSampleResponse(activeSample);
+  }
 }
 
 /**

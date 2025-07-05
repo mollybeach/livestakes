@@ -3,10 +3,14 @@
 import Image from 'next/image';
 import { Livestream, formatLivestreamTime, getStatusColor, incrementViewCount } from '../lib/livestreamsApi';
 
+
+
 interface LivestreamCardProps {
   livestream: Livestream;
   onView?: (livestream: Livestream) => void;
 }
+
+
 
 export default function LivestreamCard({ livestream, onView }: LivestreamCardProps) {
   const handleCardClick = async () => {
