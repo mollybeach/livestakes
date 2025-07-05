@@ -5,7 +5,7 @@ services:
     image: europe-north1-docker.pkg.dev/wobreeze-448419/livestakes-api/image:${IMAGE_TAG}
     
     ports:
-      - 8095:80
+      - 8098:80
     dns: 8.8.8.8
     tty: true
     healthcheck:
