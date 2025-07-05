@@ -44,7 +44,7 @@ const Hero = () => (
           Ready&nbsp;to&nbsp;Start&nbsp;Earning?
         </h2>
         <p className="text-sm leading-relaxed text-purple-800">
-            The world's first AI-powered livestream betting platform.<br />
+            The world&apos;s first AI-powered livestream betting platform.<br />
             Watch your favorite ETHGlobal hackathon streams and stake on who wins—<br />
             all powered by smart contracts and real-time analysis.
           </p>

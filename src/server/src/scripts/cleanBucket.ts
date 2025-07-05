@@ -63,9 +63,9 @@ class BucketCleaner {
         const [metadata] = await file.getMetadata();
         return {
           name: file.name,
-          size: parseInt(metadata.size || '0'),
-          created: new Date(metadata.timeCreated),
-          updated: new Date(metadata.updated),
+          size: parseInt(String(metadata.size) || '0'),
+          created: new Date(metadata.timeCreated || ''),
+          updated: new Date(metadata.updated || ''),
           contentType: metadata.contentType,
           metadata: metadata.metadata || {}
         };

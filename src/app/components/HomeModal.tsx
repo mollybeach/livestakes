@@ -44,7 +44,7 @@ export const HomeModalContent: React.FC = () => (
     </div>
     {/* Main description below tri-split */}
     <div className="w-full max-w-xl text-xs sm:text-sm leading-relaxed text-center mb-6 text-purple-800">
-      LiveStakes is the world's first <b>AI-powered livestream betting platform</b> built for hackathons and live events.
+      LiveStakes is the world&apos;s first <b>AI-powered livestream betting platform</b> built for hackathons and live events.
     </div>
     {/* Connect Wallet at the bottom */}
     <div className="mt-auto w-full flex justify-center">
