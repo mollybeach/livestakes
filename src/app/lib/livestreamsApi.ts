@@ -1,5 +1,6 @@
 // Livestreams API utility functions for frontend
 
+
 export interface Livestream {
   id?: number;
   title: string;
@@ -12,6 +13,10 @@ export interface Livestream {
   end_time?: string;
   view_count?: number;
   category?: string;
+  tags?: string[];
+  transcript?: string;
+  market_address?: string; // Single contract address for 1:1 relationship
+  market?: any; // Single market data
   created_at?: string;
   updated_at?: string;
 }
@@ -124,24 +129,6 @@ async function handleApiResponse<T>(response: Response): Promise<ApiResponse<T>>
   return data;
 }
 
-// Helper function to normalize backend livestream data
-function normalizeLivestreamData(rawData: any): Livestream {
-  return {
-    id: rawData.id,
-    title: rawData.title || 'Untitled Stream',
-    description: rawData.description || '',
-    creator_wallet_address: rawData.creator_wallet_address || '',
-    stream_url: rawData.stream_url || '',
-    thumbnail_url: rawData.thumbnail_url || 'https://via.placeholder.com/400x225/6366f1/ffffff?text=Live+Stream',
-    status: rawData.status || (rawData.end_time ? 'ended' : 'active') as 'scheduled' | 'active' | 'ended',
-    start_time: rawData.start_time || rawData.created_at,
-    end_time: rawData.end_time,
-    view_count: rawData.view_count || 0,
-    category: rawData.category || 'general',
-    created_at: rawData.created_at,
-    updated_at: rawData.updated_at
-  };
-}
 
 // Helper function to simulate API response with sample data
 function createSampleResponse<T>(data: T): ApiResponse<T> {
@@ -178,11 +165,11 @@ export async function getAllLivestreams(filters?: {
     
     // Normalize the backend data to match our Livestream interface
     if (rawData.success && rawData.data && Array.isArray(rawData.data)) {
-      const normalizedData = rawData.data.map(normalizeLivestreamData);
+      // const normalizedData = rawData.data.map(normalizeLivestreamData);
       return {
         success: true,
-        data: normalizedData,
-        count: normalizedData.length
+        data: rawData.data,
+        count: rawData.data.length
       };
     }
     
@@ -223,10 +210,9 @@ export async function getLivestreamById(id: number): Promise<ApiResponse<Livestr
     
     // Normalize the backend data to match our Livestream interface
     if (rawData.success && rawData.data) {
-      const normalizedData = normalizeLivestreamData(rawData.data);
       return {
         success: true,
-        data: normalizedData
+        data: rawData.data
       };
     }
     
@@ -350,11 +336,10 @@ export async function getActiveLivestreams(): Promise<ApiResponse<Livestream[]>>
     
     // Normalize the backend data to match our Livestream interface
     if (rawData.success && rawData.data && Array.isArray(rawData.data)) {
-      const normalizedData = rawData.data.map(normalizeLivestreamData);
       return {
         success: true,
-        data: normalizedData,
-        count: normalizedData.length
+        data: rawData.data,
+        count: rawData.data.length
       };
     }
     

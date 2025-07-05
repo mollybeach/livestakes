@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import MarketCreationModal from './MarketCreationModal';
+import MarketAssociationModal from './MarketAssociationModal';
 
 interface DashboardHeaderProps {
   title?: string;

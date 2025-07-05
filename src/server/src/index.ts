@@ -13,11 +13,14 @@ import {
   deleteLivestream,
   getLivestreamsByCreator,
   updateViewCount,
-  Livestream
+  Livestream,
+  associateMarketWithLivestream
 } from './database/transactions';
 import pool from './database/db';
 import { runMigrations } from './database/migrations';
 import videoUploadRoutes from './routes/videoUpload';
+import marketRoutes from './routes/markets';
+import marketsMetadataRoutes from './routes/marketsMetadata';
 
 const app = express();
 const server = http.createServer(app);
@@ -63,6 +66,8 @@ app.use(express.json());
 
 // Routes
 app.use('/api', videoUploadRoutes);
+app.use('/api/markets', marketRoutes);
+app.use('/api/markets/metadata', marketsMetadataRoutes);
 
 // API routes
 app.get('/api/health', (req: any, res: any) => {
@@ -341,6 +346,50 @@ app.post('/api/livestreams/:id/view', async (req: any, res: any) => {
   }
 });
 
+// POST /api/livestreams/:id/associate-market - Associate a market with a livestream
+app.post('/api/livestreams/:id/associate-market', async (req: any, res: any) => {
+  try {
+    const { id } = req.params;
+    const { market_address } = req.body;
+    
+    const livestreamId = parseInt(id);
+    
+    if (isNaN(livestreamId)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid livestream ID'
+      });
+    }
+    
+    if (!market_address || typeof market_address !== 'string' || !market_address.startsWith('0x')) {
+      return res.status(400).json({
+        success: false,
+        error: 'Valid market address is required'
+      });
+    }
+    
+    const updatedLivestream = await associateMarketWithLivestream(market_address, livestreamId);
+    
+    if (!updatedLivestream) {
+      return res.status(404).json({
+        success: false,
+        error: 'Livestream not found'
+      });
+    }
+    
+    res.status(200).json({
+      success: true,
+      data: updatedLivestream,
+      message: 'Market associated successfully'
+    });
+  } catch (error) {
+    console.error('Error associating market with livestream:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to associate market with livestream'
+    });
+  }
+});
 
 // Start server
 const PORT = process.env.PORT || 3334;
