@@ -37,19 +37,33 @@ const StreamCard: React.FC<StreamCardProps> = ({
   const [isHovered, setIsHovered] = useState(false);
   const [videoError, setVideoError] = useState(false);
   const [isVideoReady, setIsVideoReady] = useState(false);
-  const [isMuted, setIsMuted] = useState(true); // Start muted to allow autoplay
+  const [isMuted, setIsMuted] = useState(false); // Start with sound on by default
 
 
 
-  const handleMouseEnter = () => {
+  const handleMouseEnter = async () => {
     setIsHovered(true);
     if (videoRef.current && stream_url && isVideoReady && !videoError) {
-      // Ensure video is muted for autoplay (browsers require this)
-      videoRef.current.muted = true;
       videoRef.current.currentTime = 0;
-      videoRef.current.play().catch(() => {
-        setVideoError(true);
-      });
+      videoRef.current.muted = isMuted;
+      
+      try {
+        // Try to play with current mute setting
+        await videoRef.current.play();
+      } catch (error) {
+        // If autoplay fails (likely due to browser policy), try muted
+        if (!isMuted) {
+          try {
+            videoRef.current.muted = true;
+            setIsMuted(true); // Update state to reflect fallback to muted
+            await videoRef.current.play();
+          } catch (fallbackError) {
+            setVideoError(true);
+          }
+        } else {
+          setVideoError(true);
+        }
+      }
     }
   };
 
@@ -64,10 +78,10 @@ const StreamCard: React.FC<StreamCardProps> = ({
   const handleVideoLoadedData = () => {
     setIsVideoReady(true);
     setVideoError(false); // Reset error state when video loads successfully
-    // Set to first frame when video loads and ensure proper mute state
+    // Set to first frame when video loads
     if (videoRef.current) {
       videoRef.current.currentTime = 0;
-      videoRef.current.muted = true; // Always start muted for autoplay compatibility
+      videoRef.current.muted = isMuted; // Respect user's mute preference
     }
   };
 
