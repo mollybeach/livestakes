@@ -135,7 +135,7 @@ const StreamCard = ({ thumbnail, title, team, odds, isLive, avatar, mcap, ath, v
         <span className="text-xs bg-blue-200 text-blue-900 font-bold px-2 py-0.5 rounded">ATH {ath}</span>
         {typeof viewers === 'number' && <span className="text-xs bg-yellow-200 text-yellow-900 font-bold px-2 py-0.5 rounded">👁️ {viewers}</span>}
       </div>
-      <p className="text-xs">Odds: {odds}</p>
+      <span className="text-xs bg-green-200 text-purple-900 font-bold px-2 py-0.5 rounded">Odds: {odds}</span>
       <Button className="mt-2 w-full bg-pink-600 hover:bg-pink-700 text-yellow-50 border border-black rounded-none font-pixel uppercase">
         Bet Now
       </Button>
