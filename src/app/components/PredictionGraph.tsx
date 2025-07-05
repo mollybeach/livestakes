@@ -11,7 +11,7 @@ import {
   CartesianGrid,
   Legend,
 } from "recharts";
-import { stream, sampleStreams } from "../data/livestreams";
+import { Livestream } from "../data/livestreams";
 
 /**
  * PredictionGraph – pixel-window line chart
@@ -43,13 +43,15 @@ const COLORS = [
 /* ------------------------------------------------------------------ */
 interface PredictionGraphProps {
   series: Array<{ t: string } & Record<string, number | string>>;
-  streams: stream[]; // used for labels
+  streams: Livestream[]; // used for labels
 }
 
 const PredictionGraph: React.FC<PredictionGraphProps> = ({ series, streams }) => {
   /* build legend mapping id → title */
   const legend = streams.reduce<Record<string, string>>((acc, s) => {
-    acc[s.id] = s.title;
+    if (s.id) {
+      acc[s.id.toString()] = s.title;
+    }
     return acc;
   }, {});
 
@@ -105,8 +107,8 @@ const PredictionGraph: React.FC<PredictionGraphProps> = ({ series, streams }) =>
                 <Line
                   key={s.id}
                   type="monotone"
-                  dataKey={s.id}
-                  name={legend[s.id]}
+                  dataKey={s.id?.toString() || `stream-${idx}`}
+                  name={legend[s.id?.toString() || `stream-${idx}`] || s.title}
                   stroke={COLORS[idx]}
                   strokeWidth={2}
                   dot={false}

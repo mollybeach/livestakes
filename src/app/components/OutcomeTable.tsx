@@ -1,8 +1,8 @@
 import React from "react";
-import { stream } from "../data/livestreams";
+import { Livestream } from "../data/livestreams";
 
 interface OutcomeTableProps {
-  streams: stream[];
+  streams: Livestream[];
 }
 
 const OutcomeTable: React.FC<OutcomeTableProps> = ({ streams }) => (
@@ -18,7 +18,7 @@ const OutcomeTable: React.FC<OutcomeTableProps> = ({ streams }) => (
       <thead>
         <tr className="border-b-2 border-black">
           <th className="py-1 text-left pl-3">Project</th>
-          <th className="py-1">% Chance</th>
+          <th className="py-1">Views</th>
           <th className="py-1 pr-3 text-right">Buy</th>
         </tr>
       </thead>
@@ -27,7 +27,7 @@ const OutcomeTable: React.FC<OutcomeTableProps> = ({ streams }) => (
           <tr key={s.id} className="border-b border-black">
             <td className="py-1 pl-3">{s.title}</td>
             <td className="py-1 text-center">
-              {s.odds.replace("×", "") /* quick placeholder */}
+              {s.view_count || 0}
             </td>
             <td className="py-1 pr-3 text-right">
               <button className="bg-gold text-black border-2 border-black px-2">

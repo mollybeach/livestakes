@@ -3,7 +3,7 @@ import PredictionGraph from "../components/PredictionGraph";
 import MarketHeader from "../components/MarketHeader";
 import OutcomeTable from "../components/OutcomeTable";
 import TradePanel from "../components/TradePanel";
-import { sampleStreams } from "../data/livestreams";
+import { mockLivestreams } from "../data/livestreams";
 
 /* fake series data – plug in real snapshots */
 const series = [
@@ -19,8 +19,8 @@ const COLORS = ["#f59e0b", "#8b5cf6", "#ec4899"];
 
 const ChartPage = () => {
   /* legend assembly */
-  const contestants = sampleStreams.slice(0, 3).map((s, idx) => ({
-    id: s.id,
+  const contestants = mockLivestreams.slice(0, 3).map((s, idx) => ({
+    id: s.id?.toString() || `stream-${idx}`,
     label: s.title,
     color: COLORS[idx],
   }));
@@ -40,9 +40,9 @@ const ChartPage = () => {
         <div className="flex-1">
           <PredictionGraph
             series={series}
-            streams={sampleStreams.slice(0, 3)}
+            streams={mockLivestreams.slice(0, 3)}
           />
-          <OutcomeTable streams={sampleStreams.slice(0, 6)} />
+          <OutcomeTable streams={mockLivestreams.slice(0, 6)} />
         </div>
         <TradePanel />
       </section>
