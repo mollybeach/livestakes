@@ -1,10 +1,10 @@
 {
   "network": "flow-testnet",
   "chainId": 545,
-  "timestamp": "2025-07-05T18:57:56.480Z",
+  "timestamp": "2025-07-05T20:02:43.485Z",
   "deployer": "0x9Db49f4192CE801045fEC2a7E5F8d58A799cc952",
   "contracts": {
-    "MarketFactory": "0x1d15e865a9B39C938379CdAaBe575561E91ED6F7",
-    "TestPredictionMarket": "0x19CF1620Dd1fB22dd19F7e5eC9923e2B1C0313f1"
+    "MarketFactory": "0xBa0e5612237c8a7B118E16b6B6C4C2a8dD1f5f1e",
+    "TestPredictionMarket": "0x153d9dAD7219d75127D91328DfF2C5eC3E26e5d4"
   }
 }

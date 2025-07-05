@@ -14,7 +14,7 @@ const CONTRACTS = {
   },
   // Flow EVM Testnet
   'flow-testnet': {
-    MarketFactory: '0x1d15e865a9B39C938379CdAaBe575561E91ED6F7',
+    MarketFactory: '0xBa0e5612237c8a7B118E16b6B6C4C2a8dD1f5f1e',
     chainId: 545,
     rpcUrl: 'https://testnet.evm.nodes.onflow.org'
   },

@@ -107,6 +107,57 @@ contract PredictionMarket {
         emit LivestreamAdded(_livestreamId, _title);
     }
 
+    // Update livestream title (useful for auto-added livestreams)
+    function updateLivestreamTitle(uint256 _livestreamId, string memory _newTitle) external onlyOracle inState(State.Open) {
+        require(livestreams[_livestreamId].id != 0, "Livestream not found");
+        require(livestreams[_livestreamId].active, "Livestream not active");
+        
+        livestreams[_livestreamId].title = _newTitle;
+        
+        emit LivestreamAdded(_livestreamId, _newTitle); // Reuse event for simplicity
+    }
+
+    // Public function to add livestream with proper title (anyone can call)
+    function addLivestreamWithTitle(uint256 _livestreamId, string memory _title) external inState(State.Open) {
+        require(_livestreamId > 0, "Invalid livestream ID");
+        require(bytes(_title).length > 0, "Title cannot be empty");
+        
+        // If livestream doesn't exist, add it
+        if (livestreams[_livestreamId].id == 0) {
+            livestreams[_livestreamId] = LivestreamData({
+                id: _livestreamId,
+                title: _title,
+                active: true,
+                addedAt: block.timestamp
+            });
+            
+            livestreamIds.push(_livestreamId);
+            
+            emit LivestreamAdded(_livestreamId, _title);
+        } else if (livestreams[_livestreamId].active) {
+            // If it exists but has default title, allow updating
+            bytes memory currentTitle = bytes(livestreams[_livestreamId].title);
+            bytes memory defaultPrefix = bytes("Project #");
+            
+            // Check if current title starts with "Project #" (default title)
+            if (currentTitle.length >= defaultPrefix.length) {
+                bool isDefault = true;
+                for (uint i = 0; i < defaultPrefix.length; i++) {
+                    if (currentTitle[i] != defaultPrefix[i]) {
+                        isDefault = false;
+                        break;
+                    }
+                }
+                
+                // Only update if it's still using default title
+                if (isDefault) {
+                    livestreams[_livestreamId].title = _title;
+                    emit LivestreamAdded(_livestreamId, _title);
+                }
+            }
+        }
+    }
+
     function removeLivestream(uint256 _livestreamId) external onlyOracle inState(State.Open) {
         require(livestreams[_livestreamId].active, "Livestream not found or inactive");
         
@@ -126,9 +177,27 @@ contract PredictionMarket {
     }
 
     // Updated betting function - bet on specific livestream
+    // Automatically adds livestream to market if it doesn't exist
     function placeBet(uint256 _livestreamId) external payable inState(State.Open) {
         require(msg.value > 0, "Must send ETH");
-        require(livestreams[_livestreamId].id != 0, "Livestream not in market");
+        require(_livestreamId > 0, "Invalid livestream ID");
+        
+        // If livestream doesn't exist in market, add it automatically
+        if (livestreams[_livestreamId].id == 0) {
+            // Auto-add livestream with default title
+            string memory defaultTitle = string(abi.encodePacked("Project #", _livestreamId));
+            
+            livestreams[_livestreamId] = LivestreamData({
+                id: _livestreamId,
+                title: defaultTitle,
+                active: true,
+                addedAt: block.timestamp
+            });
+            
+            livestreamIds.push(_livestreamId);
+            
+            emit LivestreamAdded(_livestreamId, defaultTitle);
+        }
         
         // Track new bettor
         if (!hasBet[msg.sender]) {
@@ -157,6 +226,7 @@ contract PredictionMarket {
     // Updated resolution function - specify winning livestream
     function resolveMarket(uint256 _winningLivestreamId) external onlyOracle inState(State.Closed) {
         require(livestreams[_winningLivestreamId].id != 0, "Invalid winning livestream");
+        require(totalBets[_winningLivestreamId] > 0, "No bets on this livestream");
         
         winningLivestreamId = _winningLivestreamId;
         state = State.Resolved;

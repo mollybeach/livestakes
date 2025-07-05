@@ -39,8 +39,8 @@
       ]
     },
     "/Users/macbookpro/Desktop/wobreeze/projects/hackathon-cannes/livestakes/src/blockchain/contracts/PredictionMarket.sol": {
-      "lastModificationDate": 1751741792576,
-      "contentHash": "eba41a2e4027c9f1a6d59b79077eb354",
+      "lastModificationDate": 1751745340825,
+      "contentHash": "2b89c5961752ca0812c63ea8247dd8e7",
       "sourceName": "contracts/PredictionMarket.sol",
       "solcConfig": {
         "version": "0.8.19",
