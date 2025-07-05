@@ -28,7 +28,7 @@ export default function LivestreamCard({ livestream, onView }: LivestreamCardPro
   };
 
   const statusColor = getStatusColor(livestream.status);
-  const isLive = livestream.status === 'active';
+  const isLive = livestream.status === 'live';
 
   return (
     <div 
@@ -118,7 +118,7 @@ export default function LivestreamCard({ livestream, onView }: LivestreamCardPro
           {livestream.status === 'ended' && livestream.end_time && (
             <div>Ended: {formatLivestreamTime(livestream.end_time)}</div>
           )}
-          {livestream.status === 'active' && livestream.start_time && (
+          {livestream.status === 'live' && livestream.start_time && (
             <div>Started: {formatLivestreamTime(livestream.start_time)}</div>
           )}
         </div>
