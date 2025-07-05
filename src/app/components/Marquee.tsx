@@ -2,6 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
+import { mockMarqueeMessage } from "../data/marquee";
 
 const Marquee = () => {
   return (
@@ -10,9 +11,8 @@ const Marquee = () => {
       initial={{ x: 0 }}
       animate={{ x: "-100%" }}
       transition={{ repeat: Infinity, duration: 15, ease: "linear" }}
-    >
-      🚀 New bet placed on <strong>Fire Island DEX</strong> | 🎉 0xB3F... won 32.5 FLOW | 🔔 Odds updated on <strong>Green Room AI</strong>
-    </motion.div>
+      dangerouslySetInnerHTML={{ __html: mockMarqueeMessage.text }}
+    />
   );
 };
 
