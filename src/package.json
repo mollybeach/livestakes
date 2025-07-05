@@ -16,11 +16,11 @@
     "docker:prod": "docker-compose up livestakes-prod"
   },
   "dependencies": {
-    "@dynamic-labs/sdk-react-core": "^3.1.1",
-    "@dynamic-labs/solana": "^3.9.2",
+    "@privy-io/react-auth": "^1.99.1",
     "@react-spring/web": "^9.7.5",
-    "@solana/spl-token": "^0.4.13",
-    "@solana/web3.js": "^1.98.0",
+    "ethers": "^6.13.4",
+    "viem": "^2.21.53",
+    "wagmi": "^2.12.27",
     "bs58": "^6.0.0",
     "matter-js": "^0.20.0",
     "next": "15.3.0",

@@ -1,16 +1,35 @@
 // ClientWrapper.tsx
 "use client";
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { AuthProvider } from "../../context/AuthContext";
-import { DynamicContextProvider, useDynamicContext } from "@dynamic-labs/sdk-react-core";
-import { SolanaWalletConnectors } from "@dynamic-labs/solana";
+import { PrivyProvider } from "@privy-io/react-auth";
 
-
-
-export const dynamicConfig = {
-  environmentId: process.env.NEXT_PUBLIC_DYNAMIC_ENVIRONMENT_ID || '',
-  walletConnectors: [SolanaWalletConnectors],
+// Flow EVM Testnet configuration
+const flowEvmTestnet = {
+  id: 545,
+  name: 'Flow EVM Testnet',
+  network: 'flow-testnet',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'Flow',
+    symbol: 'FLOW',
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://testnet.evm.nodes.onflow.org'],
+    },
+    public: {
+      http: ['https://testnet.evm.nodes.onflow.org'],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: 'Flow EVM Testnet Explorer',
+      url: 'https://evm-testnet.flowscan.io',
+    },
+  },
+  testnet: true,
 };
 
 export default function ClientWrapper({
@@ -18,15 +37,26 @@ export default function ClientWrapper({
 }: {
   children: React.ReactNode;
 }) {
-
-  
   return (
-    <DynamicContextProvider
-      settings={dynamicConfig}
+    <PrivyProvider
+      appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID || ''}
+      config={{
+        loginMethods: ['wallet', 'email'],
+        appearance: {
+          theme: 'dark',
+          accentColor: '#8B5CF6',
+          logo: '/logo.png',
+        },
+        defaultChain: flowEvmTestnet,
+        supportedChains: [flowEvmTestnet],
+        embeddedWallets: {
+          createOnLogin: 'users-without-wallets',
+        },
+      }}
     >
       <AuthProvider>
-          {children}
+        {children}
       </AuthProvider>
-    </DynamicContextProvider>
+    </PrivyProvider>
   );
 }
