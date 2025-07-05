@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getLivestreams, getLiveLivestreams, getLivestreamById } from '../../data/livestreams';
+import { getLivestreams, getActiveLivestreams, getLivestreamById } from '../../data/livestreams';
 
 export async function GET(request: Request) {
   try {
@@ -8,7 +8,7 @@ export async function GET(request: Request) {
     const liveOnly = searchParams.get('live') === 'true';
 
     if (id) {
-      const livestream = await getLivestreamById(id);
+      const livestream = await getLivestreamById(parseInt(id));
       if (!livestream) {
         return NextResponse.json({ error: 'Livestream not found' }, { status: 404 });
       }
@@ -16,7 +16,7 @@ export async function GET(request: Request) {
     }
 
     if (liveOnly) {
-      const livestreams = await getLiveLivestreams();
+      const livestreams = await getActiveLivestreams();
       return NextResponse.json(livestreams);
     }
 
