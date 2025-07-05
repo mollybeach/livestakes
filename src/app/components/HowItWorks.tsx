@@ -1,36 +1,46 @@
-import React from 'react';
+import React from "react";
 
-const HowItWorks = () => {
-  return (
-    <section id="how-it-works" className="px-6 py-20">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">How It Works</h2>
-          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-            Start earning in three simple steps
-          </p>
-        </div>
-        
-        <div className="grid md:grid-cols-3 gap-8">
-          <div className="text-center">
-            <div className="w-16 h-16 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-6">1</div>
-            <h3 className="text-2xl font-bold mb-4">Choose a Stream</h3>
-            <p className="text-gray-300">Browse available livestreams or connect your favorite streaming platforms.</p>
-          </div>
-          <div className="text-center">
-            <div className="w-16 h-16 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-6">2</div>
-            <h3 className="text-2xl font-bold mb-4">AI Creates Bets</h3>
-            <p className="text-gray-300">Our AI analyzes the stream and generates betting opportunities in real-time.</p>
-          </div>
-          <div className="text-center">
-            <div className="w-16 h-16 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-6">3</div>
-            <h3 className="text-2xl font-bold mb-4">Watch & Earn</h3>
-            <p className="text-gray-300">Place your bets, watch the action unfold, and collect your winnings instantly.</p>
-          </div>
-        </div>
+const steps = [
+  {
+    icon: "📝",
+    title: "1. Create a Market",
+    description: "Spin up a new prediction market for your project or event."
+  },
+  {
+    icon: "💸",
+    title: "2. Place Your Bets",
+    description: "Bet on outcomes using your custom coin or FLOW."
+  },
+  {
+    icon: "🎉",
+    title: "3. Watch Live Results",
+    description: "See odds and results update in real time as bets come in."
+  },
+  {
+    icon: "🏆",
+    title: "4. Claim Rewards",
+    description: "Winners claim instant payouts and climb the leaderboard!"
+  },
+];
+
+const HowItWorks = () => (
+  <section className="max-w-4xl mx-auto mb-12">
+    <div className="bg-pink-500/90 border-4 border-black rounded-none shadow-window-pixel mb-6 font-pixel">
+      <div className="flex items-center justify-between px-3 py-1 bg-pink-600 text-yellow-50">
+        <span className="text-lg font-bold">How It Works</span>
+        <span className="text-yellow-200">?</span>
       </div>
-    </section>
-  );
-};
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 bg-yellow-50 p-6">
+        {steps.map((s) => (
+          <div key={s.title} className="border-2 border-black bg-pink-100 rounded-none p-4 shadow-window-pixel flex flex-col items-center">
+            <span className="text-3xl mb-2">{s.icon}</span>
+            <h3 className="text-lg font-bold text-pink-700 mb-1">{s.title}</h3>
+            <p className="text-sm text-black">{s.description}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+);
 
 export default HowItWorks; 

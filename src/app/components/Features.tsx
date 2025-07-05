@@ -1,52 +1,46 @@
-import React from 'react';
-import FeatureCard from './FeatureCard';
+import React from "react";
 
-const Features = () => {
-  return (
-    <section id="features" className="px-6 py-20 bg-black/20">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">Why Choose livestakes.fun?</h2>
-          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-            Experience the future of interactive entertainment with our cutting-edge AI technology
-          </p>
-        </div>
-        
-        <div className="grid md:grid-cols-3 gap-8">
-          <FeatureCard
-            icon="🤖"
-            title="AI-Generated Bets"
-            description="Our advanced AI analyzes livestreams in real-time to create smart betting opportunities based on current events and situations."
-          />
-          <FeatureCard
-            icon="📺"
-            title="Live Stream Integration"
-            description="Watch your favorite streamers while our platform creates dynamic betting markets based on their gameplay and content."
-          />
-          <FeatureCard
-            icon="💰"
-            title="Real-Time Earnings"
-            description="Make money while watching streams. Our AI identifies winning opportunities and helps you profit from your predictions."
-          />
-          <FeatureCard
-            icon="⚡"
-            title="Instant Payouts"
-            description="Get paid instantly when your bets win. No waiting periods, no complicated withdrawal processes."
-          />
-          <FeatureCard
-            icon="🔒"
-            title="Secure & Fair"
-            description="Built with transparency and security in mind. All bets are verifiable and payouts are guaranteed."
-          />
-          <FeatureCard
-            icon="🌍"
-            title="Global Community"
-            description="Join thousands of users worldwide who are already earning money by watching their favorite content."
-          />
-        </div>
+const features = [
+  {
+    icon: "💡",
+    title: "Predict Anything",
+    description: "Create and bet on real-time markets for any hackathon project or event."
+  },
+  {
+    icon: "⚡",
+    title: "Instant Results",
+    description: "Markets resolve live, with instant payouts and leaderboard updates."
+  },
+  {
+    icon: "🎨",
+    title: "Pixel-Perfect UI",
+    description: "Enjoy a playful, late-90s pixel-art interface with retro vibes."
+  },
+  {
+    icon: "🪙",
+    title: "Create Your Coin",
+    description: "Spin up your own prediction coin and invite friends to play."
+  },
+];
+
+const Features = () => (
+  <section className="max-w-4xl mx-auto mb-12">
+    <div className="bg-pink-500/90 border-4 border-black rounded-none shadow-window-pixel mb-6 font-pixel">
+      <div className="flex items-center justify-between px-3 py-1 bg-pink-600 text-yellow-50">
+        <span className="text-lg font-bold">Features</span>
+        <span className="text-yellow-200">★</span>
       </div>
-    </section>
-  );
-};
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 bg-yellow-50 p-6">
+        {features.map((f) => (
+          <div key={f.title} className="border-2 border-black bg-pink-100 rounded-none p-4 shadow-window-pixel flex flex-col items-center">
+            <span className="text-3xl mb-2">{f.icon}</span>
+            <h3 className="text-lg font-bold text-pink-700 mb-1">{f.title}</h3>
+            <p className="text-sm text-black">{f.description}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+);
 
 export default Features; 

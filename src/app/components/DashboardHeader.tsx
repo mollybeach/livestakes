@@ -1,20 +1,20 @@
 import React from 'react';
 import Link from 'next/link';
 
-interface LivestakesHeaderProps {
+interface DashboardHeaderProps {
   title?: string;
   showBackButton?: boolean;
   showStats?: boolean;
-  totalMarkets?: number;
-  liveMarkets?: number;
+  totalStreams?: number;
+  liveStreams?: number;
 }
 
-const LivestakesHeader: React.FC<LivestakesHeaderProps> = ({
+const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   title = "LiveStakes",
   showBackButton = false,
   showStats = true,
-  totalMarkets = 0,
-  liveMarkets = 0,
+  totalStreams = 0,
+  liveStreams = 0,
 }) => {
   return (
     <div className="bg-pink-500/90 border-4 border-black rounded-none shadow-window-pixel mb-6">
@@ -33,11 +33,11 @@ const LivestakesHeader: React.FC<LivestakesHeaderProps> = ({
         {showStats && (
           <div className="flex items-center gap-4">
             <div className="text-center">
-              <div className="text-sm font-bold text-yellow-50">{totalMarkets}</div>
-              <div className="text-xs text-yellow-200">Markets</div>
+              <div className="text-sm font-bold text-yellow-50">{totalStreams}</div>
+              <div className="text-xs text-yellow-200">Streams</div>
             </div>
             <div className="text-center">
-              <div className="text-sm font-bold text-green-400">{liveMarkets}</div>
+              <div className="text-sm font-bold text-green-400">{liveStreams}</div>
               <div className="text-xs text-yellow-200">Live</div>
             </div>
             <div className="flex items-center gap-1">
@@ -66,4 +66,4 @@ const LivestakesHeader: React.FC<LivestakesHeaderProps> = ({
   );
 };
 
-export default LivestakesHeader; 
+export default DashboardHeader; 

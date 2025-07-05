@@ -13,6 +13,7 @@ export interface Market {
   totalVolume?: string;
   category?: string;
   description?: string;
+  username: string;
 }
 
 export const sampleMarkets: Market[] = [
@@ -30,7 +31,8 @@ export const sampleMarkets: Market[] = [
     totalBets: 1247,
     totalVolume: "$45.2K",
     category: "DeFi",
-    description: "Will Fire Island DEX reach 1000 users by end of week?"
+    description: "Will Fire Island DEX reach 1000 users by end of week?",
+    username: "DomvXXYK"
   },
   {
     id: "2",
@@ -46,7 +48,8 @@ export const sampleMarkets: Market[] = [
     totalBets: 892,
     totalVolume: "$23.1K",
     category: "Gaming",
-    description: "Will Swim token hit $10K market cap?"
+    description: "Will Swim token hit $10K market cap?",
+    username: "GkaQ92oy"
   },
   {
     id: "3",
@@ -62,7 +65,8 @@ export const sampleMarkets: Market[] = [
     totalBets: 2156,
     totalVolume: "$67.8K",
     category: "AI",
-    description: "Will Green Room AI launch successfully?"
+    description: "Will Green Room AI launch successfully?",
+    username: "4hUjfREs"
   },
   {
     id: "4",
@@ -78,7 +82,8 @@ export const sampleMarkets: Market[] = [
     totalBets: 0,
     totalVolume: "$0",
     category: "Crypto",
-    description: "Will Moon Token reach the moon?"
+    description: "Will Moon Token reach the moon?",
+    username: "EZkKsSf4"
   },
   {
     id: "5",
@@ -94,7 +99,8 @@ export const sampleMarkets: Market[] = [
     totalBets: 3421,
     totalVolume: "$89.5K",
     category: "NFT",
-    description: "Will the pixel art collection sell out?"
+    description: "Will the pixel art collection sell out?",
+    username: "AUjFNfoi"
   },
   {
     id: "6",
@@ -110,7 +116,8 @@ export const sampleMarkets: Market[] = [
     totalBets: 1893,
     totalVolume: "$34.2K",
     category: "DeFi",
-    description: "Will the DeFi protocol reach $1M TVL?"
+    description: "Will the DeFi protocol reach $1M TVL?",
+    username: "CzYrVYCK5"
   }
 ];
 
