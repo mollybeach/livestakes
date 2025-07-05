@@ -2,16 +2,24 @@
 pragma solidity ^0.8.19;
 
 interface IMarketFactory {
-    function notifyMarketClosed(uint256 livestreamId) external;
+    function notifyMarketClosed(uint256[] calldata livestreamIds) external;
 }
 
 contract PredictionMarket {
     enum Side { Yes, No }
     enum State { Open, Closed, Resolved }
 
-    uint256 public livestreamId;
+    struct LivestreamData {
+        uint256 id;
+        string title;
+        bool active;
+        uint256 addedAt;
+    }
+
+    mapping(uint256 => LivestreamData) public livestreams;
+    uint256[] public livestreamIds; // For enumeration
+    
     string public question;
-    string public livestreamTitle;
     address public oracle;
     address public factory;
     State public state;
@@ -33,6 +41,8 @@ contract PredictionMarket {
     event MarketClosed(uint256 timestamp);
     event MarketResolved(Side outcome, uint256 timestamp);
     event PayoutClaimed(address indexed user, uint256 amount, uint256 timestamp);
+    event LivestreamAdded(uint256 indexed livestreamId, string title);
+    event LivestreamRemoved(uint256 indexed livestreamId);
 
     modifier onlyOracle() {
         require(msg.sender == oracle, "Not oracle");
@@ -50,18 +60,70 @@ contract PredictionMarket {
     }
 
     constructor(
-        uint256 _livestreamId, 
+        uint256[] memory _livestreamIds, 
         string memory _question, 
-        string memory _livestreamTitle,
+        string[] memory _livestreamTitles,
         address _oracle
     ) {
-        livestreamId = _livestreamId;
+        require(_livestreamIds.length > 0, "Must have at least one livestream");
+        require(_livestreamIds.length == _livestreamTitles.length, "Mismatched arrays");
+        
         question = _question;
-        livestreamTitle = _livestreamTitle;
         oracle = _oracle;
         factory = msg.sender;
         state = State.Open;
         createdAt = block.timestamp;
+        
+        // Initialize livestreams using struct mapping
+        for (uint256 i = 0; i < _livestreamIds.length; i++) {
+            uint256 livestreamId = _livestreamIds[i];
+            require(livestreamId != 0, "Invalid livestream ID");
+            require(!livestreams[livestreamId].active, "Livestream already exists");
+            
+            livestreams[livestreamId] = LivestreamData({
+                id: livestreamId,
+                title: _livestreamTitles[i],
+                active: true,
+                addedAt: block.timestamp
+            });
+            
+            livestreamIds.push(livestreamId);
+        }
+    }
+
+    function addLivestream(uint256 _livestreamId, string memory _title) external onlyOracle inState(State.Open) {
+        require(_livestreamId != 0, "Invalid livestream ID");
+        require(!livestreams[_livestreamId].active, "Livestream already exists");
+        
+        livestreams[_livestreamId] = LivestreamData({
+            id: _livestreamId,
+            title: _title,
+            active: true,
+            addedAt: block.timestamp
+        });
+        
+        livestreamIds.push(_livestreamId);
+        
+        emit LivestreamAdded(_livestreamId, _title);
+    }
+
+    function removeLivestream(uint256 _livestreamId) external onlyOracle inState(State.Open) {
+        require(livestreamIds.length > 1, "Must have at least one livestream");
+        require(livestreams[_livestreamId].active, "Livestream not found or inactive");
+        
+        // Mark as inactive
+        livestreams[_livestreamId].active = false;
+        
+        // Remove from livestreamIds array
+        for (uint256 i = 0; i < livestreamIds.length; i++) {
+            if (livestreamIds[i] == _livestreamId) {
+                livestreamIds[i] = livestreamIds[livestreamIds.length - 1];
+                livestreamIds.pop();
+                break;
+            }
+        }
+        
+        emit LivestreamRemoved(_livestreamId);
     }
 
     function placeBet(Side side) external payable inState(State.Open) {
@@ -85,8 +147,8 @@ contract PredictionMarket {
         state = State.Closed;
         closedAt = block.timestamp;
         
-        // Notify factory
-        IMarketFactory(factory).notifyMarketClosed(livestreamId);
+        // Notify factory about all associated livestreams
+        IMarketFactory(factory).notifyMarketClosed(livestreamIds);
         
         emit MarketClosed(block.timestamp);
     }
@@ -121,9 +183,9 @@ contract PredictionMarket {
 
     // View functions
     function getMarketInfo() external view returns (
-        uint256 _livestreamId,
+        uint256[] memory _livestreamIds,
         string memory _question,
-        string memory _livestreamTitle,
+        string[] memory _livestreamTitles,
         State _state,
         Side _outcome,
         uint256 _yesBets,
@@ -134,10 +196,16 @@ contract PredictionMarket {
         uint256 _closedAt,
         uint256 _resolvedAt
     ) {
+        // Build arrays from mapping
+        string[] memory titles = new string[](livestreamIds.length);
+        for (uint256 i = 0; i < livestreamIds.length; i++) {
+            titles[i] = livestreams[livestreamIds[i]].title;
+        }
+        
         return (
-            livestreamId,
+            livestreamIds,
             question,
-            livestreamTitle,
+            titles,
             state,
             outcome,
             totalBets[uint8(Side.Yes)],
@@ -148,6 +216,50 @@ contract PredictionMarket {
             closedAt,
             resolvedAt
         );
+    }
+
+    function getLivestreamCount() external view returns (uint256) {
+        return livestreamIds.length;
+    }
+
+    function getLivestreamData(uint256 _livestreamId) external view returns (
+        uint256 id,
+        string memory title,
+        bool active,
+        uint256 addedAt
+    ) {
+        LivestreamData memory data = livestreams[_livestreamId];
+        return (data.id, data.title, data.active, data.addedAt);
+    }
+
+    function getAllLivestreamIds() external view returns (uint256[] memory) {
+        return livestreamIds;
+    }
+
+    function getAllLivestreamData() external view returns (
+        uint256[] memory ids,
+        string[] memory titles,
+        bool[] memory activeStates,
+        uint256[] memory addedTimes
+    ) {
+        uint256 length = livestreamIds.length;
+        ids = new uint256[](length);
+        titles = new string[](length);
+        activeStates = new bool[](length);
+        addedTimes = new uint256[](length);
+        
+        for (uint256 i = 0; i < length; i++) {
+            uint256 livestreamId = livestreamIds[i];
+            LivestreamData memory data = livestreams[livestreamId];
+            ids[i] = data.id;
+            titles[i] = data.title;
+            activeStates[i] = data.active;
+            addedTimes[i] = data.addedAt;
+        }
+    }
+
+    function isLivestreamInMarket(uint256 _livestreamId) external view returns (bool) {
+        return livestreams[_livestreamId].active;
     }
 
     function getUserBets(address user) external view returns (uint256 yesBets, uint256 noBets) {

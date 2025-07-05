@@ -2,18 +2,39 @@
 
 
 export interface Livestream {
-  id?: number;
+  id: number;
   title: string;
-  description?: string;
+  description: string;
   creator_wallet_address: string;
-  stream_url?: string;
+  stream_url: string;
   thumbnail_url?: string;
-  status: 'scheduled' | 'active' | 'ended';
-  start_time?: string;
+  view_count: number;
+  status: 'live' | 'ended' | 'scheduled';
+  category: string;
+  start_time: string;
   end_time?: string;
-  view_count?: number;
+  created_at: string;
+  updated_at?: string;
+  tags?: string[];
+  transcript?: string;
+  market_address?: string; // Keep for backward compatibility
+  markets?: MarketData[]; // New: supports multiple markets
+}
+
+export interface MarketData {
+  contract_address: string;
+  creator_wallet_address: string;
+  question?: string;
+  title?: string;
+  description?: string;
   category?: string;
   tags?: string[];
+  state?: number;
+  yes_bets?: string;
+  no_bets?: string;
+  total_pool?: string;
+  total_bettors?: number;
+  livestream_ids?: number[]; // New: supports multiple livestreams
   transcript?: string;
   market_address?: string; // Single contract address for 1:1 relationship
   market?: any; // Single market data
