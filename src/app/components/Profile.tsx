@@ -22,6 +22,9 @@ interface ProfileProps {
   profileData?: ProfileData;
 }
 
+const DEFAULT_AVATAR = "https://res.cloudinary.com/storagemanagementcontainer/image/upload/v1751747169/default-avatar_ynttwb.png";
+const DEFAULT_LOGO = "https://res.cloudinary.com/storagemanagementcontainer/image/upload/v1751729735/live-stakes-icon_cfc7t8.png";
+
 const Profile: React.FC<ProfileProps> = ({ 
   profileData = mockProfileData
 }) => {
@@ -81,7 +84,7 @@ const Profile: React.FC<ProfileProps> = ({
         <div className="bg-plum border-4 border-black p-6 mb-6">
           <div className="flex items-center gap-6">
             <img 
-              src={profileData.avatar} 
+              src={profileData.avatar || DEFAULT_AVATAR} 
               alt={profileData.username} 
               className="w-20 h-20 rounded-full border-4 border-black"
             />
@@ -158,7 +161,7 @@ const Profile: React.FC<ProfileProps> = ({
                 <div key={stream.id} className="bg-cream border-2 border-black p-4">
                   <div className="flex gap-3">
                     <img 
-                      src={stream.thumbnail} 
+                      src={DEFAULT_LOGO} 
                       alt={stream.title}
                       className="w-16 h-12 object-cover border border-black"
                     />
