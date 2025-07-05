@@ -3,7 +3,15 @@ require("dotenv").config();
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
-    solidity: "0.8.19",
+    solidity: {
+        version: "0.8.19",
+        settings: {
+            optimizer: {
+                enabled: true,
+                runs: 200  // Low runs value for smaller contract size
+            }
+        }
+    },
     networks: {
         hardhat: {
             chainId: 1337

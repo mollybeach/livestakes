@@ -40,7 +40,7 @@ contract MarketFactory {
         string memory question,
         string[] memory livestreamTitles
     ) external onlyOwner returns (address) {
-        require(livestreamIds.length > 0, "Must have at least one livestream");
+        // Allow empty arrays - markets can be created without livestreams
         require(livestreamIds.length == livestreamTitles.length, "Mismatched arrays");
         
         // Create new prediction market
@@ -58,7 +58,7 @@ contract MarketFactory {
         marketToLivestreams[marketAddress] = livestreamIds;
         allMarkets.push(marketAddress);
         
-        // Add market to each livestream's market list
+        // Add market to each livestream's market list (only if there are livestreams)
         for (uint256 i = 0; i < livestreamIds.length; i++) {
             livestreamMarkets[livestreamIds[i]].push(marketAddress);
         }
@@ -175,39 +175,6 @@ contract MarketFactory {
             }
         }
         return false;
-    }
-
-    // Get all livestreams that have markets
-    function getAllLivestreamsWithMarkets() external view returns (uint256[] memory) {
-        // This is a simplified implementation - in production you might want to maintain a separate mapping
-        uint256[] memory result = new uint256[](allMarkets.length * 10); // Rough estimate
-        uint256 count = 0;
-        
-        for (uint256 i = 0; i < allMarkets.length; i++) {
-            uint256[] memory livestreamIds = marketToLivestreams[allMarkets[i]];
-            for (uint256 j = 0; j < livestreamIds.length; j++) {
-                // Check if already added (simple duplicate check)
-                bool exists = false;
-                for (uint256 k = 0; k < count; k++) {
-                    if (result[k] == livestreamIds[j]) {
-                        exists = true;
-                        break;
-                    }
-                }
-                if (!exists) {
-                    result[count] = livestreamIds[j];
-                    count++;
-                }
-            }
-        }
-        
-        // Resize array to actual count
-        uint256[] memory finalResult = new uint256[](count);
-        for (uint256 i = 0; i < count; i++) {
-            finalResult[i] = result[i];
-        }
-        
-        return finalResult;
     }
 
     // Called by markets when they are closed

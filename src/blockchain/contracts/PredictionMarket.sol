@@ -65,7 +65,7 @@ contract PredictionMarket {
         string[] memory _livestreamTitles,
         address _oracle
     ) {
-        require(_livestreamIds.length > 0, "Must have at least one livestream");
+        // Allow creating markets without livestreams initially
         require(_livestreamIds.length == _livestreamTitles.length, "Mismatched arrays");
         
         question = _question;
@@ -74,7 +74,7 @@ contract PredictionMarket {
         state = State.Open;
         createdAt = block.timestamp;
         
-        // Initialize livestreams using struct mapping
+        // Initialize livestreams using struct mapping (can be empty)
         for (uint256 i = 0; i < _livestreamIds.length; i++) {
             uint256 livestreamId = _livestreamIds[i];
             require(livestreamId != 0, "Invalid livestream ID");
@@ -108,7 +108,6 @@ contract PredictionMarket {
     }
 
     function removeLivestream(uint256 _livestreamId) external onlyOracle inState(State.Open) {
-        require(livestreamIds.length > 1, "Must have at least one livestream");
         require(livestreams[_livestreamId].active, "Livestream not found or inactive");
         
         // Mark as inactive

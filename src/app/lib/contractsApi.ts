@@ -14,7 +14,7 @@ const CONTRACTS = {
   },
   // Flow EVM Testnet
   'flow-testnet': {
-    MarketFactory: '0x216178eacF4188Df1DCf2Dd5ce8Ba06F07189B84',
+    MarketFactory: '0xa95F10E9329445603F005A6D1a7bA211FbD9bC8D',
     chainId: 545,
     rpcUrl: 'https://testnet.evm.nodes.onflow.org'
   },
@@ -189,12 +189,8 @@ export async function createMarket(
       return { success: false, error: 'Question and title are required' };
     }
 
-    // Ensure we have at least one livestream, or provide defaults
-    const finalLivestreamIds = livestreamIds.length > 0 ? livestreamIds : [0]; // Default to 0 if no specific livestreams
-    const finalLivestreamTitles = livestreamTitles.length > 0 ? livestreamTitles : [title]; // Use market title as default
-    
-    // Validate arrays have same length
-    if (finalLivestreamIds.length !== finalLivestreamTitles.length) {
+    // Validate arrays have same length (can be empty)
+    if (livestreamIds.length !== livestreamTitles.length) {
       return { success: false, error: 'Livestream IDs and titles must have the same length' };
     }
 
@@ -219,16 +215,16 @@ export async function createMarket(
     );
 
     console.log('📋 Creating market with params:', {
-      livestreamIds: finalLivestreamIds,
+      livestreamIds,
       question,
-      titles: finalLivestreamTitles
+      titles: livestreamTitles
     });
 
-    // Create market transaction - now passing arrays
+    // Create market transaction - can now use empty arrays
     const tx = await marketFactory.createMarket(
-      finalLivestreamIds,
+      livestreamIds,
       question,
-      finalLivestreamTitles
+      livestreamTitles
     );
 
     console.log('⏳ Transaction sent:', tx.hash);
@@ -270,38 +266,36 @@ export async function createMarket(
       return { success: false, error: 'Market created but contract address not found' };
     }
 
-    // Store market metadata if we have livestream IDs
-    if (livestreamIds.length > 0) {
-      try {
-        console.log('💾 Storing market metadata for livestreams:', livestreamIds);
-        
-        // Store market metadata and associate with livestreams
-        const metadataResponse = await fetch(`${API_BASE_URL}/markets/metadata`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            contract_address: marketAddress,
-            creator_wallet_address: await signer.getAddress(),
-            description,
-            category,
-            tags,
-            livestream_ids: livestreamIds // Pass all livestream IDs
-          }),
-        });
+    // Always store market metadata
+    try {
+      console.log('💾 Storing market metadata...');
+      
+      // Store market metadata
+      const metadataResponse = await fetch(`${API_BASE_URL}/markets/metadata`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contract_address: marketAddress,
+          creator_wallet_address: await signer.getAddress(),
+          description,
+          category,
+          tags,
+          livestream_ids: livestreamIds // Can be empty array
+        }),
+      });
 
-        const metadataResult = await metadataResponse.json();
-        if (!metadataResult.success) {
-          console.error('❌ Failed to store market metadata:', metadataResult.error);
-          // Don't fail the entire creation process for metadata storage issues
-        } else {
-          console.log('✅ Market metadata stored successfully');
-        }
-      } catch (error) {
-        console.error('❌ Error storing market metadata:', error);
-        // Don't fail the entire creation process
+      const metadataResult = await metadataResponse.json();
+      if (!metadataResult.success) {
+        console.error('❌ Failed to store market metadata:', metadataResult.error);
+        // Don't fail the entire creation process for metadata storage issues
+      } else {
+        console.log('✅ Market metadata stored successfully');
       }
+    } catch (error) {
+      console.error('❌ Error storing market metadata:', error);
+      // Don't fail the entire creation process
     }
 
     console.log('🎉 Market created successfully!');
@@ -340,8 +334,8 @@ export async function createMarketWithMetadata(
     
     // Create the market on blockchain with the provided title and question
     // The smart contract will store these on-chain
-    const livestreamIds = livestreamId ? [livestreamId] : [];
-    const livestreamTitles = livestreamId ? [title] : [];
+    const livestreamIds = livestreamId ? [livestreamId] : []; // Can be empty
+    const livestreamTitles = livestreamId ? [title] : []; // Can be empty
     
     const result = await createMarket(
       question,
@@ -731,4 +725,4 @@ export async function fetchAvailableCategories(): Promise<string[]> {
     console.error('Error fetching available categories:', error);
     return [];
   }
-} 
+}

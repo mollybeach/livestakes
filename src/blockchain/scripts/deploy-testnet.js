@@ -53,9 +53,9 @@ async function main() {
         // Create a test market
         console.log("\n🎯 Creating test market...");
         const tx = await marketFactory.createMarket(
-            1, // livestreamId
-            "Will this demo stream reach 100 viewers?",
-            "Testnet Demo Stream"
+            [], // No livestreams initially
+            "Which hackathon project will win EthGlobal?",
+            [] // No titles initially
         );
         const receipt = await tx.wait();
         
@@ -68,7 +68,7 @@ async function main() {
                     testMarketAddress = event.args.marketAddress;
                     console.log("✅ Test market created:");
                     console.log("   Market Address:", event.args.marketAddress);
-                    console.log("   Livestream ID:", event.args.livestreamId.toString());
+                    console.log("   Livestream IDs:", event.args.livestreamIds.length === 0 ? "None (can add later)" : event.args.livestreamIds.map(id => id.toString()).join(", "));
                     console.log("   Question:", event.args.question);
                     break;
                 }
