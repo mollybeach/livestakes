@@ -50,7 +50,7 @@ export interface ApiResponse<T> {
   count?: number;
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3334/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 // Sample data for development/demo purposes
 const SAMPLE_LIVESTREAMS: Livestream[] = [

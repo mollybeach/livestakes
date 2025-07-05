@@ -2,7 +2,7 @@
 import { ethers, Contract, formatEther, parseEther, JsonRpcProvider, BrowserProvider } from 'ethers';
 
 // API Base URL for backend calls
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3334/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 // Contract addresses - update these after deployment
 const CONTRACTS = {
