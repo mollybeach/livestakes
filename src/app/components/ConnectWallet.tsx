@@ -45,13 +45,14 @@ export default function ConnectWallet({
 
     if (style === 'header') {
       return (
-        <div className="flex items-center space-x-2">
-          <div className={`bg-green-400 text-black px-4 py-2 border-2 border-black rounded-none font-pixel uppercase tracking-wider ${connectedClassName || ''}`}>
-            <span className="text-xs">{displayAddress}</span>
+        <div className="flex items-stretch space-x-2 h-10">
+          <div className={`flex items-center bg-green-400 text-black px-4 border-2 border-black rounded-none font-pixel uppercase tracking-wider text-xs h-full ${connectedClassName || ''}`}> 
+            <span>{displayAddress}</span>
           </div>
           <button
             onClick={logout}
-            className={`bg-red-500 hover:bg-red-400 text-black px-3 py-2 border-2 border-black rounded-none font-pixel uppercase tracking-wider transition-colors text-xs ${disconnectClassName || ''}`}
+            className={`flex items-center bg-red-500 hover:bg-red-400 text-black px-4 border-2 border-black rounded-none font-pixel uppercase tracking-wider transition-colors text-xs h-full ${disconnectClassName || ''}`}
+            style={{ minWidth: '90px' }}
           >
             Disconnect
           </button>
