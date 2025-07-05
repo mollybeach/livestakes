@@ -76,3 +76,6 @@ server/package-lock.json
 *.MOV
 *.mp4
 *.mov
+
+.lock.yaml
+.yaml

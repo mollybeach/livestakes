@@ -1,13 +1,51 @@
-import React from "react";
+"use client";
+import React, { useEffect, useState } from "react";
 import DashboardHeader from "../components/DashboardHeader";
-import { getLivestreams } from "../data/livestreams";
 import StreamCard from "../components/StreamCard";
 import Marquee from "../components/Marquee";
+import { 
+  Livestream, 
+  getActiveLivestreams, 
+  getAllLivestreams,
+ // getEndedLivestreams 
+} from '../lib/livestreamsApi';
 
-const LivestreamsPage = async () => {
-  const livestreams = await getLivestreams();
-  const liveStreams = livestreams.filter(stream => stream.isLive).length;
+const LivestreamsPage = () => {
 
+  const [liveLivestreams, setLiveLivestreams] = useState<Livestream[]>([]);
+  const [exploreLivestreams, setExploreLivestreams] = useState<Livestream[]>([]);
+ // const [searchResults, setSearchResults] = useState<Livestream[]>([]);
+ // const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  // Fetch livestreams on component mount
+  useEffect(() => {
+    const fetchLivestreams = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        // Fetch live streams
+        const liveResponse = await getActiveLivestreams();
+        if (liveResponse.success && liveResponse.data) {
+          setLiveLivestreams(liveResponse.data.slice(0, 8)); // Show max 8 live streams
+        }
+
+        // Fetch all streams for explore (mix of active, ended, and scheduled)
+        const allResponse = await getAllLivestreams({ limit: 12 });
+        if (allResponse.success && allResponse.data) {
+          setExploreLivestreams(allResponse.data);
+        }
+      } catch (err) {
+        console.error('Error fetching livestreams:', err);
+        setError('Failed to load livestreams');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLivestreams();
+  }, []);
   return (
       <div className="min-h-screen flex font-pixel bg-purple-200">
         {/* Main content */}
@@ -18,12 +56,12 @@ const LivestreamsPage = async () => {
             {/* Header */}
             <DashboardHeader 
               title="LiveStakes"
-              liveStreams={liveStreams}
-              totalStreams={livestreams.length}
+              liveStreams={liveLivestreams.length}
+              totalStreams={liveLivestreams.length + exploreLivestreams.length}
             />
             {/* Grid of streams */}
             <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-              {livestreams.map((stream) => (
+              {liveLivestreams.map((stream) => (
                 <StreamCard key={stream.id} {...stream} />
               ))}
             </section>
