@@ -1,12 +1,27 @@
 import React, { useRef, useState, useEffect } from "react";
 import Card from "./ui/card";
 import Button from "./ui/button";
-import CardContent from "./CardContent";
 import LiveBadge from "./LiveBadge";
 import BettingModal from "./BettingModal";
 import BettingIndicator from "./BettingIndicator";
 import MarketAssociationModal from "./MarketAssociationModal";
-import { MarketData } from "../lib/livestreamsApi";
+
+interface MarketData {
+  id: number;
+  title: string;
+  description: string;
+  creator_wallet_address: string;
+  status: 'active' | 'ended' | 'scheduled';
+  start_time?: string;
+  end_time?: string;
+  view_count?: number;
+  category: string;
+  totalVolume?: number;
+  participants?: number;
+  odds?: string;
+  prediction?: string;
+  result?: 'Won' | 'Lost' | 'Pending';
+}
 
 interface StreamCardProps {
   id?: number;
