@@ -236,7 +236,7 @@ const Markets: React.FC<MarketsProps> = ({ markets = [] }) => {
 
               {/* Prediction */}
               {market.prediction && (
-                <div className="bg-lavender border-2 border-black p-3 mb-4">
+                <div className="bg-cream border-2 border-black p-3 mb-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Target size={16} className="text-purple-600" />
                     <span className="font-bold text-plum text-sm">Prediction:</span>
@@ -247,7 +247,7 @@ const Markets: React.FC<MarketsProps> = ({ markets = [] }) => {
 
               {/* Stats */}
               <div className="grid grid-cols-2 gap-3 mb-4">
-                <div className="bg-lavender border-2 border-black p-2 text-center">
+                <div className="bg-cream border-2 border-black p-2 text-center">
                   <div className="flex items-center justify-center gap-1 mb-1">
                     <DollarSign size={14} className="text-purple-600" />
                     <span className="text-plum font-bold text-sm">Volume</span>
@@ -256,7 +256,7 @@ const Markets: React.FC<MarketsProps> = ({ markets = [] }) => {
                     ${market.totalVolume?.toLocaleString() || '0'}
                   </div>
                 </div>
-                <div className="bg-lavender border-2 border-black p-2 text-center">
+                <div className="bg-cream border-2 border-black p-2 text-center">
                   <div className="flex items-center justify-center gap-1 mb-1">
                     <Users size={14} className="text-purple-600" />
                     <span className="text-plum font-bold text-sm">Participants</span>

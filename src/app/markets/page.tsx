@@ -1,8 +1,6 @@
 "use client";
 import React from "react";
 import Markets from "../components/Markets";
-import Header from "../components/Header";
-import SideNav from "../components/SideNav";
 
 const MarketsPage = () => {
   // Mock markets data - in a real app, this would come from an API

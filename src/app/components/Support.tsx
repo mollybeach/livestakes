@@ -186,7 +186,7 @@ const Support: React.FC<SupportProps> = ({ faqs = [] }) => {
             </h2>
             <div className="space-y-4">
               {displayFaqs.map((faq) => (
-                <div key={faq.id} className="bg-lavender border-2 border-black">
+                <div key={faq.id} className="bg-cream border-2 border-black">
                   <button
                     onClick={() => toggleFaq(faq.id)}
                     className="w-full p-4 text-left flex justify-between items-center hover:bg-mauve transition-colors"
@@ -226,7 +226,7 @@ const Support: React.FC<SupportProps> = ({ faqs = [] }) => {
                   href={resource.link}
                   target={resource.link.startsWith('http') ? '_blank' : undefined}
                   rel={resource.link.startsWith('http') ? 'noopener noreferrer' : undefined}
-                  className="bg-lavender border-2 border-black p-4 hover:-translate-y-1 transition-transform"
+                  className="bg-cream border-2 border-black p-4 hover:-translate-y-1 transition-transform"
                 >
                   <div className="flex items-center gap-3">
                     <div className="text-purple-600">
@@ -251,21 +251,21 @@ const Support: React.FC<SupportProps> = ({ faqs = [] }) => {
             Platform Features
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-lavender border-2 border-black p-4 text-center">
+            <div className="bg-cream border-2 border-black p-4 text-center">
               <div className="text-purple-600 mb-3 flex justify-center">
                 <Shield size={32} />
               </div>
               <h3 className="font-bold text-plum mb-2">Secure Betting</h3>
               <p className="text-purple-700 text-sm">All transactions are secured by blockchain technology with transparent smart contracts.</p>
             </div>
-            <div className="bg-lavender border-2 border-black p-4 text-center">
+            <div className="bg-cream border-2 border-black p-4 text-center">
               <div className="text-purple-600 mb-3 flex justify-center">
                 <Zap size={32} />
               </div>
               <h3 className="font-bold text-plum mb-2">Instant Payouts</h3>
               <p className="text-purple-700 text-sm">Receive your winnings instantly when predictions are resolved.</p>
             </div>
-            <div className="bg-lavender border-2 border-black p-4 text-center">
+            <div className="bg-cream border-2 border-black p-4 text-center">
               <div className="text-purple-600 mb-3 flex justify-center">
                 <Users size={32} />
               </div>
@@ -282,7 +282,7 @@ const Support: React.FC<SupportProps> = ({ faqs = [] }) => {
             Quick Troubleshooting
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-lavender border-2 border-black p-4">
+            <div className="bg-cream border-2 border-black p-4">
               <h3 className="font-bold text-plum mb-2">Can't connect wallet?</h3>
               <ul className="text-purple-700 text-sm space-y-1">
                 <li>• Make sure your wallet extension is installed</li>
@@ -291,7 +291,7 @@ const Support: React.FC<SupportProps> = ({ faqs = [] }) => {
                 <li>• Ensure you're on the correct network</li>
               </ul>
             </div>
-            <div className="bg-lavender border-2 border-black p-4">
+            <div className="bg-cream border-2 border-black p-4">
               <h3 className="font-bold text-plum mb-2">Transaction failed?</h3>
               <ul className="text-purple-700 text-sm space-y-1">
                 <li>• Check your wallet has enough funds</li>
