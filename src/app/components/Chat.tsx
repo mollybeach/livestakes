@@ -25,17 +25,19 @@ interface ChatProps {
   currentUserAvatar?: string;
 }
 
+const DEFAULT_AVATAR = "https://res.cloudinary.com/storagemanagementcontainer/image/upload/v1751747169/default-avatar_ynttwb.png";
+
 const Chat: React.FC<ChatProps> = ({ 
   messages = [],
   currentUser = "PixelTrader",
-  currentUserAvatar = "https://randomuser.me/api/portraits/men/32.jpg"
+  currentUserAvatar = DEFAULT_AVATAR
 }) => {
   const [newMessage, setNewMessage] = useState("");
   const [chatMessages, setChatMessages] = useState<Message[]>([
     {
       id: 1,
       user: "CryptoQueen",
-      avatar: "https://randomuser.me/api/portraits/women/44.jpg",
+      avatar: DEFAULT_AVATAR,
       message: "Anyone else bullish on that Solana DeFi protocol? 🚀",
       timestamp: "2:34 PM",
       isOwn: false,
@@ -43,7 +45,7 @@ const Chat: React.FC<ChatProps> = ({
     {
       id: 2,
       user: "BlockchainBro",
-      avatar: "https://randomuser.me/api/portraits/men/67.jpg",
+      avatar: DEFAULT_AVATAR,
       message: "I'm in! The odds look great at 2.5x",
       timestamp: "2:35 PM",
       isOwn: false,
@@ -51,7 +53,7 @@ const Chat: React.FC<ChatProps> = ({
     {
       id: 3,
       user: "PixelTrader",
-      avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+      avatar: DEFAULT_AVATAR,
       message: "Just placed my bet! This is going to moon 🌙",
       timestamp: "2:36 PM",
       isOwn: true,
@@ -59,7 +61,7 @@ const Chat: React.FC<ChatProps> = ({
     {
       id: 4,
       user: "DeFiDude",
-      avatar: "https://randomuser.me/api/portraits/men/23.jpg",
+      avatar: DEFAULT_AVATAR,
       message: "What's everyone's prediction for the AI Trading Bot market?",
       timestamp: "2:37 PM",
       isOwn: false,
@@ -67,7 +69,7 @@ const Chat: React.FC<ChatProps> = ({
     {
       id: 5,
       user: "NFTNinja",
-      avatar: "https://randomuser.me/api/portraits/women/28.jpg",
+      avatar: DEFAULT_AVATAR,
       message: "I think it'll outperform BTC by 50% easy 💪",
       timestamp: "2:38 PM",
       isOwn: false,
@@ -75,7 +77,7 @@ const Chat: React.FC<ChatProps> = ({
     {
       id: 6,
       user: "PixelTrader",
-      avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+      avatar: DEFAULT_AVATAR,
       message: "The volume is insane on this one!",
       timestamp: "2:39 PM",
       isOwn: true,
@@ -144,7 +146,7 @@ const Chat: React.FC<ChatProps> = ({
               >
                 {!message.isOwn && (
                   <img
-                    src={message.avatar}
+                    src={message.avatar || DEFAULT_AVATAR}
                     alt={message.user}
                     className="w-8 h-8 rounded-full border-2 border-black flex-shrink-0"
                   />
@@ -170,7 +172,7 @@ const Chat: React.FC<ChatProps> = ({
                 </div>
                 {message.isOwn && (
                   <img
-                    src={message.avatar}
+                    src={message.avatar || DEFAULT_AVATAR}
                     alt={message.user}
                     className="w-8 h-8 rounded-full border-2 border-black flex-shrink-0"
                   />

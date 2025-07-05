@@ -171,20 +171,13 @@ const FeedPage = () => {
                       playsInline
                       style={{ minHeight: 400 }}
                     />
-                  ) : stream.thumbnail_url ? (
+                  ) : (
                     <Image
-                      src={stream.thumbnail_url}
+                      src={stream.thumbnail_url || "https://res.cloudinary.com/storagemanagementcontainer/image/upload/v1751729735/live-stakes-icon_cfc7t8.png"}
                       alt={stream.title}
                       fill
                       className="object-cover w-full h-full opacity-80"
                     />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gray-800 opacity-80">
-                      <div className="text-center">
-                        <div className="text-5xl mb-2">🎮</div>
-                        <p className="text-gray-400 text-lg">No thumbnail</p>
-                      </div>
-                    </div>
                   )}
                   {/* TikTok-style title + description overlay, both pushed down */}
                   <TitleDescriptionOverlay title={stream.title} description={stream.description} />

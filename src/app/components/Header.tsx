@@ -12,6 +12,7 @@ import {
   Star,
   Store,
   PlaySquare,
+  User,
 } from "lucide-react";
 import { LIVE_STAKES_LOGO_URL } from '../lib/cloudinary';
 import ConnectWallet from './ConnectWallet';
@@ -53,16 +54,14 @@ const Header = () => {
               <Store size={16} />
               <span>Markets</span>
             </Link>
+            <Link href="/profile" className="flex items-center gap-2 text-yellow-50 hover:text-yellow-200 transition-colors font-pixel text-sm border border-transparent px-2 py-1">
+              <User size={16} />
+              <span>Profile</span>
+            </Link>
           </div>
 
           {/* Icon-Only Links */}
           <div className="flex space-x-2">
-            <Link href="/features" className="flex items-center justify-center text-yellow-50 hover:text-yellow-200 transition-colors font-pixel text-sm border border-transparent px-2 py-1">
-              <Star size={16} />
-            </Link>
-            <Link href="/howitworks" className="flex items-center justify-center text-yellow-50 hover:text-yellow-200 transition-colors font-pixel text-sm border border-transparent  px-2 py-1">
-              <Wrench size={16} />
-            </Link>
             <Link href="/about" className="flex items-center justify-center text-yellow-50 hover:text-yellow-200 transition-colors font-pixel text-sm border border-transparent  px-2 py-1">
               <Info size={16} />
             </Link>

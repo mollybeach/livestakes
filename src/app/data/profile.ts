@@ -56,7 +56,7 @@ export interface Achievement {
 export const mockProfileData: ProfileData = {
   address: "0x1234...5678",
   username: "PixelTrader",
-  avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+  avatar: "https://res.cloudinary.com/storagemanagementcontainer/image/upload/v1751747169/default-avatar_ynttwb.png",
   githubUrl: "https://github.com/pixeltrader",
   rank: "Rank #42",
   rating: "4.8/5.0",

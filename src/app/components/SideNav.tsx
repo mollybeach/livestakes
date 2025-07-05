@@ -46,7 +46,7 @@ const SideNav = () => {
       {/* Toggle Button */}
       <button
         onClick={toggleCollapse}
-        className="absolute -right-3 top-6 bg-fuchsia text-cream p-1 rounded-full border-2 border-black hover:bg-purple-800 transition-colors"
+        className="absolute -right-3 top-6 bg-periwinkle text-cream p-1 rounded-full border-2 border-black hover:bg-purple-800 transition-colors"
       >
         {isCollapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
       </button>
