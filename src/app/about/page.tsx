@@ -1,7 +1,7 @@
 import React from "react";
 
 const AboutPage = () => (
-  <div className="min-h-screen bg-pink-200 font-pixel text-purple-900 py-8">
+  <div className="min-h-screen bg-pink-200 font-pixel text-purple-900 pt-8">
     <h1 className="text-2xl text-center font-bold mb-6">ℹ️ About</h1>
     <section className="max-w-2xl mx-auto bg-yellow-50 border-4 border-black shadow-window-pixel p-6 text-center">
       <p className="mb-4 text-lg font-bold">LiveStakes.fun</p>

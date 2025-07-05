@@ -52,7 +52,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
       <div className="bg-yellow-50 p-4 text-black font-pixel text-sm">
         <div className="flex items-center gap-3">
           <button className="bg-pink-600 hover:bg-pink-700 text-yellow-50 px-3 py-1 border border-black rounded-none font-pixel uppercase text-xs">
-            Create Market
+            Go Live
           </button>
           <button className="bg-yellow-400 hover:bg-yellow-300 text-black px-3 py-1 border border-black rounded-none font-pixel uppercase text-xs">
             Browse Categories
