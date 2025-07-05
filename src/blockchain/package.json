@@ -1,0 +1,44 @@
+{
+    "name": "prediction-market-contracts",
+    "version": "1.0.0",
+    "description": "Prediction market smart contracts on Ethereum",
+    "main": "index.js",
+    "scripts": {
+        "compile": "hardhat compile",
+        "test": "hardhat test",
+        "test:coverage": "hardhat coverage",
+        "deploy:local": "hardhat run scripts/deploy.js --network localhost",
+        "deploy:sepolia": "hardhat run scripts/deploy.js --network sepolia",
+        "deploy:mainnet": "hardhat run scripts/deploy.js --network mainnet",
+        "node": "hardhat node",
+        "clean": "hardhat clean"
+    },
+    "keywords": [
+        "ethereum",
+        "solidity",
+        "prediction-markets",
+        "smart-contracts"
+    ],
+    "author": "",
+    "license": "MIT",
+    "devDependencies": {
+        "@nomicfoundation/hardhat-chai-matchers": "^2.0.2",
+        "@nomicfoundation/hardhat-ethers": "^3.0.4",
+        "@nomicfoundation/hardhat-network-helpers": "^1.0.8",
+        "@nomicfoundation/hardhat-toolbox": "^3.0.0",
+        "@nomicfoundation/hardhat-verify": "^1.1.1",
+        "@typechain/ethers-v6": "^0.4.3",
+        "@typechain/hardhat": "^8.0.3",
+        "@types/chai": "^4.3.5",
+        "@types/mocha": "^10.0.1",
+        "chai": "^4.3.7",
+        "ethers": "^6.7.1",
+        "hardhat": "^2.17.1",
+        "hardhat-gas-reporter": "^1.0.9",
+        "solidity-coverage": "^0.8.4",
+        "typechain": "^8.3.2"
+    },
+    "dependencies": {
+        "dotenv": "^16.6.1"
+    }
+}

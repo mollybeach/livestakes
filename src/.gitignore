@@ -2,6 +2,8 @@
 
 # dependencies
 /node_modules
+node_modules/
+node_modules
 /.pnp
 .pnp.js
 
@@ -34,6 +36,7 @@ yarn-error.log*
 # local env files
 .env*.local
 .env
+src/.env
 
 # typescript
 *.tsbuildinfo
@@ -53,6 +56,9 @@ logs
 .eslintcache
 .cache
 .parcel-cache
+
+# Flow configuration (contains private keys)
+flow.json
 
 
 server/.env
