@@ -79,3 +79,7 @@ server/package-lock.json
 
 .lock.yaml
 .yaml
+*.lock.yml
+*.lock.yaml
+lock.yml
+lock.yaml

@@ -50,7 +50,6 @@ export default function Home() {
       {/* ---------------------------------------------------------------- */}
       <div className="min-h-screen bg-pink-200 text-purple-900 font-pixel">
         <Hero />
-        <Footer />
       </div>
     </>
   );
