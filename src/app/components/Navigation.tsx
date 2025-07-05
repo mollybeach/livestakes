@@ -10,7 +10,8 @@ const Navigation = () => {
   const navItems = [
     { href: '/', label: 'Home' },
     { href: '/livestreams', label: 'Livestreams' },
-    { href: '/livestakes', label: 'Markets' },
+    { href: '/markets', label: 'Markets' },
+    { href: '/support', label: 'Support' },
   ];
 
   return (

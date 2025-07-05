@@ -21,7 +21,7 @@ const PageLayout = ({ children, title, showNavigation = true }: PageLayoutProps)
               <span className="text-xl font-bold">livestakes.fun</span>
             </Link>
             <Navigation />
-            <Link href="/livestakes">
+            <Link href="/markets">
               <button className="bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-2 rounded-lg font-semibold hover:from-purple-700 hover:to-pink-700 transition-all">
                 Launch App
               </button>

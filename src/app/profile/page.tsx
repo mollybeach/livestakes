@@ -1,8 +1,6 @@
 "use client";
 import React from "react";
 import Profile from "../components/Profile";
-import Header from "../components/Header";
-import SideNav from "../components/SideNav";
 
 const ProfilePage = () => {
   // Mock user data - in a real app, this would come from an API or context
@@ -10,6 +8,7 @@ const ProfilePage = () => {
     address: "0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6",
     username: "PixelTrader",
     avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+    githubUrl: "https://github.com/pixeltrader",
     stats: {
       rank: 42,
       totalBets: 156,
@@ -68,24 +67,15 @@ const ProfilePage = () => {
 
   return (
     <div className="min-h-screen flex font-pixel bg-purple-200">
-      {/* Side Navigation */}
-      <SideNav />
-      
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col">
-        {/* Header */}
-        <Header />
-        
-        {/* Profile Content */}
-        <main className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto">
           <Profile 
             address={userData.address}
             username={userData.username}
             avatar={userData.avatar}
+            githubUrl={userData.githubUrl}
           />
-        </main>
+        </div>
       </div>
-    </div>
   );
 };
 

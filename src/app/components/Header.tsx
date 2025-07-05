@@ -21,27 +21,27 @@ const Header = () => {
           <span className="text-xl font-bold text-yellow-50 font-pixel">livestakes.fun</span>
         </Link>
         <div className="hidden md:flex space-x-6">
-          <Link href="/livestreams" className="flex items-center gap-2 text-yellow-50 hover:text-yellow-200 transition-colors font-pixel text-sm border border-transparent hover:border-yellow-200 px-2 py-1">
+          <Link href="/livestreams" className="flex items-center gap-2 text-yellow-50 hover:text-yellow-200 transition-colors font-pixel text-sm border border-transparent px-2 py-1">
             <MonitorPlay size={16} />
             <span>Livestreams</span>
           </Link>
-          <Link href="/leaderboard" className="flex items-center gap-2 text-yellow-50 hover:text-yellow-200 transition-colors font-pixel text-sm border border-transparent hover:border-yellow-200 px-2 py-1">
+          <Link href="/leaderboard" className="flex items-center gap-2 text-yellow-50 hover:text-yellow-200 transition-colors font-pixel text-sm border border-transparent px-2 py-1">
             <Trophy size={16} />
             <span>Leaderboard</span>
           </Link>
-          <Link href="/chart" className="flex items-center gap-2 text-yellow-50 hover:text-yellow-200 transition-colors font-pixel text-sm border border-transparent hover:border-yellow-200 px-2 py-1">
+          <Link href="/chart" className="flex items-center gap-2 text-yellow-50 hover:text-yellow-200 transition-colors font-pixel text-sm border border-transparent px-2 py-1">
             <BarChart3 size={16} />
             <span>Chart</span>
           </Link>
-          <Link href="/features" className="flex items-center gap-2 text-yellow-50 hover:text-yellow-200 transition-colors font-pixel text-sm border border-transparent hover:border-yellow-200 px-2 py-1">
+          <Link href="/features" className="flex items-center gap-2 text-yellow-50 hover:text-yellow-200 transition-colors font-pixel text-sm border border-transparent px-2 py-1">
             <Settings size={16} />
             <span>Features</span>
           </Link>
-          <Link href="/howitworks" className="flex items-center gap-2 text-yellow-50 hover:text-yellow-200 transition-colors font-pixel text-sm border border-transparent hover:border-yellow-200 px-2 py-1">
+          <Link href="/howitworks" className="flex items-center gap-2 text-yellow-50 hover:text-yellow-200 transition-colors font-pixel text-sm border border-transparent px-2 py-1">
             <Info size={16} />
             <span>How It Works</span>
           </Link>
-          <Link href="/about" className="flex items-center gap-2 text-yellow-50 hover:text-yellow-200 transition-colors font-pixel text-sm border border-transparent hover:border-yellow-200 px-2 py-1">
+          <Link href="/about" className="flex items-center gap-2 text-yellow-50 hover:text-yellow-200 transition-colors font-pixel text-sm border border-transparent px-2 py-1">
             <Home size={16} />
             <span>About</span>
           </Link>
