@@ -147,7 +147,177 @@ function convertMovToMp4Buffer(inputBuffer: Buffer): Promise<Buffer> {
   });
 }
 
-// Upload video file and optionally create/update livestream
+// Simplified video upload - only requires video file and market address
+router.post('/upload-video-simple', upload.single('video'), async (req: any, res: any) => {
+  const { 
+    market_address, 
+    creator_wallet_address
+  } = req.body;
+  
+  if (!req.file) {
+    return res.status(400).json({
+      success: false,
+      error: 'No video file provided'
+    });
+  }
+  
+  if (!market_address || !creator_wallet_address) {
+    return res.status(400).json({
+      success: false,
+      error: 'Market address and creator wallet address are required'
+    });
+  }
+  
+  try {
+    // Handle MOV to MP4 conversion if necessary
+    let videoBuffer = req.file.buffer;
+    let originalFilename = req.file.originalname;
+    
+    if (req.file.mimetype === 'video/quicktime') {
+      console.log(`🔄 Converting MOV file: ${originalFilename}`);
+      videoBuffer = await convertMovToMp4Buffer(req.file.buffer);
+      console.log('✅ MOV to MP4 conversion completed');
+    }
+    
+    // Always use AI analysis for automatic title/description generation
+    let aiMetadata = null;
+    try {
+      console.log('🤖 Starting AI analysis of uploaded video...');
+      aiMetadata = await videoAnalysisService.analyzeVideoFromBuffer(
+        videoBuffer,
+        originalFilename,
+        {
+          maxDurationForAnalysis: 300, // 5 minutes max
+          includeTranscript: true
+        }
+      );
+      console.log('✅ AI analysis completed');
+    } catch (error) {
+      console.error('❌ AI analysis failed:', error);
+      // Continue without AI metadata
+    }
+    
+    // Use AI-generated metadata if available, otherwise use defaults
+    const finalTitle = aiMetadata?.title || `Hackathon Project - ${originalFilename}`;
+    const finalDescription = aiMetadata?.description || 'Hackathon project video upload';
+    const finalCategory = aiMetadata?.category || 'hackathon';
+    
+    // Generate unique filename
+    const uniqueId = uuidv4();
+    const truncatedWallet = creator_wallet_address.slice(0, 8);
+    const timestamp = Date.now();
+    const filename = `video_${truncatedWallet}_${timestamp}_${uniqueId}.mp4`;
+    
+    let videoUrl = '';
+    
+    // Upload to storage (GCP or local)
+    if (storageClient) {
+      try {
+        // Check if the bucket exists, create if needed
+        const [bucketExists] = await storageClient.bucket(bucketName).exists();
+        
+        if (!bucketExists) {
+          console.log(`Bucket ${bucketName} not found during video upload, creating...`);
+          await storageClient.createBucket(bucketName, {
+            location: 'us-central1',
+            storageClass: 'STANDARD'
+          });
+          await storageClient.bucket(bucketName).makePublic();
+          console.log(`Bucket ${bucketName} created and made public`);
+        }
+        
+        // Upload the file
+        const bucket = storageClient.bucket(bucketName);
+        const file = bucket.file(`videos/${filename}`);
+        
+        const fileMetadata: any = {
+          contentType: 'video/mp4',
+          metadata: {
+            title: finalTitle,
+            creatorWalletAddress: creator_wallet_address,
+            category: finalCategory,
+            uploadTimestamp: new Date().toISOString(),
+            originalFilename: originalFilename,
+            marketAddress: market_address,
+            aiGenerated: 'true'
+          }
+        };
+
+        await file.save(videoBuffer, fileMetadata);
+        await file.makePublic();
+        
+        videoUrl = `https://storage.googleapis.com/${bucketName}/videos/${filename}`;
+        console.log(`Uploaded video to GCP: ${videoUrl}`);
+      } catch (gcpError: any) {
+        console.error(`GCP upload error: ${gcpError.message}`);
+        
+        // Fallback to local storage
+        const filePath = path.join(LOCAL_TEMP_DIR, filename);
+        fs.writeFileSync(filePath, videoBuffer);
+        videoUrl = `${process.env.PUBLIC_API_URL || 'http://localhost:3334'}/api/videos/${filename}`;
+        console.log(`Stored video locally as fallback: ${filePath}`);
+      }
+    } else {
+      // Local file storage for development
+      const filePath = path.join(LOCAL_TEMP_DIR, filename);
+      fs.writeFileSync(filePath, videoBuffer);
+      videoUrl = `${process.env.PUBLIC_API_URL || 'http://localhost:3334'}/api/videos/${filename}`;
+      console.log(`Stored video locally: ${filePath}`);
+    }
+    
+    // Create new livestream entry and associate with market
+    const insertResult = await pool.query(
+      `INSERT INTO livestreams (
+        title, description, creator_wallet_address, stream_url, 
+        thumbnail_url, status, category, tags, transcript, market_address,
+        start_time, end_time, view_count
+      ) VALUES ($1, $2, $3, $4, $5, 'ended', $6, $7, $8, $9, NOW(), NOW(), 0)
+      RETURNING *`,
+      [
+        finalTitle, 
+        finalDescription, 
+        creator_wallet_address, 
+        videoUrl, 
+        null, // thumbnail_url
+        finalCategory,
+        aiMetadata?.tags ? JSON.stringify(aiMetadata.tags) : null,
+        aiMetadata?.transcript,
+        market_address
+      ]
+    );
+    
+    const livestreamResult = insertResult.rows[0];
+    
+    // Prepare response
+    const response: any = {
+      success: true,
+      message: 'Video uploaded and processed successfully! 🎉',
+      videoUrl,
+      livestream: livestreamResult
+    };
+    
+    // Include AI analysis results
+    if (aiMetadata) {
+      response.aiAnalysis = {
+        title: aiMetadata.title,
+        description: aiMetadata.description,
+        category: aiMetadata.category,
+        tags: aiMetadata.tags,
+        transcript: aiMetadata.transcript
+      };
+    }
+    
+    return res.status(200).json(response);
+  } catch (error) {
+    console.error('Error uploading video:', error);
+    return res.status(500).json({
+      success: false,
+      error: `Server error: ${error instanceof Error ? error.message : String(error)}`
+    });
+  }
+});
+
+// Original upload endpoint (keeping for backward compatibility)
 router.post('/upload-video', upload.single('video'), async (req: any, res: any) => {
   const { 
     title, 

@@ -6,9 +6,9 @@
     {
       "inputs": [
         {
-          "internalType": "uint256",
-          "name": "livestreamId",
-          "type": "uint256"
+          "internalType": "uint256[]",
+          "name": "livestreamIds",
+          "type": "uint256[]"
         }
       ],
       "name": "notifyMarketClosed",

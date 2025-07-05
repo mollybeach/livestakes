@@ -2,14 +2,14 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/Users/macbookpro/Desktop/wobreeze/projects/hackathon-cannes/livestakes/src/blockchain/contracts/MarketFactory.sol": {
-      "lastModificationDate": 1751719779742,
-      "contentHash": "293f0dd852363e44f21da42e19bd47e9",
+      "lastModificationDate": 1751739763238,
+      "contentHash": "acf1a622912d3d27016399e9619fbdb0",
       "sourceName": "contracts/MarketFactory.sol",
       "solcConfig": {
         "version": "0.8.19",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -39,14 +39,14 @@
       ]
     },
     "/Users/macbookpro/Desktop/wobreeze/projects/hackathon-cannes/livestakes/src/blockchain/contracts/PredictionMarket.sol": {
-      "lastModificationDate": 1751719813787,
-      "contentHash": "6d288d1f75b0b140ab3fbf0bf8f467aa",
+      "lastModificationDate": 1751745340825,
+      "contentHash": "2b89c5961752ca0812c63ea8247dd8e7",
       "sourceName": "contracts/PredictionMarket.sol",
       "solcConfig": {
         "version": "0.8.19",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
