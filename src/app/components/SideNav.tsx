@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   MonitorPlay,
   Home,
-  PieChart,
+  Store,
   MessageCircle,
   UserCircle2,
   HelpCircle,
@@ -34,7 +34,7 @@ const SideNav = () => {
     { icon: <MonitorPlay size={16} />, label: "Livestreams", href: "/livestreams", active: pathname === "/livestreams" },
     { icon: <Trophy size={16} />, label: "Leaderboard", href: "/leaderboard", active: pathname === "/leaderboard" },
     { icon: <BarChart3 size={16} />, label: "Chart", href: "/chart", active: pathname === "/chart" },
-    { icon: <PieChart size={16} />, label: "Markets", href: "/markets", active: pathname === "/markets" },
+    { icon: <Store size={16} />, label: "Markets", href: "/markets", active: pathname === "/markets" },
     { icon: <Star size={16} />, label: "Features", href: "/features", active: pathname === "/features" },
     { icon: <BookOpen size={16} />, label: "How It Works", href: "/howitworks", active: pathname === "/howitworks" },
     { icon: <MessageCircle size={16} />, label: "Chat", href: "/chat", active: pathname === "/chat" },
