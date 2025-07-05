@@ -3,22 +3,22 @@ import Link from 'next/link';
 
 const Header = () => {
   return (
-    <header className="relative z-10 px-6 py-4">
+    <header className="relative z-10 px-6 py-4 bg-pink-600 border-b-4 border-black">
       <nav className="max-w-7xl mx-auto flex items-center justify-between">
         <Link href="/" className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold">L</span>
+          <div className="w-8 h-8 bg-yellow-400 border-2 border-black rounded-none flex items-center justify-center">
+            <span className="text-black font-bold font-pixel">L</span>
           </div>
-          <span className="text-xl font-bold">livestakes.fun</span>
+          <span className="text-xl font-bold text-yellow-50 font-pixel">livestakes.fun</span>
         </Link>
         <div className="hidden md:flex space-x-6">
-          <a href="#features" className="hover:text-purple-300 transition-colors">Features</a>
-          <a href="#how-it-works" className="hover:text-purple-300 transition-colors">How It Works</a>
-          <Link href="/livestreams" className="hover:text-purple-300 transition-colors">Livestreams</Link>
-          <a href="#about" className="hover:text-purple-300 transition-colors">About</a>
+          <a href="#features" className="text-yellow-50 hover:text-yellow-200 transition-colors font-pixel text-sm">Features</a>
+          <a href="#how-it-works" className="text-yellow-50 hover:text-yellow-200 transition-colors font-pixel text-sm">How It Works</a>
+          <Link href="/livestreams" className="text-yellow-50 hover:text-yellow-200 transition-colors font-pixel text-sm">Livestreams</Link>
+          <a href="#about" className="text-yellow-50 hover:text-yellow-200 transition-colors font-pixel text-sm">About</a>
         </div>
         <Link href="/livestakes">
-          <button className="bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-2 rounded-lg font-semibold hover:from-purple-700 hover:to-pink-700 transition-all">
+          <button className="bg-yellow-400 hover:bg-yellow-300 text-black px-6 py-2 border-2 border-black rounded-none font-pixel uppercase tracking-wider transition-colors">
             Launch App
           </button>
         </Link>

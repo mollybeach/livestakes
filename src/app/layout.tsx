@@ -38,6 +38,10 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport = {
+  themeColor: "#8B5CF6",
+};
+
 export default function RootLayout({
   children,
 }: {
