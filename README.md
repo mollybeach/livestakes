@@ -266,42 +266,138 @@ livestakes/
 ├── src/
 │   ├── .next/
 │   ├── app/
+│   │   ├── about/
+│   │   │   └── page.tsx
+│   │   ├── api/
+│   │   │   ├── livestreams/
+│   │   │   │   └── route.ts
+│   │   │   └── markets/
+│   │   │   │   └── route.ts
+│   │   ├── chart/
+│   │   │   └── page.tsx
+│   │   ├── chat/
+│   │   │   └── page.tsx
 │   │   ├── components/
 │   │   │   ├── clientwrapper/
 │   │   │   │   └── index.tsx
-│   │   │   └── PWAProvider.tsx
+│   │   │   ├── ui/
+│   │   │   │   ├── button.tsx
+│   │   │   │   └── card.tsx
+│   │   │   ├── BettingIndicator.tsx
+│   │   │   ├── BettingModal.tsx
+│   │   │   ├── CardContent.tsx
+│   │   │   ├── Chat.tsx
+│   │   │   ├── ConnectWallet.tsx
+│   │   │   ├── CTA.tsx
+│   │   │   ├── DashboardHeader.tsx
+│   │   │   ├── FeatureCard.tsx
+│   │   │   ├── Features.tsx
+│   │   │   ├── Footer.tsx
+│   │   │   ├── Header.tsx
+│   │   │   ├── Hero.tsx
+│   │   │   ├── HowItWorks.tsx
+│   │   │   ├── Leaderboard.tsx
+│   │   │   ├── LiveBadge.tsx
+│   │   │   ├── LivestreamCard.tsx
+│   │   │   ├── LivestreamSection.tsx
+│   │   │   ├── MarketAssociationModal.tsx
+│   │   │   ├── MarketCreationModal.tsx
+│   │   │   ├── MarketFilter.tsx
+│   │   │   ├── MarketHeader.tsx
+│   │   │   ├── Markets.tsx
+│   │   │   ├── Marquee.tsx
+│   │   │   ├── Navigation.tsx
+│   │   │   ├── NavItem.tsx
+│   │   │   ├── OutcomeTable.tsx
+│   │   │   ├── PageLayout.tsx
+│   │   │   ├── PixelWindow.tsx
+│   │   │   ├── PredictionGraph.tsx
+│   │   │   ├── Profile.tsx
+│   │   │   ├── PWAProvider.tsx
+│   │   │   ├── SearchBar.tsx
+│   │   │   ├── SideNav.tsx
+│   │   │   ├── SocialIcon.tsx
+│   │   │   ├── StreamCard.tsx
+│   │   │   ├── Support.tsx
+│   │   │   └── TradePanel.tsx
 │   │   ├── context/
 │   │   │   └── AuthContext.tsx
+│   │   ├── data/
+│   │   │   ├── features.ts
+│   │   │   ├── howItWorks.ts
+│   │   │   ├── livestreams.ts
+│   │   │   ├── markets.ts
+│   │   │   ├── marquee.ts
+│   │   │   ├── profile.ts
+│   │   │   └── support.ts
+│   │   ├── features/
+│   │   │   └── page.tsx
+│   │   ├── howitworks/
+│   │   │   └── page.tsx
+│   │   ├── leaderboard/
+│   │   │   └── page.tsx
+│   │   ├── lib/
+│   │   │   ├── cloudinary.ts
+│   │   │   ├── contractsApi.ts
+│   │   │   └── livestreamsApi.ts
+│   │   ├── livestreams/
+│   │   │   └── page.tsx
+│   │   ├── markets/
+│   │   │   └── page.tsx
+│   │   ├── profile/
+│   │   │   └── page.tsx
+│   │   ├── support/
+│   │   │   └── page.tsx
 │   │   ├── globals.css
 │   │   ├── layout.tsx
 │   │   ├── not-found.tsx
 │   │   └── page.tsx
 │   ├── blockchain/
+│   │   ├── artifacts/
+│   │   │   ├── build-info/
+│   │   │   │   └── e7b1899348a83502b2f4db86ca36448e.json
+│   │   │   └── contracts/
+│   │   │   │   ├── MarketFactory.sol/
+│   │   │   │   │   ├── MarketFactory.dbg.json
+│   │   │   │   │   └── MarketFactory.json
+│   │   │   │   └── PredictionMarket.sol/
+│   │   │   │   │   ├── IMarketFactory.dbg.json
+│   │   │   │   │   ├── IMarketFactory.json
+│   │   │   │   │   ├── PredictionMarket.dbg.json
+│   │   │   │   │   └── PredictionMarket.json
+│   │   ├── cache/
+│   │   │   └── solidity-files-cache.json
 │   │   ├── contracts/
 │   │   │   ├── .DS_Store
 │   │   │   ├── MarketFactory.sol
-│   │   │   ├── PredictionMarket.sol
-│   │   │   └── ProjectRegistry.sol
+│   │   │   └── PredictionMarket.sol
 │   │   ├── node_modules/
 │   │   ├── scripts/
+│   │   │   ├── deploy-testnet.js
 │   │   │   ├── deploy.js
 │   │   │   ├── getMarket.js
-│   │   │   └── getProject.js
+│   │   │   ├── getProject.js
+│   │   │   └── setup-testnet.js
 │   │   ├── test/
 │   │   │   ├── MarketFactory.test.js
-│   │   │   ├── PredictionMarket.test.js
-│   │   │   └── ProjectRegistry.test.js
+│   │   │   └── PredictionMarket.test.js
 │   │   ├── transactions/
 │   │   │   ├── claimPayout.js
 │   │   │   ├── createMarket.js
 │   │   │   ├── placeBet.js
-│   │   │   ├── registerProject.js
 │   │   │   └── resolveMarket.js
 │   │   ├── .DS_Store
+│   │   ├── .env
+│   │   ├── .gitignore
+│   │   ├── deployment-flow-testnet.json
+│   │   ├── deployment-localhost.json
+│   │   ├── FLOW_EVM_SETUP.md
 │   │   ├── hardhat.config.js
 │   │   ├── package.json
 │   │   ├── pnpm-lock.yaml
 │   │   └── README.md
+│   ├── howitworks/
+│   │   └── page.tsx
 │   ├── node_modules/
 │   ├── public/
 │   ├── server/
@@ -312,13 +408,27 @@ livestakes/
 │   │   │   │   ├── dbInitialization.ts
 │   │   │   │   ├── migrations.ts
 │   │   │   │   └── transactions.ts
+│   │   │   ├── routes/
+│   │   │   │   ├── markets.ts
+│   │   │   │   ├── marketsMetadata.ts
+│   │   │   │   └── videoUpload.ts
+│   │   │   ├── scripts/
+│   │   │   │   ├── cleanBucket.ts
+│   │   │   │   └── importVideos.ts
+│   │   │   ├── services/
+│   │   │   │   └── videoAnalysis.ts
 │   │   │   ├── index.ts
 │   │   │   └── migrate.ts
+│   │   ├── temp/
 │   │   ├── .env
+│   │   ├── EXAMPLE_USAGE.md
+│   │   ├── LIVESTREAMS_API.md
 │   │   ├── MIGRATION.md
+│   │   ├── package-lock.json
 │   │   ├── package.json
 │   │   ├── README.md
-│   │   └── tsconfig.json
+│   │   ├── tsconfig.json
+│   │   └── VIDEO_IMPORT_SETUP.md
 │   ├── .DS_Store
 │   ├── .env
 │   ├── .env.example
@@ -327,22 +437,21 @@ livestakes/
 │   ├── next-env.d.ts
 │   ├── next.config.js
 │   ├── package.json
+│   ├── pnpm-lock.yaml
 │   ├── postcss.config.js
 │   ├── README.md
 │   ├── tailwind.config.js
 │   └── tsconfig.json
 ├── .dockerignore
-├── .DS_Store
+├── DATA_REQUIREMENTS.md
 ├── deploy.sh
 ├── docker-compose-local.yml
 ├── docker-compose.yml
 ├── docker-entrypoint.sh
 ├── Dockerfile
 ├── Dockerfile.dev
-├── flow.json
+├── dump-livestakes.sql
 ├── Makefile
-├── pnpm-lock.yaml
 └── README.md
 
 ```
-
