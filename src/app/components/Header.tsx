@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
 import ConnectWallet from './ConnectWallet';
@@ -20,9 +22,7 @@ const Header = () => {
           <Link href="/chart" className="text-yellow-50 hover:text-yellow-200 transition-colors font-pixel text-sm">Chart</Link>
           <a href="/about" className="text-yellow-50 hover:text-yellow-200 transition-colors font-pixel text-sm">About</a>
         </div>
-        <button className="bg-yellow-400 hover:bg-yellow-300 text-black px-6 py-2 border-2 border-black rounded-none font-pixel uppercase tracking-wider transition-colors">
-          Connect Wallet
-        </button>
+        <ConnectWallet style="header" />
       </nav>
     </header>
   );
