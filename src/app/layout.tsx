@@ -118,7 +118,7 @@ export default function RootLayout({
       {/* ---------------------------------------------------------------- */}
       {/*  Retro background + global typography                            */}
       {/* ---------------------------------------------------------------- */}
-      <body className="min-h-screen bg-pink-200 text-purple-900">
+      <body className="min-h-screen bg-pink-200 text-purple-900" suppressHydrationWarning={true}>
         <ClientWrapper>
           <Header />
           <div className="flex">

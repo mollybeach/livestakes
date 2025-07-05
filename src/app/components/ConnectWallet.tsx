@@ -9,6 +9,7 @@ interface ConnectWalletProps {
   disconnectClassName?: string;
   loadingClassName?: string;
   style?: 'default' | 'header';
+  color?: 'yellow' | 'fuchsia';
 }
 
 export default function ConnectWallet({ 
@@ -16,7 +17,8 @@ export default function ConnectWallet({
   connectedClassName,
   disconnectClassName,
   loadingClassName,
-  style = 'default'
+  style = 'default',
+  color = 'yellow',
 }: ConnectWalletProps) {
   const { ready, authenticated, user, login, logout } = usePrivy();
 
@@ -45,13 +47,14 @@ export default function ConnectWallet({
 
     if (style === 'header') {
       return (
-        <div className="flex items-center space-x-2">
-          <div className={`bg-green-400 text-black px-4 py-2 border-2 border-black rounded-none font-pixel uppercase tracking-wider ${connectedClassName || ''}`}>
-            <span className="text-xs">{displayAddress}</span>
+        <div className="flex items-stretch space-x-2 h-10">
+          <div className={`flex items-center bg-green-400 text-black px-4 border-2 border-black rounded-none font-pixel uppercase tracking-wider text-xs h-full ${connectedClassName || ''}`}> 
+            <span>{displayAddress}</span>
           </div>
           <button
             onClick={logout}
-            className={`bg-red-500 hover:bg-red-400 text-black px-3 py-2 border-2 border-black rounded-none font-pixel uppercase tracking-wider transition-colors text-xs ${disconnectClassName || ''}`}
+            className={`flex items-center bg-red-500 hover:bg-red-400 text-black px-4 border-2 border-black rounded-none font-pixel uppercase tracking-wider transition-colors text-xs h-full ${disconnectClassName || ''}`}
+            style={{ minWidth: '90px' }}
           >
             Disconnect
           </button>
@@ -77,10 +80,14 @@ export default function ConnectWallet({
   }
 
   if (style === 'header') {
+    // Use color prop to determine button color
+    const buttonColor = color === 'fuchsia'
+      ? 'bg-fuchsia hover:bg-pink-600 text-yellow-50'
+      : 'bg-yellow-400 hover:bg-yellow-300 text-black';
     return (
       <button
         onClick={login}
-        className={`bg-yellow-400 hover:bg-yellow-300 text-black px-6 py-2 border-2 border-black rounded-none font-pixel uppercase tracking-wider transition-colors ${className || ''}`}
+        className={`${buttonColor} px-6 py-2 border-2 border-black rounded-none font-pixel uppercase tracking-wider transition-colors ${className || ''}`}
       >
         Connect Wallet
       </button>

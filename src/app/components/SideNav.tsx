@@ -12,6 +12,10 @@ import {
   MoreHorizontal,
   ChevronLeft,
   ChevronRight,
+  Trophy,
+  BarChart3,
+  Star,
+  BookOpen,
 } from "lucide-react";
 import Button from "./ui/button";
 import NavItem from "./NavItem";
@@ -26,12 +30,15 @@ const SideNav = () => {
 
   const navItems = [
     { icon: <Home size={16} />, label: "Home", href: "/", active: pathname === "/" },
-    { icon: <MonitorPlay size={16} />, label: "Livestreams", href: "/livestreams", active: pathname === "/livestreams" },
-    { icon: <PieChart size={16} />, label: "Markets", href: "/markets", active: pathname === "/markets" },
-    { icon: <MessageCircle size={16} />, label: "Chat", href: "/chat", active: pathname === "/chat" },
     { icon: <UserCircle2 size={16} />, label: "Profile", href: "/profile", active: pathname === "/profile" },
+    { icon: <MonitorPlay size={16} />, label: "Livestreams", href: "/livestreams", active: pathname === "/livestreams" },
+    { icon: <Trophy size={16} />, label: "Leaderboard", href: "/leaderboard", active: pathname === "/leaderboard" },
+    { icon: <BarChart3 size={16} />, label: "Chart", href: "/chart", active: pathname === "/chart" },
+    { icon: <PieChart size={16} />, label: "Markets", href: "/markets", active: pathname === "/markets" },
+    { icon: <Star size={16} />, label: "Features", href: "/features", active: pathname === "/features" },
+    { icon: <BookOpen size={16} />, label: "How It Works", href: "/howitworks", active: pathname === "/howitworks" },
+    { icon: <MessageCircle size={16} />, label: "Chat", href: "/chat", active: pathname === "/chat" },
     { icon: <HelpCircle size={16} />, label: "Support", href: "/support", active: pathname === "/support" },
-    { icon: <MoreHorizontal size={16} />, label: "More", href: "/more", active: pathname === "/more" },
   ];
 
   return (
