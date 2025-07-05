@@ -15,6 +15,7 @@ export interface MarketData {
   result?: 'Won' | 'Lost';
 }
 
+
 export const mockMarkets: MarketData[] = [
   {
     id: 1,
