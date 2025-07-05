@@ -1,10 +1,7 @@
 import React from "react";
-import PageLayout from "../components/PageLayout";
 import DashboardHeader from "../components/DashboardHeader";
 import { getLivestreams } from "../data/livestreams";
 import StreamCard from "../components/StreamCard";
-import SideNav from "../components/SideNav";
-import LivestakesNav from "../components/LivestakesNav";
 import Marquee from "../components/Marquee";
 
 const LivestreamsPage = async () => {
@@ -12,15 +9,9 @@ const LivestreamsPage = async () => {
   const liveStreams = livestreams.filter(stream => stream.isLive).length;
 
   return (
-    <PageLayout showNavigation={false}>
       <div className="min-h-screen flex font-pixel bg-purple-200">
-        {/* Side Nav */}
-        <SideNav />
         {/* Main content */}
         <main className="flex-1 overflow-y-auto">
-          {/* Top navigation */}
-          <LivestakesNav />
-          
           <div className="p-6">
             {/* Top marquee bar */}
             <Marquee />
@@ -39,7 +30,6 @@ const LivestreamsPage = async () => {
           </div>
         </main>
       </div>
-    </PageLayout>
   );
 };
 

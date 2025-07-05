@@ -12,16 +12,16 @@ const Header = () => {
           <span className="text-xl font-bold text-yellow-50 font-pixel">livestakes.fun</span>
         </Link>
         <div className="hidden md:flex space-x-6">
-          <a href="#features" className="text-yellow-50 hover:text-yellow-200 transition-colors font-pixel text-sm">Features</a>
-          <a href="#how-it-works" className="text-yellow-50 hover:text-yellow-200 transition-colors font-pixel text-sm">How It Works</a>
+          <a href="/features" className="text-yellow-50 hover:text-yellow-200 transition-colors font-pixel text-sm">Features</a>
+          <a href="/howitworks" className="text-yellow-50 hover:text-yellow-200 transition-colors font-pixel text-sm">How It Works</a>
           <Link href="/livestreams" className="text-yellow-50 hover:text-yellow-200 transition-colors font-pixel text-sm">Livestreams</Link>
-          <a href="#about" className="text-yellow-50 hover:text-yellow-200 transition-colors font-pixel text-sm">About</a>
+          <Link href="/leaderboard" className="text-yellow-50 hover:text-yellow-200 transition-colors font-pixel text-sm">Leaderboard</Link>
+          <Link href="/chart" className="text-yellow-50 hover:text-yellow-200 transition-colors font-pixel text-sm">Chart</Link>
+          <a href="/about" className="text-yellow-50 hover:text-yellow-200 transition-colors font-pixel text-sm">About</a>
         </div>
-        <Link href="/livestakes">
-          <button className="bg-yellow-400 hover:bg-yellow-300 text-black px-6 py-2 border-2 border-black rounded-none font-pixel uppercase tracking-wider transition-colors">
-            Launch App
-          </button>
-        </Link>
+        <button className="bg-yellow-400 hover:bg-yellow-300 text-black px-6 py-2 border-2 border-black rounded-none font-pixel uppercase tracking-wider transition-colors">
+          Connect Wallet
+        </button>
       </nav>
     </header>
   );

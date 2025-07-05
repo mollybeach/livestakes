@@ -1,34 +1,56 @@
-import Head from 'next/head';
-import Header from './components/Header';
-import Hero from './components/Hero';
-import Features from './components/Features';
-import HowItWorks from './components/HowItWorks';
-import CTA from './components/CTA';
-import Footer from './components/Footer';
+// path: pages/index.tsx    /* or app/page.tsx if you’re on the App Router */
+import Head from "next/head";
+import Hero from "./components/Hero";
+import CTA from "./components/CTA";
 
+/**
+ * Home page – pixel-window aesthetic
+ *
+ * Depends on global Tailwind helpers:
+ * @layer utilities {
+ *   .font-pixel            { font-family: "Press Start 2P", system-ui, monospace; }
+ *   .shadow-window-pixel   { box-shadow: 4px 4px 0 0 #000; }
+ * }
+ */
 export default function Home() {
   return (
     <>
       <Head>
         <title>livestakes.fun | AI-Powered Livestream Betting Platform</title>
-        <meta name="description" content="Watch livestreams and bet on them with AI-generated betting opportunities. The future of interactive entertainment and earning." />
-        <meta name="keywords" content="livestream, betting, AI betting, streaming platform, live entertainment, AI predictions" />
-        <meta property="og:title" content="livestakes.fun | AI-Powered Livestream Betting" />
-        <meta property="og:description" content="🎮 Watch livestreams and make money with AI-generated betting opportunities!" />
+        <meta
+          name="description"
+          content="Watch hackathon livestreams and bet on them with AI-generated opportunities."
+        />
+        <meta
+          name="keywords"
+          content="livestream betting, AI predictions, realtime markets, hackathon"
+        />
+        <meta
+          property="og:title"
+          content="livestakes.fun | AI-Powered Livestream Betting"
+        />
+        <meta
+          property="og:description"
+          content="Watch livestreams and place on-chain predictions in real time."
+        />
         <meta property="og:type" content="website" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="livestakes.fun | Smart Betting on Live Streams" />
-        <meta name="twitter:description" content="AI-powered betting on livestreams. Watch, predict, earn! 🚀" />
+        <meta
+          name="twitter:title"
+          content="livestakes.fun | Smart Betting on Live Streams"
+        />
+        <meta
+          name="twitter:description"
+          content="AI-powered betting on livestreams. Watch, predict, earn."
+        />
       </Head>
-      
-      <div className="min-h-screen bg-gradient-to-b from-gray-900 via-purple-900 to-black text-white">
-        <Header />
+
+      {/* ---------------------------------------------------------------- */}
+      {/*  Retro pastel shell                                              */}
+      {/* ---------------------------------------------------------------- */}
+      <div className="min-h-screen bg-pink-200 text-purple-900 font-pixel">
         <Hero />
-        <Features />
-        <HowItWorks />
-        <CTA />
-        <Footer />
       </div>
     </>
   );
-} 
+}

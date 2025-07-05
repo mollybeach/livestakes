@@ -448,4 +448,10 @@ body {
   .animate-bounce-in {
     animation: bounceIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
   }
+  .font-pixel {
+    font-family: 'Press Start 2P', system-ui, monospace;
+  }
+  .shadow-window-pixel {
+    box-shadow: 4px 4px 0 0 #000;
+  }
 }
