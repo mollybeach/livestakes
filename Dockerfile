@@ -5,7 +5,7 @@ WORKDIR /app
 
 # Install dependencies including build tools for native modules
 # Split into separate RUN commands for better caching
-RUN apk add --no-cache libc6-compat supervisor nginx curl
+RUN apk add --no-cache libc6-compat supervisor nginx curl ffmpeg
 RUN apk add --no-cache python3 make g++ gcc linux-headers
 
 # Create user/group

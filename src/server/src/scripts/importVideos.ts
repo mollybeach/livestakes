@@ -1,13 +1,10 @@
 #!/usr/bin/env node
 
-import { Storage } from '@google-cloud/storage';
-import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
 import fs from 'fs';
 import dotenv from 'dotenv';
-import pool from '../database/db';
-import ffmpeg from 'fluent-ffmpeg';
-import VideoAnalysisService from '../services/videoAnalysis';
+import FormData from 'form-data';
+import fetch from 'node-fetch';
 
 // Load environment variables
 dotenv.config({ path: path.join(__dirname, '..', '..', '.env') });
@@ -15,241 +12,67 @@ dotenv.config({ path: path.join(__dirname, '..', '..', '.env') });
 interface VideoImportConfig {
   inputDirectory: string;
   creatorWalletAddress: string;
-  category?: string;
-  defaultThumbnail?: string;
-  useAIAnalysis?: boolean;
-  maxAnalysisDuration?: number; // in seconds, default 300 (5 minutes)
-  includeTranscript?: boolean;
+  marketAddress: string;
+  apiBaseUrl?: string;
 }
 
-interface VideoMetadata {
-  filename: string;
-  title: string;
-  description?: string;
-  category?: string;
-  thumbnailUrl?: string;
-  tags?: string[];
-  transcript?: string;
+interface VideoUploadResponse {
+  success: boolean;
+  message?: string;
+  error?: string;
+  videoUrl?: string;
+  livestream?: any;
+  aiAnalysis?: any;
 }
 
 class VideoImporter {
-  private storageClient: Storage | null = null;
-  private bucketName: string = process.env.GCP_BUCKET_NAME || 'livestakes-videos';
-  private videoAnalysisService: VideoAnalysisService;
+  private apiBaseUrl: string;
+  private defaultMarketAddress: string;
 
-  constructor() {
-    this.initializeStorage();
-    this.videoAnalysisService = new VideoAnalysisService();
+  constructor(apiBaseUrl?: string, marketAddress?: string) {
+    this.apiBaseUrl = apiBaseUrl || process.env.API_BASE_URL || 'https://livestakes.fun/api';
+    this.defaultMarketAddress = marketAddress || '0xb6B14E5651AE3637A81012024E3F7fEF0526fb6f';
+    console.log(`📡 Using API Base URL: ${this.apiBaseUrl}`);
+    console.log(`📄 Using Market Address: ${this.defaultMarketAddress}`);
   }
 
-  private async initializeStorage() {
-    try {
-      if (process.env.GCP_PROJECT_ID && process.env.GCP_CLIENT_EMAIL && process.env.GCP_PRIVATE_KEY) {
-        this.storageClient = new Storage({
-          projectId: process.env.GCP_PROJECT_ID,
-          credentials: {
-            client_email: process.env.GCP_CLIENT_EMAIL,
-            private_key: process.env.GCP_PRIVATE_KEY.replace(/\\n/g, '\n'),
-          }
-        });
-        console.log('Google Cloud Storage client initialized');
-        
-        // Ensure bucket exists
-        await this.ensureBucketExists();
-      } else {
-        console.warn('GCP credentials not found. Videos will not be uploaded to cloud storage.');
-      }
-    } catch (error) {
-      console.error('Error initializing GCP Storage:', error);
-      this.storageClient = null;
-    }
-  }
-
-  private async ensureBucketExists() {
-    if (!this.storageClient) return;
-
-    try {
-      const [bucketExists] = await this.storageClient.bucket(this.bucketName).exists();
-      if (!bucketExists) {
-        console.log(`Creating bucket ${this.bucketName}...`);
-        await this.storageClient.createBucket(this.bucketName, {
-          location: 'us-central1',
-          storageClass: 'STANDARD'
-        });
-        await this.storageClient.bucket(this.bucketName).makePublic();
-        console.log(`Bucket ${this.bucketName} created and made public`);
-      } else {
-        console.log(`Bucket ${this.bucketName} already exists`);
-      }
-    } catch (error) {
-      console.error('Error ensuring bucket exists:', error);
-      throw error;
-    }
-  }
-
-  private async uploadVideoToGCP(filePath: string, filename: string, metadata: VideoMetadata): Promise<string> {
-    if (!this.storageClient) {
-      throw new Error('GCP Storage not initialized');
-    }
-
-    console.log(`Uploading ${filename} to GCP...`);
-    
-    const bucket = this.storageClient.bucket(this.bucketName);
-    const file = bucket.file(`videos/${filename}`);
-    
-    const fileMetadata = {
-      contentType: 'video/mp4',
-      metadata: {
-        title: metadata.title,
-        category: metadata.category || 'general',
-        uploadTimestamp: new Date().toISOString(),
-        originalFilename: metadata.filename
-      }
-    };
-
-    await file.save(fs.readFileSync(filePath), fileMetadata);
-    await file.makePublic();
-    
-    const videoUrl = `https://storage.googleapis.com/${this.bucketName}/videos/${filename}`;
-    console.log(`Successfully uploaded: ${videoUrl}`);
-    
-    return videoUrl;
-  }
-
-  private async createLivestreamEntry(
-    videoUrl: string, 
-    metadata: VideoMetadata, 
-    creatorWalletAddress: string
-  ): Promise<any> {
-    console.log(`Creating livestream entry for ${metadata.title}...`);
-    
-    const result = await pool.query(
-      `INSERT INTO livestreams (
-        title, description, creator_wallet_address, stream_url, 
-        thumbnail_url, status, category, tags, transcript, start_time, end_time, view_count
-      ) VALUES ($1, $2, $3, $4, $5, 'ended', $6, $7, $8, NOW(), NOW(), 0)
-      RETURNING *`,
-      [
-        metadata.title,
-        metadata.description,
-        creatorWalletAddress,
-        videoUrl,
-        metadata.thumbnailUrl,
-        metadata.category || 'general',
-        metadata.tags ? JSON.stringify(metadata.tags) : null,
-        metadata.transcript
-      ]
-    );
-    
-    console.log(`Created livestream entry with ID: ${result.rows[0].id}`);
-    return result.rows[0];
-  }
-
-  private async convertMovToMp4(inputPath: string): Promise<string> {
-    const outputPath = inputPath.replace(/\.mov$/i, '.mp4');
-    
-    console.log(`Converting ${inputPath} to MP4...`);
-    
-    return new Promise((resolve, reject) => {
-      ffmpeg(inputPath)
-        .output(outputPath)
-        .videoCodec('libx264')
-        .audioCodec('aac')
-        .format('mp4')
-        .on('start', (commandLine) => {
-          console.log('FFmpeg command: ' + commandLine);
-        })
-        .on('progress', (progress) => {
-          console.log(`Conversion progress: ${Math.round(progress.percent || 0)}%`);
-        })
-        .on('end', () => {
-          try {
-            // Replace the original MOV file with the MP4 version
-            if (fs.existsSync(outputPath)) {
-              fs.unlinkSync(inputPath); // Delete the original MOV file
-              console.log(`🗑️ Deleted original MOV file: ${inputPath}`);
-              console.log(`✅ Conversion completed and MOV replaced with MP4: ${outputPath}`);
-              resolve(outputPath);
-            } else {
-              reject(new Error('Converted MP4 file not found'));
-            }
-          } catch (error) {
-            console.error(`❌ Error replacing MOV file: ${error}`);
-            reject(error);
-          }
-        })
-        .on('error', (err) => {
-          console.error(`❌ Conversion failed: ${err.message}`);
-          reject(err);
-        })
-        .run();
-    });
-  }
-
-  private parseVideoMetadata(filename: string): VideoMetadata {
-    // Remove extension
-    const nameWithoutExt = path.parse(filename).name;
-    
-    // Try to extract meaningful title from filename
-    // Replace underscores and dashes with spaces, capitalize first letter
-    const title = nameWithoutExt
-      .replace(/[_-]/g, ' ')
-      .replace(/\b\w/g, l => l.toUpperCase())
-      .trim();
-    
-    return {
-      filename,
-      title: title || nameWithoutExt,
-      description: `Imported video: ${title}`,
-    };
-  }
-
-  private async parseVideoMetadataWithAI(
+  private async uploadVideoViaAPI(
     filePath: string,
-    filename: string,
-    options: {
-      maxAnalysisDuration?: number;
-      includeTranscript?: boolean;
-    } = {}
-  ): Promise<VideoMetadata> {
-    try {
-      console.log(`🤖 Analyzing video with AI: ${filename}`);
-      
-      const aiMetadata = await this.videoAnalysisService.analyzeVideo(filePath, {
-        maxDurationForAnalysis: options.maxAnalysisDuration || 300,
-        includeTranscript: options.includeTranscript || false,
-      });
+    marketAddress: string,
+    creatorWalletAddress: string
+  ): Promise<VideoUploadResponse> {
+    console.log(`📤 Uploading ${path.basename(filePath)} via API...`);
+    
+    const formData = new FormData();
+    formData.append('video', fs.createReadStream(filePath));
+    formData.append('market_address', marketAddress);
+    formData.append('creator_wallet_address', creatorWalletAddress);
 
-      return {
-        filename,
-        title: aiMetadata.title,
-        description: aiMetadata.description,
-        category: aiMetadata.category,
-        tags: aiMetadata.tags,
-        transcript: aiMetadata.transcript
-      };
-    } catch (error) {
-      console.error(`❌ AI analysis failed for ${filename}:`, error);
-      console.log('Falling back to basic metadata parsing');
-      
-      // Fallback to basic parsing
-      return this.parseVideoMetadata(filename);
+    const response = await fetch(`${this.apiBaseUrl}/upload-video-simple`, {
+      method: 'POST',
+      body: formData,
+      headers: formData.getHeaders()
+    });
+
+    const result = await response.json() as VideoUploadResponse;
+    
+    if (!response.ok) {
+      throw new Error(result.error || `HTTP ${response.status}: ${response.statusText}`);
     }
+    
+    return result;
   }
 
   public async importVideosFromDirectory(config: VideoImportConfig): Promise<void> {
     const { 
       inputDirectory, 
       creatorWalletAddress, 
-      category, 
-      defaultThumbnail,
-      useAIAnalysis = false,
-      maxAnalysisDuration = 300,
-      includeTranscript = false
+      marketAddress = this.defaultMarketAddress
     } = config;
     
-    console.log(`Starting video import from directory: ${inputDirectory}`);
-    console.log(`Creator wallet address: ${creatorWalletAddress}`);
+    console.log(`🎬 Starting video import from directory: ${inputDirectory}`);
+    console.log(`👤 Creator wallet address: ${creatorWalletAddress}`);
+    console.log(`📊 Market address: ${marketAddress}`);
     
     if (!fs.existsSync(inputDirectory)) {
       throw new Error(`Input directory does not exist: ${inputDirectory}`);
@@ -267,60 +90,35 @@ class VideoImporter {
       return;
     }
     
-    console.log(`Found ${files.length} video files to import (MP4/MOV)`);
+    console.log(`📁 Found ${files.length} video files to import (MP4/MOV)`);
     
     let successCount = 0;
     let errorCount = 0;
     
     for (const file of files) {
       try {
-        let filePath = path.join(inputDirectory, file);
-        let finalFile = file;
+        const filePath = path.join(inputDirectory, file);
         
-        // Convert MOV to MP4 if necessary
-        if (file.toLowerCase().endsWith('.mov')) {
-          console.log(`\n🔄 Converting MOV file: ${file}`);
-          filePath = await this.convertMovToMp4(filePath);
-          finalFile = path.basename(filePath); // Update filename to MP4
-        }
+        console.log(`\n🎯 Processing: ${file}`);
         
-        // Generate metadata (with AI analysis if enabled)
-        const metadata = useAIAnalysis 
-          ? await this.parseVideoMetadataWithAI(filePath, finalFile, {
-              maxAnalysisDuration,
-              includeTranscript
-            })
-          : this.parseVideoMetadata(finalFile);
+        // Upload via API (handles MOV conversion, AI analysis, GCP upload, and database creation)
+        const result = await this.uploadVideoViaAPI(filePath, marketAddress, creatorWalletAddress);
         
-        // Override metadata with config values
-        if (category) metadata.category = category;
-        if (defaultThumbnail) metadata.thumbnailUrl = defaultThumbnail;
-        
-        // Generate unique filename for storage
-        const uniqueId = uuidv4();
-        const truncatedWallet = creatorWalletAddress.slice(0, 8);
-        const timestamp = Date.now();
-        const storageFilename = `video_${truncatedWallet}_${timestamp}_${uniqueId}.mp4`;
-        
-        let videoUrl: string;
-        
-        if (this.storageClient) {
-          // Upload to GCP
-          videoUrl = await this.uploadVideoToGCP(filePath, storageFilename, metadata);
+        if (result.success) {
+          successCount++;
+          console.log(`✅ Successfully imported: ${file} (${successCount}/${files.length})`);
+          console.log(`   📹 Video URL: ${result.videoUrl}`);
+          console.log(`   🆔 Livestream ID: ${result.livestream?.id}`);
+          
+          if (result.aiAnalysis) {
+            console.log(`   🤖 AI Generated Title: ${result.aiAnalysis.title}`);
+            console.log(`   📝 AI Generated Description: ${result.aiAnalysis.description}`);
+            console.log(`   🏷️ AI Generated Category: ${result.aiAnalysis.category}`);
+          }
         } else {
-          // For development, just use a placeholder URL
-          videoUrl = `http://localhost:3334/api/videos/${storageFilename}`;
-          console.log(`GCP not available, using placeholder URL: ${videoUrl}`);
+          errorCount++;
+          console.error(`❌ Failed to import ${file}: ${result.error}`);
         }
-        
-        // Create database entry
-        await this.createLivestreamEntry(videoUrl, metadata, creatorWalletAddress);
-        
-        successCount++;
-        console.log(`✅ Successfully imported: ${finalFile} (${successCount}/${files.length})`);
-        
-        // Note: For MOV files, the original file has been permanently replaced with MP4
-        // No cleanup needed as the MOV file is already deleted and replaced
         
       } catch (error) {
         errorCount++;
@@ -335,19 +133,13 @@ class VideoImporter {
   }
 
   public async importSingleVideo(
-    filePath: string, 
-    title: string, 
+    filePath: string,
     creatorWalletAddress: string,
-    options: {
-      description?: string;
-      category?: string;
-      thumbnailUrl?: string;
-      useAIAnalysis?: boolean;
-      maxAnalysisDuration?: number;
-      includeTranscript?: boolean;
-    } = {}
+    marketAddress: string = this.defaultMarketAddress
   ): Promise<any> {
-    console.log(`Importing single video: ${filePath}`);
+    console.log(`🎬 Importing single video: ${filePath}`);
+    console.log(`👤 Creator wallet: ${creatorWalletAddress}`);
+    console.log(`📊 Market address: ${marketAddress}`);
     
     if (!fs.existsSync(filePath)) {
       throw new Error(`File does not exist: ${filePath}`);
@@ -359,76 +151,26 @@ class VideoImporter {
       throw new Error('File must be an MP4 or MOV video');
     }
     
-    let actualFilePath = filePath;
-    let finalFilename = filename;
+    // Upload via API
+    const result = await this.uploadVideoViaAPI(filePath, marketAddress, creatorWalletAddress);
     
-    // Convert MOV to MP4 if necessary
-    if (extension.endsWith('.mov')) {
-      console.log(`🔄 Converting MOV file: ${filename}`);
-      actualFilePath = await this.convertMovToMp4(filePath);
-      finalFilename = path.basename(actualFilePath);
-    }
-    
-    let metadata: VideoMetadata;
-    
-    if (options.useAIAnalysis) {
-      console.log(`🤖 Using AI analysis for: ${finalFilename}`);
-      try {
-        const aiMetadata = await this.parseVideoMetadataWithAI(actualFilePath, finalFilename, {
-          maxAnalysisDuration: options.maxAnalysisDuration || 300,
-          includeTranscript: options.includeTranscript || false
-        });
-        
-        // Override AI-generated metadata with user-provided values
-        metadata = {
-          ...aiMetadata,
-          title: title, // Keep user-provided title
-          description: options.description || aiMetadata.description,
-          category: options.category || aiMetadata.category,
-          thumbnailUrl: options.thumbnailUrl || aiMetadata.thumbnailUrl
-        };
-      } catch (error) {
-        console.error('AI analysis failed, using provided metadata:', error);
-        metadata = {
-          filename: finalFilename,
-          title,
-          description: options.description || `Imported video: ${title}`,
-          category: options.category || 'general',
-          thumbnailUrl: options.thumbnailUrl
-        };
+    if (result.success) {
+      console.log(`✅ Successfully imported video: ${filename}`);
+      console.log(`📹 Video URL: ${result.videoUrl}`);
+      console.log(`🆔 Livestream ID: ${result.livestream?.id}`);
+      
+      if (result.aiAnalysis) {
+        console.log(`🤖 AI Analysis Results:`);
+        console.log(`   Title: ${result.aiAnalysis.title}`);
+        console.log(`   Description: ${result.aiAnalysis.description}`);
+        console.log(`   Category: ${result.aiAnalysis.category}`);
+        console.log(`   Tags: ${result.aiAnalysis.tags?.join(', ') || 'None'}`);
       }
+      
+      return result.livestream;
     } else {
-      metadata = {
-        filename: finalFilename,
-        title,
-        description: options.description || `Imported video: ${title}`,
-        category: options.category || 'general',
-        thumbnailUrl: options.thumbnailUrl
-      };
+      throw new Error(result.error || 'Upload failed');
     }
-    
-    // Generate unique filename for storage
-    const uniqueId = uuidv4();
-    const truncatedWallet = creatorWalletAddress.slice(0, 8);
-    const timestamp = Date.now();
-    const storageFilename = `video_${truncatedWallet}_${timestamp}_${uniqueId}.mp4`;
-    
-    let videoUrl: string;
-    
-    if (this.storageClient) {
-      videoUrl = await this.uploadVideoToGCP(actualFilePath, storageFilename, metadata);
-    } else {
-      videoUrl = `http://localhost:3334/api/videos/${storageFilename}`;
-      console.log(`GCP not available, using placeholder URL: ${videoUrl}`);
-    }
-    
-    const livestreamEntry = await this.createLivestreamEntry(videoUrl, metadata, creatorWalletAddress);
-    
-    // Note: For MOV files, the original file has been permanently replaced with MP4
-    // No cleanup needed as the MOV file is already deleted and replaced
-    
-    console.log(`✅ Successfully imported video: ${title}`);
-    return livestreamEntry;
   }
 }
 
@@ -436,45 +178,42 @@ class VideoImporter {
 async function main() {
   const args = process.argv.slice(2);
   
-  if (args.length < 2) {
+  if (args.length < 1) {
     console.log(`
-📹 Video Import Script for livestakes.fun
+📹 Video Import Script for livestakes.fun (API Version)
 
 Usage:
-  # Import all MP4/MOV files from a directory
-  npm run import-videos <directory> <creator_wallet_address> [category] [thumbnail_url] [--ai-analysis] [--max-duration=300] [--include-transcript]
+  # Import all MP4/MOV files from the videos directory (default)
+  npm run import-videos <creator_wallet_address>
   
-  # Import single video file (MP4 or MOV)
-  npm run import-video <file_path> <title> <creator_wallet_address> [description] [category] [thumbnail_url] [--ai-analysis] [--max-duration=300] [--include-transcript]
+  # Import from custom directory
+  npm run import-videos <creator_wallet_address> <directory>
+  
+  # Import single video file
+  npm run import-video <creator_wallet_address> <file_path>
 
 Examples:
-  npm run import-videos ./videos 0x1234567890123456789012345678901234567890 gaming
-  npm run import-video ./video.mp4 "Epic Gaming Session" 0x1234... "Amazing gameplay" gaming
-  npm run import-video ./video.mov "Cool MOV Video" 0x1234... "Auto-converted to MP4" gaming
+  # Import all videos from default ./videos directory
+  npm run import-videos 0x1234567890123456789012345678901234567890
   
-  # With AI analysis
-  npm run import-videos ./videos 0x1234... gaming "" --ai-analysis
-  npm run import-video ./video.mp4 "My Video" 0x1234... "" "" "" --ai-analysis --max-duration=180
+  # Import from custom directory
+  npm run import-videos 0x1234567890123456789012345678901234567890 ./my-videos
+  
+  # Import single video
+  npm run import-video 0x1234567890123456789012345678901234567890 ./video.mp4
 
 Features:
-  - Automatically converts MOV files to MP4 using ffmpeg
-  - Uploads to Google Cloud Storage (with local fallback)
-  - Creates database entries for livestream interface
+  - Uses API endpoint for upload (handles MOV conversion, AI analysis, GCP upload)
+  - Automatically generates titles, descriptions, and categories using AI
+  - Associates videos with hackathon market: ${'0xb6B14E5651AE3637A81012024E3F7fEF0526fb6f'}
   - Supports bulk directory import and single file import
-  - AI-powered metadata generation using OpenAI Whisper + GPT-4
+  - Full transcript generation and metadata extraction
 
-AI Analysis Options:
-  --ai-analysis: Enable AI-powered title, description, and category generation
-  --max-duration=N: Limit audio analysis to N seconds (default: 300)
-  --include-transcript: Include full transcript in database
+Environment Variables:
+  - API_BASE_URL (optional, defaults to http://localhost:3334/api)
+  - DEFAULT_MARKET_ADDRESS (optional, defaults to hackathon contract)
 
-Environment Variables Required:
-  - GCP_PROJECT_ID
-  - GCP_CLIENT_EMAIL  
-  - GCP_PRIVATE_KEY
-  - GCP_BUCKET_NAME (optional, defaults to 'livestakes-videos')
-  - POSTGRES_* variables for database connection
-  - OPENAI_API_KEY (required for AI analysis)
+Note: All backend processing (GCP upload, database creation, AI analysis) is handled by the API.
     `);
     process.exit(1);
   }
@@ -482,57 +221,33 @@ Environment Variables Required:
   const importer = new VideoImporter();
   
   try {
-    // Parse command line arguments
-    const regularArgs = args.filter(arg => !arg.startsWith('--'));
-    const flags = args.filter(arg => arg.startsWith('--'));
+    const [creatorWallet, pathArg] = args;
     
-    // Parse flags
-    const useAIAnalysis = true;
-    const includeTranscript = true;
-    const maxDurationFlag = flags.find(flag => flag.startsWith('--max-duration='));
-    const maxAnalysisDuration = maxDurationFlag ? parseInt(maxDurationFlag.split('=')[1]) : 300;
-    
-    console.log(`🤖 AI Analysis: ${useAIAnalysis ? 'ENABLED' : 'DISABLED'}`);
-    if (useAIAnalysis) {
-      console.log(`📊 Max Analysis Duration: ${maxAnalysisDuration} seconds`);
-      console.log(`📝 Include Transcript: ${includeTranscript ? 'YES' : 'NO'}`);
+    if (!creatorWallet) {
+      console.error('❌ Creator wallet address is required');
+      process.exit(1);
     }
     
-    const [pathArg, creatorWallet, ...otherArgs] = regularArgs;
+    // Default to videos directory if no path provided
+    const inputPath = pathArg || path.join(__dirname, '..', '..', 'videos');
     
     // Check if it's a directory (bulk import) or file (single import)
-    const isDirectory = fs.existsSync(pathArg) && fs.statSync(pathArg).isDirectory();
+    const isDirectory = fs.existsSync(inputPath) && fs.statSync(inputPath).isDirectory();
     
     if (isDirectory) {
       // Bulk import
-      const [category, thumbnailUrl] = otherArgs;
-      
       await importer.importVideosFromDirectory({
-        inputDirectory: pathArg,
+        inputDirectory: inputPath,
         creatorWalletAddress: creatorWallet,
-        category,
-        defaultThumbnail: thumbnailUrl,
-        useAIAnalysis,
-        maxAnalysisDuration,
-        includeTranscript
+        marketAddress: '0xb6B14E5651AE3637A81012024E3F7fEF0526fb6f'
       });
     } else {
       // Single import
-      const [title, description, category, thumbnailUrl] = otherArgs;
-      
-      if (!title) {
-        console.error('Title is required for single video import');
-        process.exit(1);
-      }
-      
-      await importer.importSingleVideo(pathArg, title, creatorWallet, {
-        description,
-        category,
-        thumbnailUrl,
-        useAIAnalysis,
-        maxAnalysisDuration,
-        includeTranscript
-      });
+      await importer.importSingleVideo(
+        inputPath,
+        creatorWallet,
+        '0xb6B14E5651AE3637A81012024E3F7fEF0526fb6f'
+      );
     }
     
     console.log('\n🎉 Import completed successfully!');
