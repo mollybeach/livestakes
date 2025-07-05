@@ -104,6 +104,60 @@ export async function markMigrationAsApplied(migrationName: string): Promise<voi
 // } EXAMPLE
 
 /**
+ * Migration: Add tags and transcript columns to livestreams table
+ */
+export async function addTagsAndTranscriptColumns(): Promise<void> {
+  const migrationName = 'add_tags_and_transcript_columns';
+  
+  // Skip if already applied
+  if (await hasMigrationBeenApplied(migrationName)) {
+    console.log(`Migration ${migrationName} already applied, skipping`);
+    return;
+  }
+  
+  const client = await pool.connect();
+  try {
+    // Start transaction
+    await client.query('BEGIN');
+    
+    console.log('Applying migration: add_tags_and_transcript_columns');
+    
+    // Add tags column (JSON array)
+    await client.query(`
+      ALTER TABLE livestreams 
+      ADD COLUMN IF NOT EXISTS tags JSONB DEFAULT '[]';
+    `);
+    
+    // Add transcript column (text)
+    await client.query(`
+      ALTER TABLE livestreams 
+      ADD COLUMN IF NOT EXISTS transcript TEXT;
+    `);
+    
+    // Add index on tags for faster queries
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS idx_livestreams_tags 
+      ON livestreams USING gin(tags);
+    `);
+    
+    // Record migration as applied
+    await markMigrationAsApplied(migrationName);
+    
+    // Commit transaction
+    await client.query('COMMIT');
+    
+    console.log('Migration applied successfully: add_tags_and_transcript_columns');
+  } catch (error) {
+    // Rollback on error
+    await client.query('ROLLBACK');
+    console.error('Migration failed:', error);
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
+/**
  * Run all migrations in sequence
  */
 export async function runMigrations(): Promise<void> {
@@ -114,7 +168,7 @@ export async function runMigrations(): Promise<void> {
     await setupMigrationTable();
     
     // Run individual migrations
-    // await addSwappedValueColumn();
+    await addTagsAndTranscriptColumns();
     
     console.log('All migrations completed successfully');
   } catch (error) {

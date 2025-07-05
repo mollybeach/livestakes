@@ -1,9 +1,9 @@
 {
   "_format": "hh-sol-cache-2",
   "files": {
-    "/Users/beachmolly/Documents/git/livestakes/src/blockchain/contracts/MarketFactory.sol": {
-      "lastModificationDate": 1751703462255,
-      "contentHash": "2870b202fb7a603f28ddcba7d89d1481",
+    "/Users/macbookpro/Desktop/wobreeze/projects/hackathon-cannes/livestakes/src/blockchain/contracts/MarketFactory.sol": {
+      "lastModificationDate": 1751719779742,
+      "contentHash": "293f0dd852363e44f21da42e19bd47e9",
       "sourceName": "contracts/MarketFactory.sol",
       "solcConfig": {
         "version": "0.8.19",
@@ -38,9 +38,9 @@
         "MarketFactory"
       ]
     },
-    "/Users/beachmolly/Documents/git/livestakes/src/blockchain/contracts/PredictionMarket.sol": {
-      "lastModificationDate": 1751700859671,
-      "contentHash": "f38f5db77dcd013713508fb2f730c34e",
+    "/Users/macbookpro/Desktop/wobreeze/projects/hackathon-cannes/livestakes/src/blockchain/contracts/PredictionMarket.sol": {
+      "lastModificationDate": 1751719813787,
+      "contentHash": "6d288d1f75b0b140ab3fbf0bf8f467aa",
       "sourceName": "contracts/PredictionMarket.sol",
       "solcConfig": {
         "version": "0.8.19",
@@ -70,42 +70,8 @@
         "^0.8.19"
       ],
       "artifacts": [
+        "IMarketFactory",
         "PredictionMarket"
-      ]
-    },
-    "/Users/beachmolly/Documents/git/livestakes/src/blockchain/contracts/ProjectRegistry.sol": {
-      "lastModificationDate": 1751700880287,
-      "contentHash": "b72d62ca53a6af7f0bb15b0d8b0aa0b4",
-      "sourceName": "contracts/ProjectRegistry.sol",
-      "solcConfig": {
-        "version": "0.8.19",
-        "settings": {
-          "optimizer": {
-            "enabled": false,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        "^0.8.19"
-      ],
-      "artifacts": [
-        "ProjectRegistry"
       ]
     }
   }
