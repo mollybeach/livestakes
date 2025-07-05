@@ -11,6 +11,7 @@ import {
   Wrench,
   Star,
   Store,
+  PlaySquare,
 } from "lucide-react";
 import { LIVE_STAKES_LOGO_URL } from '../lib/cloudinary';
 import ConnectWallet from './ConnectWallet';
@@ -35,6 +36,10 @@ const Header = () => {
             <Link href="/livestreams" className="flex items-center gap-2 text-yellow-50 hover:text-yellow-200 transition-colors font-pixel text-sm border border-transparent px-2 py-1">
               <MonitorPlay size={16} />
               <span>Livestreams</span>
+            </Link>
+            <Link href="/feed" className="flex items-center gap-2 text-yellow-50 hover:text-yellow-200 transition-colors font-pixel text-sm border border-transparent px-2 py-1">
+              <PlaySquare size={16} />
+              <span>Feed</span>
             </Link>
             <Link href="/leaderboard" className="flex items-center gap-2 text-yellow-50 hover:text-yellow-200 transition-colors font-pixel text-sm border border-transparent px-2 py-1">
               <Trophy size={16} />
