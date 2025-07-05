@@ -95,9 +95,9 @@ export enum MarketState {
 }
 
 export interface MarketInfo {
-  livestreamId: number;
+  livestreamIds: number[];
   question: string;
-  livestreamTitle: string;
+  livestreamTitles: string[];
   state: MarketState;
   outcome: BetSide;
   yesBets: string;
@@ -168,91 +168,160 @@ export async function associateMarketWithLivestream(
 
 // Create a new betting market for a livestream
 export async function createMarket(
-  livestreamId: number,
   question: string,
-  livestreamTitle: string
-): Promise<string> {
+  title: string,
+  description: string,
+  category: string,
+  tags: string[],
+  livestreamIds: number[] = [], // Multiple livestreams
+  livestreamTitles: string[] = [] // Corresponding titles
+): Promise<{ success: boolean; marketAddress?: string; error?: string }> {
   try {
-    console.log('Creating market with params:', { livestreamId, question, livestreamTitle });
+    console.log('🚀 Creating market with multiple livestreams:', {
+      question,
+      title,
+      livestreamIds,
+      livestreamTitles
+    });
     
-    const signer = await getSigner();
-    const contract = new Contract(MARKET_FACTORY_ADDRESS, MARKET_FACTORY_ABI, signer);
-    
-    console.log('Contract address:', MARKET_FACTORY_ADDRESS);
-    console.log('Network config:', getCurrentNetworkConfig());
-    
-    // Check if contract is deployed by calling a simple view function
-    try {
-      const owner = await contract.owner();
-      console.log('Contract owner:', owner);
-    } catch (error) {
-      console.error('Contract not deployed or not accessible:', error);
-      throw new Error('Contract not deployed or not accessible');
+    // Validate input
+    if (!question || !title) {
+      return { success: false, error: 'Question and title are required' };
     }
+
+    // Ensure we have at least one livestream, or provide defaults
+    const finalLivestreamIds = livestreamIds.length > 0 ? livestreamIds : [0]; // Default to 0 if no specific livestreams
+    const finalLivestreamTitles = livestreamTitles.length > 0 ? livestreamTitles : [title]; // Use market title as default
     
-    console.log('Sending createMarket transaction...');
-    const tx = await contract.createMarket(livestreamId, question, livestreamTitle);
-    console.log('Transaction sent:', tx.hash);
+    // Validate arrays have same length
+    if (finalLivestreamIds.length !== finalLivestreamTitles.length) {
+      return { success: false, error: 'Livestream IDs and titles must have the same length' };
+    }
+
+    // Test contract connection
+    const connectionTest = await testContractConnection();
+    if (!connectionTest.isConnected) {
+      console.error('❌ Contract connection failed:', connectionTest.error);
+      return { success: false, error: connectionTest.error || 'Contract connection failed' };
+    }
+
+    // Get signer
+    const signer = await getSigner();
+    if (!signer) {
+      return { success: false, error: 'Unable to get signer. Please connect your wallet.' };
+    }
+
+    // Create market factory contract instance
+    const marketFactory = new ethers.Contract(
+      MARKET_FACTORY_ADDRESS,
+      MARKET_FACTORY_ABI,
+      signer
+    );
+
+    console.log('📋 Creating market with params:', {
+      livestreamIds: finalLivestreamIds,
+      question,
+      titles: finalLivestreamTitles
+    });
+
+    // Create market transaction - now passing arrays
+    const tx = await marketFactory.createMarket(
+      finalLivestreamIds,
+      question,
+      finalLivestreamTitles
+    );
+
+    console.log('⏳ Transaction sent:', tx.hash);
     
-    console.log('Waiting for transaction receipt...');
+    // Wait for transaction confirmation
     const receipt = await tx.wait();
-    console.log('Transaction receipt:', receipt);
+    console.log('✅ Transaction confirmed:', receipt.hash);
     
-    // In ethers v6, we need to parse logs differently
-    const iface = new ethers.Interface(MARKET_FACTORY_ABI);
+    // Parse events to get market address
+    let marketAddress: string | undefined;
     
-    // Find the MarketCreated event in the logs
-    let marketAddress = null;
-    for (const log of receipt.logs) {
+    try {
+      const iface = new ethers.Interface(MARKET_FACTORY_ABI);
+      
+      for (const log of receipt.logs) {
+        try {
+          const parsed = iface.parseLog({
+            topics: log.topics,
+            data: log.data
+          });
+          
+          if (parsed && parsed.name === 'MarketCreated') {
+            marketAddress = parsed.args.marketAddress;
+            console.log('🎯 Market created at address:', marketAddress);
+            break;
+          }
+        } catch (parseError) {
+          // Skip logs that don't match our interface
+          continue;
+        }
+      }
+    } catch (error) {
+      console.error('❌ Error parsing events:', error);
+      return { success: false, error: 'Market created but could not parse contract address' };
+    }
+
+    if (!marketAddress) {
+      console.error('❌ Market address not found in transaction events');
+      return { success: false, error: 'Market created but contract address not found' };
+    }
+
+    // Store market metadata if we have livestream IDs
+    if (livestreamIds.length > 0) {
       try {
-        const parsedLog = iface.parseLog(log);
-        if (parsedLog && parsedLog.name === 'MarketCreated') {
-          marketAddress = parsedLog.args.marketAddress;
-          console.log('MarketCreated event found:', parsedLog.args);
-          break;
+        console.log('💾 Storing market metadata for livestreams:', livestreamIds);
+        
+        // Store market metadata and associate with livestreams
+        const metadataResponse = await fetch(`${API_BASE_URL}/markets/metadata`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            contract_address: marketAddress,
+            creator_wallet_address: await signer.getAddress(),
+            description,
+            category,
+            tags,
+            livestream_ids: livestreamIds // Pass all livestream IDs
+          }),
+        });
+
+        const metadataResult = await metadataResponse.json();
+        if (!metadataResult.success) {
+          console.error('❌ Failed to store market metadata:', metadataResult.error);
+          // Don't fail the entire creation process for metadata storage issues
+        } else {
+          console.log('✅ Market metadata stored successfully');
         }
       } catch (error) {
-        // This log might not be from our contract, continue
-        continue;
+        console.error('❌ Error storing market metadata:', error);
+        // Don't fail the entire creation process
       }
     }
+
+    console.log('🎉 Market created successfully!');
+    return { success: true, marketAddress };
     
-    if (marketAddress) {
-      console.log('Market created successfully:', marketAddress);
-      
-      // Associate the market with the livestream in the backend (1:1 relationship)
-      if (livestreamId > 0) {
-        try {
-          console.log(`Associating market ${marketAddress} with livestream ${livestreamId}...`);
-          await associateMarketWithLivestream(marketAddress, livestreamId);
-          console.log('Market associated with livestream successfully');
-        } catch (associationError) {
-          console.error('Failed to associate market with livestream:', associationError);
-          // Don't throw error - the market was created successfully
-        }
-      }
-      
-      return marketAddress;
+  } catch (error: any) {
+    console.error('❌ Error creating market:', error);
+    
+    // Parse different error types
+    if (error.code === 'ACTION_REJECTED') {
+      return { success: false, error: 'Transaction rejected by user' };
+    } else if (error.code === 'INSUFFICIENT_FUNDS') {
+      return { success: false, error: 'Insufficient funds to create market' };
+    } else if (error.reason?.includes('execution reverted')) {
+      return { success: false, error: `Contract error: ${error.reason}` };
+    } else if (error.message?.includes('network')) {
+      return { success: false, error: 'Network error. Please check your connection.' };
+    } else {
+      return { success: false, error: error.message || 'Unknown error occurred' };
     }
-    
-    throw new Error('MarketCreated event not found in transaction logs');
-  } catch (error) {
-    console.error('Error creating market:', error);
-    
-    // Provide more detailed error information
-    if (error instanceof Error) {
-      if (error.message.includes('user rejected')) {
-        throw new Error('Transaction was rejected by user');
-      } else if (error.message.includes('insufficient funds')) {
-        throw new Error('Insufficient FLOW tokens to create market');
-      } else if (error.message.includes('execution reverted')) {
-        throw new Error('Transaction reverted - check contract conditions');
-      } else if (error.message.includes('network')) {
-        throw new Error('Network error - check your connection to Flow EVM testnet');
-      }
-    }
-    
-    throw error;
   }
 }
 
@@ -271,8 +340,24 @@ export async function createMarketWithMetadata(
     
     // Create the market on blockchain with the provided title and question
     // The smart contract will store these on-chain
-    const marketAddress = await createMarket(livestreamId || 0, question, title);
+    const livestreamIds = livestreamId ? [livestreamId] : [];
+    const livestreamTitles = livestreamId ? [title] : [];
+    
+    const result = await createMarket(
+      question,
+      title,
+      description || '',
+      category || '',
+      tags || [],
+      livestreamIds,
+      livestreamTitles
+    );
 
+    if (!result.success) {
+      throw new Error(result.error || 'Failed to create market');
+    }
+
+    const marketAddress = result.marketAddress!;
     console.log('Market created on-chain:', marketAddress);
     
     // Store additional metadata off-chain
@@ -314,14 +399,17 @@ export async function createMarketWithMetadata(
 export async function getMarketInfo(marketAddress: string): Promise<MarketInfo> {
   try {
     const provider = getProvider();
-    const contract = new Contract(marketAddress, PREDICTION_MARKET_ABI, provider);
+    const contract = new Contract(marketAddress, PredictionMarketArtifact.abi, provider);
     
     const info = await contract.getMarketInfo();
     
+    // Convert arrays to proper format
+    const livestreamIds = info[0].map((id: any) => Number(id));
+    
     return {
-      livestreamId: Number(info[0]),
+      livestreamIds,
       question: info[1],
-      livestreamTitle: info[2],
+      livestreamTitles: info[2],
       state: info[3],
       outcome: info[4],
       yesBets: formatEther(info[5]),
@@ -568,9 +656,9 @@ export async function fetchMarketsWithMetadata(filters: {
         const onChainInfo = await contract.getMarketInfo();
         
         const marketWithMetadata: MarketWithMetadata = {
-          livestreamId: Number(onChainInfo[0]),
+          livestreamIds: onChainInfo[0],
           question: onChainInfo[1],
-          livestreamTitle: onChainInfo[2],
+          livestreamTitles: onChainInfo[2],
           state: onChainInfo[3],
           outcome: onChainInfo[4],
           yesBets: formatEther(onChainInfo[5]),
