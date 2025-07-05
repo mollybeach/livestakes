@@ -115,18 +115,18 @@ const Chat: React.FC<ChatProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-purple-200 font-pixel p-6">
+    <div className="min-h-screen bg-mauve font-pixel p-6">
       <div className="max-w-4xl mx-auto">
         {/* Chat Header */}
-        <div className="bg-pink-600 border-4 border-black p-4 mb-6">
+        <div className="bg-plum border-4 border-black p-4 mb-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <MessageCircle size={24} className="text-yellow-400" />
-              <h1 className="text-2xl font-bold text-yellow-50">LiveStakes Chat</h1>
+              <MessageCircle size={24} className="text-gold" />
+              <h1 className="text-2xl font-bold text-cream">LiveStakes Chat</h1>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-yellow-50 text-sm font-pixel">Online: 1,234</span>
-              <button className="text-yellow-50 hover:text-yellow-200 transition-colors">
+              <span className="text-cream text-sm font-pixel">Online: 1,234</span>
+              <button className="text-cream hover:text-butter transition-colors">
                 <MoreVertical size={20} />
               </button>
             </div>
@@ -134,7 +134,7 @@ const Chat: React.FC<ChatProps> = ({
         </div>
 
         {/* Chat Container */}
-        <div className="bg-pink-600 border-4 border-black h-[600px] flex flex-col">
+        <div className="bg-periwinkle border-4 border-black h-[600px] flex flex-col">
           {/* Messages Area */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
             {chatMessages.map((message) => (
@@ -151,20 +151,20 @@ const Chat: React.FC<ChatProps> = ({
                 )}
                 <div className={`max-w-[70%] ${message.isOwn ? 'order-first' : ''}`}>
                   {!message.isOwn && (
-                    <div className="text-xs text-yellow-200 mb-1 font-pixel">
+                    <div className="text-xs text-butter mb-1 font-pixel">
                       {message.user}
                     </div>
                   )}
                   <div
                     className={`p-3 rounded-lg border-2 border-black ${
                       message.isOwn
-                        ? 'bg-yellow-400 text-black'
-                        : 'bg-purple-50 text-purple-900'
+                        ? 'bg-gold text-black'
+                        : 'bg-lavender text-plum'
                     }`}
                   >
                     <p className="text-sm font-pixel">{message.message}</p>
                   </div>
-                  <div className="text-xs text-yellow-200 mt-1 font-pixel">
+                  <div className="text-xs text-butter mt-1 font-pixel">
                     {message.timestamp}
                   </div>
                 </div>
@@ -181,7 +181,7 @@ const Chat: React.FC<ChatProps> = ({
           </div>
 
           {/* Input Area */}
-          <div className="border-t-4 border-black p-4 bg-purple-50">
+          <div className="border-t-4 border-black p-4 bg-lavender">
             <div className="flex gap-2">
               <button className="text-purple-600 hover:text-purple-800 transition-colors p-2">
                 <Smile size={20} />
@@ -196,7 +196,7 @@ const Chat: React.FC<ChatProps> = ({
                   onChange={(e) => setNewMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="Type your message..."
-                  className="w-full px-3 py-2 border-2 border-black bg-white text-purple-900 font-pixel text-sm focus:outline-none focus:border-purple-500"
+                  className="w-full px-3 py-2 border-2 border-black bg-cream text-plum font-pixel text-sm focus:outline-none focus:border-purple-500"
                 />
               </div>
               <Button

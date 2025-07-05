@@ -10,18 +10,18 @@ import React from "react";
  *     }
  */
 const CTA = () => (
-  <section className="flex justify-center py-16 bg-pink-200">
-    <div className="bg-yellow-300 border-4 border-black shadow-window-pixel max-w-xl w-full mx-4">
+  <section className="flex justify-center py-16 bg-coral">
+    <div className="bg-butter border-4 border-black shadow-window-pixel max-w-xl w-full mx-4">
       {/* title bar */}
-      <div className="flex items-center justify-between bg-purple-600 text-yellow-50 px-3 py-1 border-b-4 border-black">
+      <div className="flex items-center justify-between bg-plum text-cream px-3 py-1 border-b-4 border-black">
         <span className="font-pixel text-sm">♡  Action!</span>
-        <button className="bg-yellow-400 text-black px-1 border border-black leading-none font-pixel">
+        <button className="bg-gold text-black px-1 border border-black leading-none font-pixel">
           ✕
         </button>
       </div>
 
       {/* content */}
-      <div className="p-6 text-center font-pixel text-purple-900">
+      <div className="p-6 text-center font-pixel text-plum">
         <h2 className="text-lg sm:text-xl md:text-2xl mb-4">
           Ready&nbsp;to&nbsp;Start&nbsp;Earning?
         </h2>
@@ -30,7 +30,7 @@ const CTA = () => (
           Join thousands of users already stacking FLOW just by watching hacks
         </p>
 
-        <button className="inline-block bg-pink-600 hover:bg-pink-700 text-yellow-50 border-2 border-black px-8 py-3 rounded-none uppercase tracking-wider transition-transform active:translate-y-0.5">
+        <button className="inline-block bg-plum hover:bg-purple-800 text-cream border-2 border-black px-8 py-3 rounded-none uppercase tracking-wider transition-transform active:translate-y-0.5">
           Launch&nbsp;LiveStakes.fun
         </button>
       </div>

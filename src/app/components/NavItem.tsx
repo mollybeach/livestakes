@@ -9,8 +9,8 @@ interface NavItemProps {
 
 const NavItem: React.FC<NavItemProps> = ({ icon, label, active, showLabel = true }) => (
   <div
-    className={`flex items-center gap-2 px-2 py-1 cursor-pointer border border-black hover:bg-pink-700 ${
-      active ? "bg-pink-800" : "bg-pink-600"
+    className={`flex items-center gap-2 px-2 py-1 cursor-pointer border border-black hover:bg-purple-800 ${
+      active ? "bg-purple-900" : "bg-plum"
     } ${!showLabel ? 'justify-center' : ''}`}
   >
     {icon}

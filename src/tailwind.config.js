@@ -27,6 +27,7 @@ module.exports = {
                 sky: '#bfdbfe', // Blue-200 equivalent
                 navy: '#1e3a8a', // Blue-900 equivalent
                 mauve: '#f3e8ff', // Purple-200 equivalent
+                fuchsia: '#db2777', // Pink-600 equivalent
             },
             animation: {
                 'bounce-once': 'bounce 0.6s ease-in-out 1',

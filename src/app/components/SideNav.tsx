@@ -35,11 +35,11 @@ const SideNav = () => {
   ];
 
   return (
-    <aside className={`${isCollapsed ? 'w-16' : 'w-52'} bg-pink-600 text-yellow-50 flex flex-col gap-2 py-6 border-r-4 border-black transition-all duration-300 relative`}>
+    <aside className={`${isCollapsed ? 'w-16' : 'w-52'} bg-fuchsia text-cream flex flex-col gap-2 py-6 border-r-4 border-black transition-all duration-300 relative`}>
       {/* Toggle Button */}
       <button
         onClick={toggleCollapse}
-        className="absolute -right-3 top-6 bg-pink-600 text-yellow-50 p-1 rounded-full border-2 border-black hover:bg-pink-700 transition-colors"
+        className="absolute -right-3 top-6 bg-fuchsia text-cream p-1 rounded-full border-2 border-black hover:bg-purple-800 transition-colors"
       >
         {isCollapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
       </button>
@@ -58,7 +58,7 @@ const SideNav = () => {
       </nav>
       
       {!isCollapsed && (
-        <Button className="mx-3 mt-6 bg-yellow-400 hover:bg-yellow-300 text-black border border-black font-pixel uppercase tracking-wider">
+        <Button className="mx-3 mt-6 bg-gold hover:bg-butter text-black border border-black font-pixel uppercase tracking-wider">
           Create Market
         </Button>
       )}

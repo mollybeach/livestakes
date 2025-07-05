@@ -147,82 +147,82 @@ const Markets: React.FC<MarketsProps> = ({ markets = [] }) => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active':
-        return 'bg-green-200 text-green-900';
+        return 'bg-sage text-forest';
       case 'ended':
-        return 'bg-blue-200 text-blue-900';
+        return 'bg-sky text-navy';
       case 'scheduled':
-        return 'bg-yellow-200 text-yellow-900';
+        return 'bg-butter text-yellow-900';
       default:
-        return 'bg-gray-200 text-gray-900';
+        return 'bg-slate text-charcoal';
     }
   };
 
   const getResultColor = (result?: string) => {
     switch (result) {
       case 'Won':
-        return 'bg-green-200 text-green-900';
+        return 'bg-sage text-forest';
       case 'Lost':
-        return 'bg-red-200 text-red-900';
+        return 'bg-rust text-burgundy';
       default:
-        return 'bg-yellow-200 text-yellow-900';
+        return 'bg-butter text-yellow-900';
     }
   };
 
   return (
-    <div className="min-h-screen bg-purple-200 font-pixel p-6">
+    <div className="min-h-screen bg-mauve font-pixel p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="bg-pink-600 border-4 border-black p-6 mb-6">
+        <div className="bg-plum border-4 border-black p-6 mb-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Target size={32} className="text-yellow-400" />
+              <Target size={32} className="text-gold" />
               <div>
-                <h1 className="text-3xl font-bold text-yellow-50">Prediction Markets</h1>
-                <p className="text-yellow-200 font-pixel">Bet on the future, win big rewards</p>
+                <h1 className="text-3xl font-bold text-cream">Prediction Markets</h1>
+                <p className="text-butter font-pixel">Bet on the future, win big rewards</p>
               </div>
             </div>
             <div className="text-right">
-              <div className="text-yellow-400 text-2xl font-bold">{displayMarkets.length}</div>
-              <div className="text-yellow-50 text-sm font-pixel">Active Markets</div>
+              <div className="text-gold text-2xl font-bold">{displayMarkets.length}</div>
+              <div className="text-cream text-sm font-pixel">Active Markets</div>
             </div>
           </div>
         </div>
 
         {/* Stats Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-pink-600 border-4 border-black p-4 text-center">
-            <div className="text-yellow-400 text-2xl font-bold">
+          <div className="bg-coral border-4 border-black p-4 text-center">
+            <div className="text-pink-600 text-2xl font-bold">
               ${displayMarkets.reduce((sum, market) => sum + (market.totalVolume || 0), 0).toLocaleString()}
             </div>
-            <div className="text-yellow-50 text-sm font-pixel">Total Volume</div>
+            <div className="text-cream text-sm font-pixel">Total Volume</div>
           </div>
-          <div className="bg-pink-600 border-4 border-black p-4 text-center">
-            <div className="text-yellow-400 text-2xl font-bold">
+          <div className="bg-coral border-4 border-black p-4 text-center">
+            <div className="text-pink-600 text-2xl font-bold">
               {displayMarkets.filter(m => m.status === 'active').length}
             </div>
-            <div className="text-yellow-50 text-sm font-pixel">Active Markets</div>
+            <div className="text-cream text-sm font-pixel">Active Markets</div>
           </div>
-          <div className="bg-pink-600 border-4 border-black p-4 text-center">
-            <div className="text-yellow-400 text-2xl font-bold">
+          <div className="bg-coral border-4 border-black p-4 text-center">
+            <div className="text-pink-600 text-2xl font-bold">
               {displayMarkets.reduce((sum, market) => sum + (market.participants || 0), 0)}
             </div>
-            <div className="text-yellow-50 text-sm font-pixel">Total Participants</div>
+            <div className="text-cream text-sm font-pixel">Total Participants</div>
           </div>
-          <div className="bg-pink-600 border-4 border-black p-4 text-center">
-            <div className="text-yellow-400 text-2xl font-bold">
+          <div className="bg-coral border-4 border-black p-4 text-center">
+            <div className="text-pink-600 text-2xl font-bold">
               {displayMarkets.filter(m => m.result === 'Won').length}
             </div>
-            <div className="text-yellow-50 text-sm font-pixel">Completed Bets</div>
+            <div className="text-cream text-sm font-pixel">Completed Bets</div>
           </div>
         </div>
 
         {/* Markets Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {displayMarkets.map((market) => (
-            <div key={market.id} className="bg-pink-600 border-4 border-black p-6 hover:-translate-y-1 transition-transform">
+            <div key={market.id} className="bg-periwinkle border-4 border-black p-6 hover:-translate-y-1 transition-transform">
               {/* Header */}
               <div className="flex justify-between items-start mb-4">
-                <h3 className="text-lg font-bold text-yellow-50 flex-1 mr-2">{market.title}</h3>
+                <h3 className="text-lg font-bold text-cream flex-1 mr-2">{market.title}</h3>
                 <div className="flex items-center gap-2">
                   {getStatusIcon(market.status)}
                   <span className={`px-2 py-1 text-xs font-pixel border-2 border-black ${getStatusColor(market.status)}`}>
@@ -232,14 +232,14 @@ const Markets: React.FC<MarketsProps> = ({ markets = [] }) => {
               </div>
 
               {/* Description */}
-              <p className="text-yellow-200 text-sm mb-4 line-clamp-3">{market.description}</p>
+              <p className="text-butter text-sm mb-4 line-clamp-3">{market.description}</p>
 
               {/* Prediction */}
               {market.prediction && (
-                <div className="bg-purple-50 border-2 border-black p-3 mb-4">
+                <div className="bg-lavender border-2 border-black p-3 mb-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Target size={16} className="text-purple-600" />
-                    <span className="font-bold text-purple-900 text-sm">Prediction:</span>
+                    <span className="font-bold text-plum text-sm">Prediction:</span>
                   </div>
                   <p className="text-purple-700 text-sm font-pixel">{market.prediction}</p>
                 </div>
@@ -247,19 +247,19 @@ const Markets: React.FC<MarketsProps> = ({ markets = [] }) => {
 
               {/* Stats */}
               <div className="grid grid-cols-2 gap-3 mb-4">
-                <div className="bg-purple-50 border-2 border-black p-2 text-center">
+                <div className="bg-lavender border-2 border-black p-2 text-center">
                   <div className="flex items-center justify-center gap-1 mb-1">
                     <DollarSign size={14} className="text-purple-600" />
-                    <span className="text-purple-900 font-bold text-sm">Volume</span>
+                    <span className="text-plum font-bold text-sm">Volume</span>
                   </div>
                   <div className="text-purple-700 text-xs font-pixel">
                     ${market.totalVolume?.toLocaleString() || '0'}
                   </div>
                 </div>
-                <div className="bg-purple-50 border-2 border-black p-2 text-center">
+                <div className="bg-lavender border-2 border-black p-2 text-center">
                   <div className="flex items-center justify-center gap-1 mb-1">
                     <Users size={14} className="text-purple-600" />
-                    <span className="text-purple-900 font-bold text-sm">Participants</span>
+                    <span className="text-plum font-bold text-sm">Participants</span>
                   </div>
                   <div className="text-purple-700 text-xs font-pixel">
                     {market.participants || 0}
@@ -269,10 +269,10 @@ const Markets: React.FC<MarketsProps> = ({ markets = [] }) => {
 
               {/* Odds and Category */}
               <div className="flex justify-between items-center mb-4">
-                <span className="bg-green-200 text-green-900 px-2 py-1 text-xs font-pixel border border-black">
+                <span className="bg-sage text-forest px-2 py-1 text-xs font-pixel border border-black">
                   {market.odds || 'N/A'}
                 </span>
-                <span className="bg-blue-200 text-blue-900 px-2 py-1 text-xs font-pixel border border-black">
+                <span className="bg-sky text-navy px-2 py-1 text-xs font-pixel border border-black">
                   {market.category}
                 </span>
               </div>
@@ -287,7 +287,7 @@ const Markets: React.FC<MarketsProps> = ({ markets = [] }) => {
               )}
 
               {/* Action Button */}
-              <Button className="w-full bg-yellow-400 hover:bg-yellow-300 text-black border-2 border-black font-pixel uppercase tracking-wider">
+              <Button className="w-full bg-gold hover:bg-butter text-black border-2 border-black font-pixel uppercase tracking-wider">
                 {market.status === 'active' ? 'Place Bet' : market.status === 'scheduled' ? 'Get Notified' : 'View Details'}
               </Button>
             </div>
