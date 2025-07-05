@@ -5,6 +5,8 @@ import CardContent from "./CardContent";
 import LiveBadge from "./LiveBadge";
 import BettingModal from "./BettingModal";
 import BettingIndicator from "./BettingIndicator";
+import MarketAssociationModal from "./MarketAssociationModal";
+import { MarketData } from "../lib/livestreamsApi";
 
 interface StreamCardProps {
   id?: number;
@@ -18,6 +20,10 @@ interface StreamCardProps {
   end_time?: string;
   view_count?: number;
   category?: string;
+  tags?: string[];
+  transcript?: string;
+  market_address?: string;
+  market?: MarketData;
   created_at?: string;
   updated_at?: string;
 }
@@ -34,6 +40,7 @@ const StreamCard: React.FC<StreamCardProps> = ({
   end_time,
   creator_wallet_address,
   stream_url,
+  market,
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isHovered, setIsHovered] = useState(false);
@@ -41,20 +48,19 @@ const StreamCard: React.FC<StreamCardProps> = ({
   const [isVideoReady, setIsVideoReady] = useState(false);
   const [isMuted, setIsMuted] = useState(false); // Start with sound on by default
   const [showBettingModal, setShowBettingModal] = useState(false);
+  const [showMarketAssociation, setShowMarketAssociation] = useState(false);
 
   // Pause video when modal opens
   useEffect(() => {
-    if (showBettingModal && videoRef.current) {
+    if ((showBettingModal || showMarketAssociation) && videoRef.current) {
       videoRef.current.pause();
       setIsHovered(false);
     }
-  }, [showBettingModal]);
-
-
+  }, [showBettingModal, showMarketAssociation]);
 
   const handleMouseEnter = async () => {
-    // Don't trigger hover effects if betting modal is open
-    if (showBettingModal) return;
+    // Don't trigger hover effects if any modal is open
+    if (showBettingModal || showMarketAssociation) return;
     
     setIsHovered(true);
     if (videoRef.current && stream_url && isVideoReady && !videoError) {
@@ -82,8 +88,8 @@ const StreamCard: React.FC<StreamCardProps> = ({
   };
 
   const handleMouseLeave = () => {
-    // Don't trigger hover effects if betting modal is open
-    if (showBettingModal) return;
+    // Don't trigger hover effects if any modal is open
+    if (showBettingModal || showMarketAssociation) return;
     
     setIsHovered(false);
     if (videoRef.current) {
@@ -118,17 +124,17 @@ const StreamCard: React.FC<StreamCardProps> = ({
   return (
     <div className="relative">
       <Card className={`rounded-lg shadow-lg bg-white transition-transform overflow-hidden border-0 ${
-        showBettingModal ? '' : 'hover:-translate-y-1'
+        (showBettingModal || showMarketAssociation) ? '' : 'hover:-translate-y-1'
       }`}>
         {status === 'active' && <LiveBadge />}
       
       {/* Video/Thumbnail Container - Portrait aspect ratio */}
       <div 
         className={`relative w-full aspect-[9/16] overflow-hidden bg-gray-900 ${
-          showBettingModal ? 'pointer-events-none' : ''
+          (showBettingModal || showMarketAssociation) ? 'pointer-events-none' : ''
         }`}
-        onMouseEnter={showBettingModal ? undefined : handleMouseEnter}
-        onMouseLeave={showBettingModal ? undefined : handleMouseLeave}
+        onMouseEnter={(showBettingModal || showMarketAssociation) ? undefined : handleMouseEnter}
+        onMouseLeave={(showBettingModal || showMarketAssociation) ? undefined : handleMouseLeave}
       >
         {/* Video Element */}
         {stream_url ? (
@@ -162,8 +168,6 @@ const StreamCard: React.FC<StreamCardProps> = ({
             </div>
           </div>
         )}
-
-
 
         {/* Mute/Unmute button */}
         {stream_url && (
@@ -218,8 +222,8 @@ const StreamCard: React.FC<StreamCardProps> = ({
           </div>
         )}
 
-        {/* Modal overlay - dims video when betting modal is open */}
-        {showBettingModal && (
+        {/* Modal overlay - dims video when any modal is open */}
+        {(showBettingModal || showMarketAssociation) && (
           <div className="absolute inset-0 bg-black bg-opacity-30 z-10"></div>
         )}
       </div>
@@ -261,16 +265,30 @@ const StreamCard: React.FC<StreamCardProps> = ({
               {new Date(start_time).toLocaleDateString()}
             </span>
           )}
-          {id && <BettingIndicator livestreamId={id} />}
+          {id && <BettingIndicator livestreamId={id} market={market} />}
         </div>
 
-        {/* Action Button */}
-        <Button 
-          onClick={() => setShowBettingModal(true)}
-          className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg font-medium text-sm py-2.5 transition-all duration-200"
-        >
-          Bet Now
-        </Button>
+        {/* Action Buttons */}
+        <div className="flex gap-2">
+          <Button 
+            onClick={() => setShowBettingModal(true)}
+            className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg font-medium text-sm py-2.5 transition-all duration-200 flex items-center justify-center gap-2"
+          >
+            <span>🎯</span>
+            <span>Bet on Project</span>
+          </Button>
+          {id && (
+            <button
+              onClick={() => setShowMarketAssociation(true)}
+              className="px-3 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-colors text-sm"
+              title="Associate Market"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+              </svg>
+            </button>
+          )}
+        </div>
       </div>
 
       </Card>
@@ -283,6 +301,21 @@ const StreamCard: React.FC<StreamCardProps> = ({
           livestreamId={id}
           livestreamTitle={title}
           livestreamDescription={description}
+          market={market}
+        />
+      )}
+
+      {/* Market Association Modal */}
+      {id && (
+        <MarketAssociationModal
+          isOpen={showMarketAssociation}
+          onClose={() => setShowMarketAssociation(false)}
+          livestreamId={id}
+          livestreamTitle={title}
+          onMarketAssociated={(marketAddress) => {
+            console.log('Market associated:', marketAddress);
+            // Could trigger a refresh of betting indicator here
+          }}
         />
       )}
     </div>

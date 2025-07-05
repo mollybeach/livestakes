@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
 import {
-  getMarketsForLivestream,
   getMarketInfo,
   placeBet,
   getUserBets,
@@ -20,6 +19,7 @@ import {
   getNetworkInfo,
   isContractDeployed
 } from '../lib/contractsApi';
+import { MarketData } from '../lib/livestreamsApi';
 
 interface BettingModalProps {
   isOpen: boolean;
@@ -27,6 +27,7 @@ interface BettingModalProps {
   livestreamId: number;
   livestreamTitle: string;
   livestreamDescription?: string;
+  market?: MarketData;
 }
 
 const BettingModal: React.FC<BettingModalProps> = ({
@@ -34,117 +35,190 @@ const BettingModal: React.FC<BettingModalProps> = ({
   onClose,
   livestreamId,
   livestreamTitle,
-  livestreamDescription
+  livestreamDescription,
+  market,
 }) => {
-  const { authenticated, user } = usePrivy();
-  const [markets, setMarkets] = useState<string[]>([]);
+  const { ready, authenticated, user } = usePrivy();
+  
+  // Market state
   const [selectedMarket, setSelectedMarket] = useState<string>('');
   const [marketInfo, setMarketInfo] = useState<MarketInfo | null>(null);
   const [userBets, setUserBets] = useState<UserBets>({ yesBets: '0', noBets: '0' });
   const [marketOdds, setMarketOdds] = useState<MarketOdds>({ yesOdds: 50, noOdds: 50 });
-  const [betAmount, setBetAmount] = useState<string>('0.01');
-  const [selectedSide, setSelectedSide] = useState<BetSide>(BetSide.Yes);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string>('');
+  
+  // Betting state
+  const [betSide, setBetSide] = useState<BetSide>(BetSide.Yes);
+  const [betAmount, setBetAmount] = useState<string>('0.1');
+  const [sliderValue, setSliderValue] = useState<number>(10); // 10 = 0.1 FLOW
+  const [isPlacingBet, setIsPlacingBet] = useState(false);
+  const [isClaiming, setIsClaiming] = useState(false);
+  
+  // Market creation state
   const [showCreateMarket, setShowCreateMarket] = useState(false);
   const [newMarketQuestion, setNewMarketQuestion] = useState('');
-  const [walletAddress, setWalletAddress] = useState<string>('');
+  const [isCreatingMarket, setIsCreatingMarket] = useState(false);
+  
+  // UI state
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
-  // Load markets and wallet info on open
+  // Load markets when modal opens
   useEffect(() => {
     if (isOpen) {
       loadMarkets();
-      if (authenticated && user?.wallet?.address) {
-        setWalletAddress(user.wallet.address);
-      }
     }
-  }, [isOpen, authenticated, user]);
-
-  // Load market info when selected market changes
-  useEffect(() => {
-    if (selectedMarket) {
-      loadMarketInfo();
-    }
-  }, [selectedMarket, walletAddress]);
-
-  // Lock body scroll when modal is open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    
-    // Cleanup on unmount
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [isOpen]);
-
-  // Handle escape key to close modal
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
-        onClose();
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
-    }
-
-    return () => {
-      document.removeEventListener('keydown', handleEscape);
-    };
-  }, [isOpen, onClose]);
+  }, [isOpen, livestreamId, market]);
 
   const loadMarkets = async () => {
     try {
-      const marketAddresses = await getMarketsForLivestream(livestreamId);
-      setMarkets(marketAddresses);
+      console.log(`🔍 BettingModal: Loading markets for livestream ${livestreamId}...`);
+      console.log(`📊 Markets data:`, market);
       
-      if (marketAddresses.length > 0) {
-        setSelectedMarket(marketAddresses[0]);
+      if (market && market.contract_address) {
+        console.log(`✅ Found market ${market.contract_address}`);
+        setSelectedMarket(market.contract_address);
+        setShowCreateMarket(false);
       } else {
+        console.log(`⚠️ No market found for livestream ${livestreamId}, showing create market interface`);
+        // Set a default market question for hackathon projects
+        setNewMarketQuestion(`Will ${livestreamTitle} win the hackathon?`);
         setShowCreateMarket(true);
       }
-    } catch (err) {
-      console.error('Error loading markets:', err);
+    } catch (error) {
+      console.error('Error loading markets:', error);
       setError('Failed to load markets');
     }
   };
 
+  // Load market info when market selection changes
+  useEffect(() => {
+    if (selectedMarket && isOpen) {
+      loadMarketInfo();
+    }
+  }, [selectedMarket, isOpen]);
+
   const loadMarketInfo = async () => {
     if (!selectedMarket) return;
-
+    
     try {
-      const [info, odds] = await Promise.all([
-        getMarketInfo(selectedMarket),
-        getMarketOdds(selectedMarket)
-      ]);
-
-      setMarketInfo(info);
-      setMarketOdds(odds);
-
-      // Load user bets if wallet is connected
-      if (walletAddress) {
-        const bets = await getUserBets(selectedMarket, walletAddress);
-        setUserBets(bets);
+      setIsLoading(true);
+      setError(null);
+      console.log(`📊 Loading market info for ${selectedMarket}...`);
+      
+      // First, check if we have backend data for this market
+      const marketData = market && market.contract_address === selectedMarket ? market : null;
+      
+      if (marketData && marketData.state !== undefined) {
+        // Use backend data
+        console.log(`✅ Using backend market data for ${selectedMarket}`);
+        setMarketInfo({
+          livestreamId: livestreamId,
+          question: marketData.question || `Will ${livestreamTitle} win?`,
+          livestreamTitle: livestreamTitle,
+          state: marketData.state as MarketState,
+          outcome: marketData.state === 2 ? BetSide.Yes : BetSide.No, // Default to Yes if resolved
+          yesBets: marketData.yes_bets || '0',
+          noBets: marketData.no_bets || '0',
+          totalPool: marketData.total_pool || '0',
+          totalBettors: 0,
+          createdAt: marketData.created_at ? new Date(marketData.created_at).getTime() : Date.now(),
+          closedAt: 0,
+          resolvedAt: marketData.state === 2 ? Date.now() : 0
+        });
+        
+        // Set odds from backend data
+        setMarketOdds({
+          yesOdds: marketData.yes_odds || 50,
+          noOdds: marketData.no_odds || 50
+        });
+      } else {
+        // Fallback to on-chain data
+        console.log(`📡 Fetching on-chain data for ${selectedMarket}...`);
+        const [info, odds] = await Promise.all([
+          getMarketInfo(selectedMarket),
+          getMarketOdds(selectedMarket)
+        ]);
+        
+        setMarketInfo(info);
+        setMarketOdds(odds);
       }
-    } catch (err) {
-      console.error('Error loading market info:', err);
+      
+      // Always try to load user bets from blockchain
+      if (authenticated && user?.wallet?.address) {
+        try {
+          const bets = await getUserBets(selectedMarket, user.wallet.address);
+          setUserBets(bets);
+        } catch (error) {
+          console.warn('Could not load user bets:', error);
+          setUserBets({ yesBets: '0', noBets: '0' });
+        }
+      }
+    } catch (error) {
+      console.error('Error loading market info:', error);
       setError('Failed to load market information');
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleConnectWallet = async () => {
+  // Convert slider value to FLOW amount
+  const convertSliderToFlow = (value: number) => {
+    // Slider range: 1-100
+    // FLOW range: 0.01-10.0
+    const flowAmount = (value / 100) * 10; // Max 10 FLOW
+    return Math.max(0.01, flowAmount); // Min 0.01 FLOW
+  };
+
+  // Handle slider change
+  const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value);
+    setSliderValue(value);
+    const flowAmount = convertSliderToFlow(value);
+    setBetAmount(flowAmount.toFixed(2));
+  };
+
+  // Handle direct amount input
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setBetAmount(value);
+    
+    // Update slider to match
+    const flowValue = parseFloat(value) || 0;
+    const sliderVal = Math.min(100, Math.max(1, (flowValue / 10) * 100));
+    setSliderValue(sliderVal);
+  };
+
+  const handlePlaceBet = async () => {
+    if (!selectedMarket || !authenticated || !user?.wallet?.address) {
+      setError('Please connect your wallet to place a bet');
+      return;
+    }
+
     try {
-      const address = await connectWallet();
-      setWalletAddress(address);
-      setError('');
-    } catch (err) {
-      console.error('Error connecting wallet:', err);
-      setError('Failed to connect wallet. Please install MetaMask.');
+      setIsPlacingBet(true);
+      setError(null);
+      setSuccess(null);
+      
+      console.log(`🎯 Placing bet: ${betAmount} FLOW on ${betSide === BetSide.Yes ? 'Yes' : 'No'}`);
+      
+      const txHash = await placeBet(selectedMarket, betSide, betAmount);
+      console.log(`✅ Bet placed successfully! Transaction: ${txHash}`);
+      
+      setSuccess(`Bet placed successfully! 🎉`);
+      
+      // Refresh market info and user bets
+      await loadMarketInfo();
+      
+      // Reset form
+      setSliderValue(10);
+      setBetAmount('0.1');
+      
+    } catch (error) {
+      console.error('Error placing bet:', error);
+      setError(error instanceof Error ? error.message : 'Failed to place bet');
+    } finally {
+      setIsPlacingBet(false);
     }
   };
 
@@ -154,372 +228,323 @@ const BettingModal: React.FC<BettingModalProps> = ({
       return;
     }
 
-    setIsLoading(true);
-    setError('');
-
     try {
-      const marketAddress = await createMarket(
+      setIsCreatingMarket(true);
+      setError(null);
+      setSuccess(null);
+      
+      console.log(`🏗️ Creating market: ${newMarketQuestion}`);
+      
+      const contractAddress = await createMarket(
         livestreamId,
         newMarketQuestion,
         livestreamTitle
       );
-
-      console.log('Market created:', marketAddress);
       
-      // Refresh markets
-      await loadMarkets();
-      setSelectedMarket(marketAddress);
+      console.log(`✅ Market created successfully! Address: ${contractAddress}`);
+      
+      setSuccess(`Market created successfully! 🎉`);
       setShowCreateMarket(false);
-      setNewMarketQuestion('');
-    } catch (err) {
-      console.error('Error creating market:', err);
-      setError('Failed to create market. You may not have permission.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handlePlaceBet = async () => {
-    if (!selectedMarket || !betAmount || !walletAddress) {
-      setError('Please connect wallet and enter bet amount');
-      return;
-    }
-
-    const amount = parseFloat(betAmount);
-    if (amount <= 0) {
-      setError('Please enter a valid bet amount');
-      return;
-    }
-
-    setIsLoading(true);
-    setError('');
-
-    try {
-      const txHash = await placeBet(selectedMarket, selectedSide, betAmount);
-      console.log('Bet placed:', txHash);
       
-      // Refresh market info
-      await loadMarketInfo();
+      // Refresh the page or reload markets
+      window.location.reload();
       
-      // Clear bet amount
-      setBetAmount('0.01');
-    } catch (err) {
-      console.error('Error placing bet:', err);
-      setError('Failed to place bet. Please try again.');
+    } catch (error) {
+      console.error('Error creating market:', error);
+      setError(error instanceof Error ? error.message : 'Failed to create market');
     } finally {
-      setIsLoading(false);
+      setIsCreatingMarket(false);
     }
   };
 
   const handleClaimPayout = async () => {
-    if (!selectedMarket) return;
-
-    setIsLoading(true);
-    setError('');
+    if (!selectedMarket || !authenticated || !user?.wallet?.address) {
+      setError('Please connect your wallet to claim payout');
+      return;
+    }
 
     try {
-      const txHash = await claimPayout(selectedMarket);
-      console.log('Payout claimed:', txHash);
+      setIsClaiming(true);
+      setError(null);
+      setSuccess(null);
       
-      // Refresh market info
+      console.log(`💰 Claiming payout for market ${selectedMarket}`);
+      
+      const txHash = await claimPayout(selectedMarket);
+      console.log(`✅ Payout claimed successfully! Transaction: ${txHash}`);
+      
+      setSuccess(`Payout claimed successfully! 🎉`);
+      
+      // Refresh user bets
       await loadMarketInfo();
-    } catch (err) {
-      console.error('Error claiming payout:', err);
-      setError('Failed to claim payout. You may not have winning bets.');
+      
+    } catch (error) {
+      console.error('Error claiming payout:', error);
+      setError(error instanceof Error ? error.message : 'Failed to claim payout');
     } finally {
-      setIsLoading(false);
+      setIsClaiming(false);
     }
-  };
-
-  const getMarketStateLabel = (state: MarketState) => {
-    switch (state) {
-      case MarketState.Open: return 'Open';
-      case MarketState.Closed: return 'Closed';
-      case MarketState.Resolved: return 'Resolved';
-      default: return 'Unknown';
-    }
-  };
-
-  const formatEther = (value: string) => {
-    return parseFloat(value).toFixed(4);
   };
 
   if (!isOpen) return null;
 
   return (
-    <div 
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-4"
-      onClick={(e) => {
-        // Close modal if clicking on backdrop
-        if (e.target === e.currentTarget) {
-          onClose();
-        }
-      }}
-    >
-      <div 
-        className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto"
-        onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside modal
-      >
-        <div className="p-6">
-          {/* Header */}
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold text-gray-900">
-              Bet on Stream
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-xl">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-gray-900">
+              🎯 Bet on Project
             </h2>
             <button
               onClick={onClose}
-              className="text-gray-500 hover:text-gray-700 text-2xl"
+              className="text-gray-400 hover:text-gray-600 transition-colors"
             >
-              ×
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
             </button>
           </div>
+          <p className="text-sm text-gray-600 mt-1 truncate">{livestreamTitle}</p>
+        </div>
 
-          {/* Network Info */}
-          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <div className="flex items-center gap-2 mb-1">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span className="text-sm font-medium text-blue-900">
-                {getNetworkInfo().networkName}
-              </span>
-            </div>
-            <p className="text-xs text-blue-700">
-              Chain ID: {getNetworkInfo().chainId} | 
-              <a 
-                href={`${getNetworkInfo().explorerUrl}/address/${getNetworkInfo().contractAddress}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="ml-1 underline hover:text-blue-800"
-              >
-                View Contract
-              </a>
-            </p>
-          </div>
-
-          {/* Stream Info */}
-          <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-            <h3 className="font-semibold text-gray-900 mb-1">{livestreamTitle}</h3>
-            {livestreamDescription && (
-              <p className="text-sm text-gray-600">{livestreamDescription}</p>
-            )}
-          </div>
-
-          {/* Contract Deployment Check */}
-          {!isContractDeployed() && (
-            <div className="mb-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
-              <p className="text-sm text-orange-700 font-medium mb-1">
-                ⚠️ Contracts not deployed
-              </p>
-              <p className="text-xs text-orange-600">
-                Smart contracts are not deployed on {getNetworkInfo().networkName}. 
-                Please deploy contracts first or switch to a network with deployed contracts.
-              </p>
-            </div>
-          )}
-
-          {/* Error Display */}
-          {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-sm text-red-600">{error}</p>
-            </div>
-          )}
-
-          {/* Wallet Connection */}
-          {!authenticated || !walletAddress ? (
+        {/* Content */}
+        <div className="px-6 py-4">
+          {/* Loading State */}
+          {isLoading && (
             <div className="text-center py-8">
-              <p className="text-gray-600 mb-4">Connect your wallet to start betting</p>
+              <div className="w-8 h-8 border-4 border-purple-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading market data...</p>
+            </div>
+          )}
+
+          {/* Error State */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+              <div className="flex items-center">
+                <svg className="w-5 h-5 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p className="text-red-700 text-sm">{error}</p>
+              </div>
+            </div>
+          )}
+
+          {/* Success State */}
+          {success && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+              <div className="flex items-center">
+                <svg className="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p className="text-green-700 text-sm">{success}</p>
+              </div>
+            </div>
+          )}
+
+          {/* Create Market Interface */}
+          {showCreateMarket && !isLoading && (
+            <div className="text-center py-6">
+              <div className="text-6xl mb-4">🏗️</div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Create Market</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                This hackathon project doesn't have a betting market yet. Create one to get started!
+              </p>
+              
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Market Question
+                </label>
+                <input
+                  type="text"
+                  value={newMarketQuestion}
+                  onChange={(e) => setNewMarketQuestion(e.target.value)}
+                  placeholder="Will this project win the hackathon?"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+              
               <button
-                onClick={handleConnectWallet}
-                className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors"
+                onClick={handleCreateMarket}
+                disabled={isCreatingMarket || !newMarketQuestion.trim()}
+                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center"
               >
-                Connect Wallet
+                {isCreatingMarket ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                    Creating Market...
+                  </>
+                ) : (
+                  <>
+                    <span className="mr-2">🚀</span>
+                    Create Market
+                  </>
+                )}
               </button>
             </div>
-          ) : (
-            <>
-              {/* Market Creation */}
-              {showCreateMarket && (
-                <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <h3 className="font-semibold text-gray-900 mb-2">Create Betting Market</h3>
-                  <input
-                    type="text"
-                    value={newMarketQuestion}
-                    onChange={(e) => setNewMarketQuestion(e.target.value)}
-                    placeholder="Enter market question (e.g., 'Will this stream reach 1000 viewers?')"
-                    className="w-full p-2 border border-gray-300 rounded-lg mb-3"
-                  />
-                  <div className="flex gap-2">
-                    <button
-                      onClick={handleCreateMarket}
-                      disabled={isLoading}
-                      className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50"
-                    >
-                      {isLoading ? 'Creating...' : 'Create Market'}
-                    </button>
-                    <button
-                      onClick={() => setShowCreateMarket(false)}
-                      className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              )}
+          )}
 
-              {/* Market Selection */}
-              {markets.length > 0 && (
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Select Market
-                  </label>
-                  <select
-                    value={selectedMarket}
-                    onChange={(e) => setSelectedMarket(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-lg"
-                  >
-                    {markets.map((market, index) => (
-                      <option key={market} value={market}>
-                        Market {index + 1}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
+          {/* Betting Interface */}
+          {!showCreateMarket && selectedMarket && marketInfo && !isLoading && (
+            <div className="space-y-4">
+              {/* Market Question */}
+              <div className="bg-gray-50 rounded-lg p-4">
+                <h3 className="font-semibold text-gray-900 mb-1">
+                  {marketInfo.question}
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Total Pool: {parseFloat(marketInfo.totalPool).toFixed(2)} FLOW
+                </p>
+              </div>
 
-              {/* Market Info */}
-              {marketInfo && (
-                <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-                  <h3 className="font-semibold text-gray-900 mb-2">{marketInfo.question}</h3>
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <p className="text-gray-600">Status</p>
-                      <p className="font-medium">{getMarketStateLabel(marketInfo.state)}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-600">Total Pool</p>
-                      <p className="font-medium">{formatEther(marketInfo.totalPool)} ETH</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-600">Yes Odds</p>
-                      <p className="font-medium text-green-600">{marketOdds.yesOdds}%</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-600">No Odds</p>
-                      <p className="font-medium text-red-600">{marketOdds.noOdds}%</p>
-                    </div>
-                  </div>
+              {/* Market Status */}
+              <div className="flex items-center justify-between">
+                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                  marketInfo.state === MarketState.Open 
+                    ? 'bg-green-100 text-green-800' 
+                    : 'bg-gray-100 text-gray-800'
+                }`}>
+                  {marketInfo.state === MarketState.Open ? '🟢 Active' : '🔴 Closed'}
+                </span>
+                <div className="text-sm text-gray-600">
+                  Yes: {marketOdds.yesOdds}% • No: {marketOdds.noOdds}%
                 </div>
-              )}
+              </div>
 
-              {/* User Bets */}
-              {(parseFloat(userBets.yesBets) > 0 || parseFloat(userBets.noBets) > 0) && (
-                <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                  <h4 className="font-semibold text-blue-900 mb-2">Your Bets</h4>
-                  <div className="text-sm">
-                    <p>Yes: {formatEther(userBets.yesBets)} ETH</p>
-                    <p>No: {formatEther(userBets.noBets)} ETH</p>
-                  </div>
-                </div>
-              )}
-
-              {/* Betting Interface */}
-              {marketInfo && marketInfo.state === MarketState.Open && (
-                <div className="mb-6">
-                  <h3 className="font-semibold text-gray-900 mb-3">Place Your Bet</h3>
-                  
-                  {/* Side Selection */}
-                  <div className="mb-4">
+              {/* Betting Form */}
+              {marketInfo.state === MarketState.Open && (
+                <div className="space-y-4">
+                  {/* Bet Side Selection */}
+                  <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Choose Side
+                      Choose Your Prediction
                     </label>
-                    <div className="flex gap-2">
+                    <div className="grid grid-cols-2 gap-3">
                       <button
-                        onClick={() => setSelectedSide(BetSide.Yes)}
-                        className={`flex-1 p-3 rounded-lg font-medium transition-colors ${
-                          selectedSide === BetSide.Yes
-                            ? 'bg-green-600 text-white'
-                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                        onClick={() => setBetSide(BetSide.Yes)}
+                        className={`p-3 rounded-lg border-2 transition-all ${
+                          betSide === BetSide.Yes
+                            ? 'border-green-500 bg-green-50 text-green-700'
+                            : 'border-gray-200 hover:border-gray-300'
                         }`}
                       >
-                        Yes ({marketOdds.yesOdds}%)
+                        <div className="text-lg font-semibold">✅ Yes</div>
+                        <div className="text-sm opacity-75">{marketOdds.yesOdds}% odds</div>
                       </button>
+                      
                       <button
-                        onClick={() => setSelectedSide(BetSide.No)}
-                        className={`flex-1 p-3 rounded-lg font-medium transition-colors ${
-                          selectedSide === BetSide.No
-                            ? 'bg-red-600 text-white'
-                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                        onClick={() => setBetSide(BetSide.No)}
+                        className={`p-3 rounded-lg border-2 transition-all ${
+                          betSide === BetSide.No
+                            ? 'border-red-500 bg-red-50 text-red-700'
+                            : 'border-gray-200 hover:border-gray-300'
                         }`}
                       >
-                        No ({marketOdds.noOdds}%)
+                        <div className="text-lg font-semibold">❌ No</div>
+                        <div className="text-sm opacity-75">{marketOdds.noOdds}% odds</div>
                       </button>
                     </div>
                   </div>
 
-                  {/* Bet Amount */}
-                  <div className="mb-4">
+                  {/* Amount Slider */}
+                  <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Bet Amount (ETH)
+                      Bet Amount: {betAmount} FLOW
                     </label>
-                    <input
-                      type="number"
-                      value={betAmount}
-                      onChange={(e) => setBetAmount(e.target.value)}
-                      min="0.001"
-                      step="0.001"
-                      className="w-full p-2 border border-gray-300 rounded-lg"
-                    />
-                    <div className="flex gap-2 mt-2">
-                      {['0.01', '0.1', '0.5', '1.0'].map((amount) => (
-                        <button
-                          key={amount}
-                          onClick={() => setBetAmount(amount)}
-                          className="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded text-sm"
-                        >
-                          {amount}
-                        </button>
-                      ))}
+                    <div className="space-y-3">
+                      <input
+                        type="range"
+                        min="1"
+                        max="100"
+                        value={sliderValue}
+                        onChange={handleSliderChange}
+                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                      />
+                      <div className="flex justify-between text-xs text-gray-500">
+                        <span>0.01 FLOW</span>
+                        <span>10.0 FLOW</span>
+                      </div>
+                      
+                      {/* Direct amount input */}
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="number"
+                          value={betAmount}
+                          onChange={handleAmountChange}
+                          min="0.01"
+                          max="10"
+                          step="0.01"
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        />
+                        <span className="text-sm text-gray-600 font-medium">FLOW</span>
+                      </div>
                     </div>
                   </div>
 
                   {/* Place Bet Button */}
                   <button
                     onClick={handlePlaceBet}
-                    disabled={isLoading || !betAmount || parseFloat(betAmount) <= 0}
-                    className="w-full bg-purple-600 text-white py-3 rounded-lg font-medium hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={isPlacingBet || !authenticated}
+                    className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center"
                   >
-                    {isLoading ? 'Placing Bet...' : `Bet ${betAmount} ETH on ${selectedSide === BetSide.Yes ? 'Yes' : 'No'}`}
+                    {isPlacingBet ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                        Placing Bet...
+                      </>
+                    ) : (
+                      <>
+                        <span className="mr-2">🎯</span>
+                        Place Bet {betAmount} FLOW on {betSide === BetSide.Yes ? 'Yes' : 'No'}
+                      </>
+                    )}
                   </button>
                 </div>
               )}
 
-              {/* Claim Payout */}
-              {marketInfo && marketInfo.state === MarketState.Resolved && (
-                <div className="mb-4">
-                  <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                    <h4 className="font-semibold text-green-900 mb-2">
-                      Market Resolved: {marketInfo.outcome === BetSide.Yes ? 'Yes' : 'No'} Won!
-                    </h4>
+              {/* User Bets */}
+              {authenticated && (parseFloat(userBets.yesBets) > 0 || parseFloat(userBets.noBets) > 0) && (
+                <div className="bg-blue-50 rounded-lg p-4">
+                  <h4 className="font-semibold text-blue-900 mb-2">Your Bets</h4>
+                  <div className="space-y-1 text-sm">
+                    {parseFloat(userBets.yesBets) > 0 && (
+                      <div className="flex justify-between text-blue-800">
+                        <span>✅ Yes</span>
+                        <span>{userBets.yesBets} FLOW</span>
+                      </div>
+                    )}
+                    {parseFloat(userBets.noBets) > 0 && (
+                      <div className="flex justify-between text-blue-800">
+                        <span>❌ No</span>
+                        <span>{userBets.noBets} FLOW</span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Claim Payout Button */}
+                  {marketInfo.state === MarketState.Resolved && (
                     <button
                       onClick={handleClaimPayout}
-                      disabled={isLoading}
-                      className="w-full bg-green-600 text-white py-2 rounded-lg font-medium hover:bg-green-700 disabled:opacity-50"
+                      disabled={isClaiming}
+                      className="w-full mt-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 flex items-center justify-center"
                     >
-                      {isLoading ? 'Claiming...' : 'Claim Payout'}
+                      {isClaiming ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                          Claiming...
+                        </>
+                      ) : (
+                        <>
+                          <span className="mr-2">💰</span>
+                          Claim Payout
+                        </>
+                      )}
                     </button>
-                  </div>
+                  )}
                 </div>
               )}
-
-              {/* Create Another Market */}
-              {!showCreateMarket && (
-                <button
-                  onClick={() => setShowCreateMarket(true)}
-                  className="w-full bg-yellow-600 text-white py-2 rounded-lg font-medium hover:bg-yellow-700 mb-4"
-                >
-                  Create New Market
-                </button>
-              )}
-            </>
+            </div>
           )}
         </div>
       </div>
