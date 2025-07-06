@@ -193,36 +193,40 @@ export default function MarketCreationModal({
       onKeyDown={handleEscapeKey}
       tabIndex={-1}
     >
-      <div className="bg-white border-4 border-black shadow-window-pixel max-w-md max-h-[90vh] overflow-y-auto">
-        {/* Title Bar */}
-        <div className="flex items-center justify-between px-3 py-1 bg-purple-600 text-yellow-50 border-b-4 border-black">
-          <span className="text-xs">🏗️ CREATE MARKET</span>
-          <button
-            onClick={handleClose}
-            disabled={isLoading}
-            className="bg-yellow-400 text-black px-1 border border-black leading-none"
-          >
-            ✕
-          </button>
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md sm:max-w-lg max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="border-b border-gray-200 px-4 sm:px-6 py-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-base sm:text-lg font-semibold text-gray-900">🏗️ Create Market</h2>
+            <button
+              onClick={handleClose}
+              disabled={isLoading}
+              className="text-gray-400 hover:text-gray-600 transition-colors disabled:cursor-not-allowed"
+            >
+              <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         {/* Connection Test Section */}
-        <div className="mb-4 p-4 bg-yellow-100 border-b-4 border-black">
+        <div className="px-4 sm:px-6 py-4 bg-yellow-50 border-b border-gray-200">
           <div className="flex justify-between items-center mb-2">
-            <h3 className="text-xs font-bold text-purple-900">Contract Connection</h3>
+            <h3 className="text-xs sm:text-sm font-semibold text-gray-900">Contract Connection</h3>
             <button
               onClick={handleTestConnection}
               disabled={isTestingConnection}
-              className="text-xs bg-purple-600 hover:bg-purple-700 text-yellow-50 px-2 py-1 border border-black disabled:opacity-50"
+              className="text-xs bg-purple-600 hover:bg-purple-700 text-white px-2 py-1 rounded disabled:opacity-50 transition-colors"
             >
               {isTestingConnection ? 'Testing...' : 'Test Connection'}
             </button>
           </div>
           {connectionTest && (
-            <div className={`text-xs p-2 border-2 mt-2 ${
+            <div className={`text-xs p-2 rounded mt-2 ${
               connectionTest.isConnected 
-                ? 'bg-green-200 text-green-900 border-green-600' 
-                : 'bg-red-200 text-red-900 border-red-600'
+                ? 'bg-green-100 text-green-800 border border-green-200' 
+                : 'bg-red-100 text-red-800 border border-red-200'
             }`}>
               {connectionTest.isConnected ? (
                 <div>
@@ -240,17 +244,17 @@ export default function MarketCreationModal({
           )}
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 bg-pink-100 p-6 border-t-4 border-black">
+        <form onSubmit={handleSubmit} className="space-y-4 px-4 sm:px-6 py-4">
           {/* Question Field */}
           <div>
-            <label className="block text-xs font-bold text-purple-900 mb-1">Question *</label>
+            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Question *</label>
             <input
               type="text"
               name="question"
               value={formData.question}
               onChange={handleInputChange}
               placeholder="e.g., Will the presenter finish the demo without bugs?"
-              className="w-full px-3 py-2 border-2 border-black bg-white text-purple-900 focus:outline-none focus:border-purple-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-xs sm:text-sm"
               disabled={isLoading}
             />
             {errors.question && (
@@ -260,14 +264,14 @@ export default function MarketCreationModal({
 
           {/* Title Field */}
           <div>
-            <label className="block text-xs font-bold text-purple-900 mb-1">Title *</label>
+            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Title *</label>
             <input
               type="text"
               name="title"
               value={formData.title}
               onChange={handleInputChange}
               placeholder="e.g., Bug-free Demo Prediction"
-              className="w-full px-3 py-2 border-2 border-black bg-white text-purple-900 focus:outline-none focus:border-purple-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-xs sm:text-sm"
               disabled={isLoading}
             />
             {errors.title && (
@@ -277,14 +281,14 @@ export default function MarketCreationModal({
 
           {/* Description Field */}
           <div>
-            <label className="block text-xs font-bold text-purple-900 mb-1">Description</label>
+            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Description</label>
             <textarea
               name="description"
               value={formData.description}
               onChange={handleInputChange}
               placeholder="Additional details about the market..."
               rows={3}
-              className="w-full px-3 py-2 border-2 border-black bg-white text-purple-900 focus:outline-none focus:border-purple-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-xs sm:text-sm"
               disabled={isLoading}
             />
             {errors.description && (
@@ -294,16 +298,16 @@ export default function MarketCreationModal({
 
           {/* Category Field */}
           <div>
-            <label className="block text-xs font-bold text-purple-900 mb-1">Category</label>
+            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Category</label>
             <select
               name="category"
               value={formData.category}
               onChange={handleInputChange}
-              className="w-full px-3 py-2 border-2 border-black bg-white text-purple-900 focus:outline-none focus:border-purple-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-xs sm:text-sm"
               disabled={isLoading}
             >
               {CATEGORIES.map(category => (
-                <option key={category} value={category} className="">
+                <option key={category} value={category}>
                   {category.charAt(0).toUpperCase() + category.slice(1)}
                 </option>
               ))}
@@ -312,45 +316,56 @@ export default function MarketCreationModal({
 
           {/* Tags Field */}
           <div>
-            <label className="block text-xs font-bold text-purple-900 mb-1">Tags</label>
+            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Tags</label>
             <input
               type="text"
               name="tags"
               value={formData.tags}
               onChange={handleInputChange}
               placeholder="hackathon, demo, coding (comma separated)"
-              className="w-full px-3 py-2 border-2 border-black bg-white text-purple-900 focus:outline-none focus:border-purple-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-xs sm:text-sm"
               disabled={isLoading}
             />
             {errors.tags && (
               <p className="text-red-600 text-xs mt-1">{errors.tags}</p>
             )}
-            <p className="text-xs text-purple-700 mt-1">
+            <p className="text-xs text-gray-500 mt-1">
               Separate tags with commas. Maximum 10 tags.
             </p>
           </div>
 
-          {/* Submit Button */}
-          <div className="flex space-x-3 pt-4">
+          {/* Submit Buttons */}
+          <div className="flex flex-col sm:flex-row gap-2 pt-4">
             <button
               type="button"
               onClick={handleClose}
               disabled={isLoading}
-              className="flex-1 px-4 py-2 bg-purple-600 text-yellow-50 border-2 border-black hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isLoading || !authenticated}
-              className="flex-1 px-4 py-2 bg-yellow-400 text-black border-2 border-black hover:bg-yellow-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm transition-colors"
             >
-              {isLoading ? 'Creating...' : 'Create Market'}
+              {isLoading ? (
+                <>
+                  <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white border-t-transparent rounded-full animate-spin inline mr-2"></div>
+                  <span className="hidden sm:inline">Creating...</span>
+                  <span className="sm:hidden">Creating...</span>
+                </>
+              ) : (
+                <>
+                  <span className="hidden sm:inline">Create Market</span>
+                  <span className="sm:hidden">Create</span>
+                </>
+              )}
             </button>
           </div>
 
           {!authenticated && (
-            <p className="text-purple-700 text-sm text-center mt-2">
+            <p className="text-gray-600 text-xs sm:text-sm text-center mt-2">
               Please connect your wallet to create markets
             </p>
           )}

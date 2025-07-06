@@ -1,5 +1,7 @@
 // Smart Contracts API for Betting on Livestreams
 import { ethers, Contract, formatEther, parseEther, JsonRpcProvider, BrowserProvider } from 'ethers';
+import { mockLivestreams } from '../data/livestreams';
+import type { LivestreamDataType, MarketDataType } from '../../types/types';
 
 // API Base URL for backend calls
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3334/api';
@@ -847,4 +849,42 @@ function generateMockMarketLeaderboardData(limit: number): MarketLeaderboardEntr
   }
   
   return mockData.sort((a, b) => parseFloat(b.totalPool) - parseFloat(a.totalPool));
+}
+
+// Livestream leaderboard entry interface
+export interface LivestreamLeaderboardEntry {
+  rank: number;
+  livestreamId: number;
+  title: string;
+  creatorUsername: string;
+  totalBets: number;
+  totalVolume: string;
+  category: string;
+  status: string;
+  viewCount: number;
+  createdAt: number;
+  thumbnailUrl: string;
+  market_address: string;
+}
+
+// Fetch livestream leaderboard data from API
+export async function fetchLivestreamLeaderboardData(limit: number = 20): Promise<LivestreamLeaderboardEntry[]> {
+  // Use canonical mockLivestreams, rank by view_count (descending)
+  const sorted = [...mockLivestreams]
+    .sort((a, b) => (b.view_count || 0) - (a.view_count || 0))
+    .slice(0, limit);
+  return sorted.map((stream, idx) => ({
+    rank: idx + 1,
+    livestreamId: stream.id || idx + 1,
+    title: stream.title,
+    creatorUsername: stream.creator_wallet_address,
+    totalBets: 0, // You can update this if you have bet data
+    totalVolume: '0', // You can update this if you have volume data
+    category: stream.category || 'general',
+    status: stream.status,
+    viewCount: stream.view_count || 0,
+    createdAt: stream.created_at ? new Date(stream.created_at).getTime() : Date.now(),
+    thumbnailUrl: stream.thumbnail_url || '',
+    market_address: stream.market_address || '',
+  }));
 }

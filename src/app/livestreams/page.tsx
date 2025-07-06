@@ -4,17 +4,17 @@ import DashboardHeader from "../components/DashboardHeader";
 import StreamCard from "../components/StreamCard";
 import Marquee from "../components/Marquee";
 import { 
-  Livestream, 
   getActiveLivestreams, 
   getAllLivestreams,
  // getEndedLivestreams 
 } from '../lib/livestreamsApi';
+import type { LivestreamDataType } from '../../types/types';
 
 const LivestreamsPage = () => {
 
-  const [liveLivestreams, setLiveLivestreams] = useState<Livestream[]>([]);
-  const [exploreLivestreams, setExploreLivestreams] = useState<Livestream[]>([]);
- // const [searchResults, setSearchResults] = useState<Livestream[]>([]);
+  const [liveLivestreams, setLiveLivestreams] = useState<LivestreamDataType[]>([]);
+  const [exploreLivestreams, setExploreLivestreams] = useState<LivestreamDataType[]>([]);
+ // const [searchResults, setSearchResults] = useState<LivestreamDataType[]>([]);
  // const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { usePrivy } from '@privy-io/react-auth';
+import { X } from 'lucide-react';
 
 interface ConnectWalletProps {
   className?: string;
@@ -21,6 +22,11 @@ export default function ConnectWallet({
   color = 'yellow',
 }: ConnectWalletProps) {
   const { ready, authenticated, user, login, logout } = usePrivy();
+
+  const truncateAddress = (address: string) => {
+    if (address.length <= 8) return address;
+    return `${address.slice(0, 1)}..${address.slice(-1)}`;
+  };
 
   // Don't render anything until Privy is ready
   if (!ready) {
@@ -49,14 +55,16 @@ export default function ConnectWallet({
       return (
         <div className="flex items-stretch space-x-2 h-10">
           <div className={`flex items-center bg-green-400 text-black px-4 border-2 border-black rounded-none font-pixel uppercase tracking-wider text-xs h-full ${connectedClassName || ''}`}> 
-            <span>{displayAddress}</span>
+            <span className="hidden md:inline">{displayAddress}</span>
+            <span className="md:hidden">0x</span>
           </div>
           <button
             onClick={logout}
-            className={`flex items-center bg-red-500 hover:bg-red-400 text-black px-4 border-2 border-black rounded-none font-pixel uppercase tracking-wider transition-colors text-xs h-full ${disconnectClassName || ''}`}
+            className={`flex items-center justify-center bg-red-500 hover:bg-red-400 text-black px-4 border-2 border-black rounded-none font-pixel uppercase tracking-wider transition-colors text-xs h-full ${disconnectClassName || ''}`}
             style={{ minWidth: '90px' }}
           >
-            Disconnect
+            <span className="hidden md:inline">Disconnect</span>
+            <X size={16} className="md:hidden" />
           </button>
         </div>
       );

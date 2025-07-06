@@ -2,11 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { getMarketInfo, MarketState } from '../lib/contractsApi';
-import { MarketData } from '../lib/livestreamsApi';
+import type { MarketDataType } from '../../types/types';
+import { FaBullseye } from 'react-icons/fa';
 
 interface BettingIndicatorProps {
   livestreamId: number;
-  market?: MarketData;
+  market?: MarketDataType;
   className?: string;
 }
 

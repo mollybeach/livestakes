@@ -130,53 +130,53 @@ const VideoUploadModal: React.FC<VideoUploadModalProps> = ({ isOpen, onClose, us
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md">
+      <div className="bg-yellow-50 border-4 border-black rounded-none shadow-window-pixel w-full max-w-md">
         {/* Header */}
-        <div className="border-b border-gray-200 px-6 py-4">
+        <div className="border-b-4 border-black px-6 py-4 bg-pink-600">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-900">📹 Upload Video</h2>
+            <h2 className="text-lg font-bold text-yellow-50">📹 Upload Video</h2>
             <button
               onClick={handleClose}
               disabled={isUploading}
-              className="text-gray-400 hover:text-gray-600 transition-colors disabled:cursor-not-allowed"
+              className="text-yellow-200 hover:text-yellow-50 transition-colors disabled:cursor-not-allowed"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           </div>
-          <p className="text-sm text-gray-600 mt-1">Upload your hackathon project video</p>
+          <p className="text-sm text-yellow-200 mt-1">Upload your hackathon project video</p>
         </div>
 
         {/* Content */}
-        <div className="px-6 py-4 space-y-4">
+        <div className="px-6 py-4 space-y-4 bg-yellow-50">
           {/* Error Message */}
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+            <div className="bg-red-100 border-2 border-red-500 rounded-none p-3">
               <div className="flex items-center">
-                <svg className="w-5 h-5 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 text-red-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <p className="text-red-700 text-sm">{error}</p>
+                <p className="text-red-800 text-sm font-medium">{error}</p>
               </div>
             </div>
           )}
 
           {/* Success Message */}
           {success && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+            <div className="bg-green-100 border-2 border-green-500 rounded-none p-3">
               <div className="flex items-center">
-                <svg className="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <p className="text-green-700 text-sm">{success}</p>
+                <p className="text-green-800 text-sm font-medium">{success}</p>
               </div>
             </div>
           )}
 
           {/* File Selection */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-bold text-black mb-2">
               Select Video File
             </label>
             <input
@@ -184,10 +184,10 @@ const VideoUploadModal: React.FC<VideoUploadModalProps> = ({ isOpen, onClose, us
               accept="video/*"
               onChange={handleFileChange}
               disabled={isUploading}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+              className="w-full px-3 py-2 border-2 border-black bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 disabled:bg-gray-100 disabled:cursor-not-allowed rounded-none"
             />
             {selectedFile && (
-              <p className="text-sm text-gray-600 mt-1">
+              <p className="text-sm text-gray-600 mt-1 font-medium">
                 Selected: {selectedFile.name} ({(selectedFile.size / 1024 / 1024).toFixed(1)} MB)
               </p>
             )}
@@ -196,28 +196,28 @@ const VideoUploadModal: React.FC<VideoUploadModalProps> = ({ isOpen, onClose, us
           {/* Market Selection */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-bold text-black">
                 Select Market
               </label>
               <button
                 onClick={fetchAvailableMarkets}
                 disabled={isLoadingMarkets || isUploading}
-                className="text-xs text-green-600 hover:text-green-800 disabled:text-gray-400 disabled:cursor-not-allowed"
+                className="text-xs bg-purple-600 hover:bg-purple-700 text-yellow-50 px-2 py-1 border border-black rounded-none font-bold disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
               >
                 🔄 Refresh
               </button>
             </div>
             {isLoadingMarkets ? (
-              <div className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 flex items-center">
-                <div className="w-4 h-4 border-2 border-green-500 border-t-transparent rounded-full animate-spin mr-2"></div>
-                <span className="text-gray-600">Loading markets...</span>
+              <div className="w-full px-3 py-2 border-2 border-black bg-white flex items-center">
+                <div className="w-4 h-4 border-2 border-purple-500 border-t-transparent rounded-full animate-spin mr-2"></div>
+                <span className="text-black font-medium">Loading markets...</span>
               </div>
             ) : availableMarkets.length > 0 ? (
               <select
                 value={marketAddress}
                 onChange={(e) => setMarketAddress(e.target.value)}
                 disabled={isUploading}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                className="w-full px-3 py-2 border-2 border-black bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 disabled:bg-gray-100 disabled:cursor-not-allowed rounded-none font-medium"
               >
                 <option value="">Choose a market...</option>
                 {availableMarkets.map((market) => (
@@ -227,15 +227,15 @@ const VideoUploadModal: React.FC<VideoUploadModalProps> = ({ isOpen, onClose, us
                 ))}
               </select>
             ) : (
-              <div className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50">
-                <div className="text-gray-500 text-center mb-2">No markets available</div>
+              <div className="w-full px-3 py-2 border-2 border-black bg-white">
+                <div className="text-black text-center mb-2 font-medium">No markets available</div>
                 <button
                   onClick={() => {
                     handleClose();
                     // This would trigger the market creation modal
                     // You could add a callback prop to open market creation
                   }}
-                  className="w-full text-xs bg-purple-100 hover:bg-purple-200 text-purple-700 py-1 px-2 rounded transition-colors"
+                  className="w-full text-xs bg-purple-600 hover:bg-purple-700 text-yellow-50 py-1 px-2 border border-black rounded-none font-bold transition-colors"
                 >
                   📊 Create New Market First
                 </button>
@@ -244,19 +244,19 @@ const VideoUploadModal: React.FC<VideoUploadModalProps> = ({ isOpen, onClose, us
             
             {/* Show selected market details */}
             {marketAddress && availableMarkets.length > 0 && (
-              <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="mt-2 p-3 bg-purple-100 border-2 border-purple-500 rounded-none">
                 {(() => {
                   const selectedMarket = availableMarkets.find(m => m.contract_address === marketAddress);
                   return selectedMarket ? (
                     <div className="text-sm">
-                      <p className="font-medium text-blue-900">
+                      <p className="font-bold text-purple-900">
                         {selectedMarket.category || 'General'} Market
                       </p>
-                      <p className="text-blue-700 text-xs break-all">
+                      <p className="text-purple-700 text-xs break-all font-medium">
                         Contract: {selectedMarket.contract_address}
                       </p>
                       {selectedMarket.description && (
-                        <p className="text-blue-600 text-xs mt-1">
+                        <p className="text-purple-600 text-xs mt-1">
                           {selectedMarket.description}
                         </p>
                       )}
@@ -266,7 +266,7 @@ const VideoUploadModal: React.FC<VideoUploadModalProps> = ({ isOpen, onClose, us
               </div>
             )}
             
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-600 mt-1 font-medium">
               Choose the market to associate this video with
             </p>
           </div>
@@ -275,11 +275,11 @@ const VideoUploadModal: React.FC<VideoUploadModalProps> = ({ isOpen, onClose, us
           <button
             onClick={handleUpload}
             disabled={isUploading || !selectedFile || !marketAddress || !userWalletAddress}
-            className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center"
+            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed text-yellow-50 font-bold py-3 px-4 border-2 border-black rounded-none transition-all duration-200 flex items-center justify-center uppercase text-sm"
           >
             {isUploading ? (
               <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                <div className="w-4 h-4 border-2 border-yellow-50 border-t-transparent rounded-full animate-spin mr-2"></div>
                 Uploading & Processing...
               </>
             ) : !userWalletAddress ? (
@@ -342,31 +342,31 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 
   return (
     <>
-      <div className="bg-pink-500/90 border-4 border-black rounded-none shadow-window-pixel mb-6">
-        <div className="flex items-center justify-between px-3 py-1 bg-pink-600 text-yellow-50">
-          <div className="flex items-center gap-4">
+      <div className="bg-pink-500/90 border-4 border-black rounded-none shadow-window-pixel mb-4 sm:mb-6">
+        <div className="flex items-center justify-between px-2 sm:px-3 py-1 bg-pink-600 text-yellow-50">
+          <div className="flex items-center gap-2 sm:gap-4">
             {showBackButton && (
               <Link href="/" className="text-yellow-50 hover:text-yellow-200 transition-colors">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
               </Link>
             )}
-            <span className="text-lg font-bold">{title}</span>
+            <span className="text-base sm:text-lg font-bold">{title}</span>
           </div>
           
           {showStats && (
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               <div className="text-center">
-                <div className="text-sm font-bold text-yellow-50">{totalStreams}</div>
+                <div className="text-xs sm:text-sm font-bold text-yellow-50">{totalStreams}</div>
                 <div className="text-xs text-yellow-200">Streams</div>
               </div>
               <div className="text-center">
-                <div className="text-sm font-bold text-green-400">{liveStreams}</div>
+                <div className="text-xs sm:text-sm font-bold text-green-400">{liveStreams}</div>
                 <div className="text-xs text-yellow-200">Live</div>
               </div>
               <div className="flex items-center gap-1">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse border border-black"></div>
+                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full animate-pulse border border-black"></div>
                 <span className="text-green-400 text-xs font-bold">LIVE</span>
               </div>
             </div>
@@ -374,26 +374,30 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
         </div>
         
         {/* Action Buttons */}
-        <div className="bg-yellow-50 p-4 text-black text-sm">
-          <div className="flex items-center gap-3">
+        <div className="bg-yellow-50 p-2 sm:p-4 text-black text-xs sm:text-sm">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             <button 
               onClick={() => setShowMarketCreation(true)}
-              className="bg-pink-600 hover:bg-pink-700 text-yellow-50 px-3 py-1 border border-black rounded-none uppercase text-xs transition-colors"
+              className="bg-pink-600 hover:bg-pink-700 text-yellow-50 px-2 sm:px-3 py-1 border border-black rounded-none uppercase text-xs transition-colors"
             >
-              Create Market
+              <span className="hidden sm:inline">Create Market</span>
+              <span className="sm:hidden">Market</span>
             </button>
             <button 
               onClick={() => setShowVideoUpload(true)}
               disabled={!authenticated}
-              className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-yellow-50 px-3 py-1 border border-black rounded-none uppercase text-xs transition-colors"
+              className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-yellow-50 px-2 sm:px-3 py-1 border border-black rounded-none uppercase text-xs transition-colors"
             >
-              📹 Upload Video
+              <span className="hidden sm:inline">📹 Upload Video</span>
+              <span className="sm:hidden">📹 Upload</span>
             </button>
-            <button className="bg-yellow-400 hover:bg-yellow-300 text-black px-3 py-1 border border-black rounded-none uppercase text-xs transition-colors">
-              Browse Categories
+            <button className="bg-yellow-400 hover:bg-yellow-300 text-black px-2 sm:px-3 py-1 border border-black rounded-none uppercase text-xs transition-colors">
+              <span className="hidden sm:inline">Browse Categories</span>
+              <span className="sm:hidden">Browse</span>
             </button>
-            <button className="bg-yellow-400 hover:bg-yellow-300 text-black px-3 py-1 border border-black rounded-none uppercase text-xs transition-colors">
-              View History
+            <button className="bg-yellow-400 hover:bg-yellow-300 text-black px-2 sm:px-3 py-1 border border-black rounded-none uppercase text-xs transition-colors">
+              <span className="hidden sm:inline">View History</span>
+              <span className="sm:hidden">History</span>
             </button>
           </div>
         </div>

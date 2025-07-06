@@ -1,6 +1,7 @@
 import pool from './db';
 import { ensureDatabaseExists } from './dbInitialization';
 import { runMigrations } from './migrations';
+import type { MarketDataType, LivestreamDataType } from '../types';
 
 // Market information from blockchain + metadata
 export interface MarketData {

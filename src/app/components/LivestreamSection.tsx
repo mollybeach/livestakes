@@ -1,12 +1,13 @@
 'use client';
 
-import { Livestream } from '../lib/livestreamsApi';
+import React from 'react';
 import LivestreamCard from './LivestreamCard';
+import type { LivestreamDataType } from '../../types/types';
 
 interface LivestreamSectionProps {
   title: string;
-  livestreams: Livestream[];
-  onLivestreamView?: (livestream: Livestream) => void;
+  livestreams: LivestreamDataType[];
+  onLivestreamView?: (livestream: LivestreamDataType) => void;
   emptyMessage?: string;
   showViewAll?: boolean;
   onViewAll?: () => void;

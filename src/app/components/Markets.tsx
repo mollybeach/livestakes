@@ -28,6 +28,7 @@ interface Market {
   odds?: string;
   prediction?: string;
   result?: 'Won' | 'Lost' | 'Pending';
+  contract_address?: string;
 }
 
 interface MarketsProps {
@@ -128,7 +129,21 @@ const Markets: React.FC<MarketsProps> = ({ markets = [] }) => {
             <div key={market.id} className="bg-periwinkle border-4 border-black p-6 hover:-translate-y-1 transition-transform">
               {/* Header */}
               <div className="flex justify-between items-start mb-4">
-                <h3 className="text-lg font-bold text-cream flex-1 mr-2">{market.title}</h3>
+                <div className="flex-1 mr-2">
+                  <h3 className="text-lg font-bold text-cream">{market.title}</h3>
+                  {/* Contract Address */}
+                  {market.contract_address && (
+                    <a
+                      href={`https://testnet.flowdiver.io/address/${market.contract_address}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block mt-1 text-xs font-mono text-yellow-200 hover:text-yellow-400 underline cursor-pointer w-fit"
+                      title={market.contract_address}
+                    >
+                      {market.contract_address.slice(0, 6)}...{market.contract_address.slice(-4)}
+                    </a>
+                  )}
+                </div>
                 <div className="flex items-center gap-2">
                   {getStatusIcon(market.status)}
                   <span className={`px-2 py-1 text-xs font-pixel border-2 border-black ${getStatusColor(market.status)}`}>

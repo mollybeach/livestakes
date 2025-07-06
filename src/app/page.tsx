@@ -1,11 +1,13 @@
 "use client";
-// path: pages/index.tsx    /* or app/page.tsx if you're on the App Router */
+// path: src/app/page.tsx    /* or app/page.tsx if you're on the App Router */
 import React, { useState } from "react";
 import DashboardHeader from "./components/DashboardHeader";
 import StreamCard from "./components/StreamCard";
 import Marquee from "./components/Marquee";
-import { Livestream, getActiveLivestreams, getAllLivestreams } from './lib/livestreamsApi';
+import { getActiveLivestreams, getAllLivestreams } from './lib/livestreamsApi';
 import HomeModal, { HomeModalContent } from "./components/HomeModal";
+// path: server/src/types.ts
+import type { LivestreamDataType } from '../types/types';
 
 /**
  * Home page – pixel-window aesthetic
@@ -18,8 +20,8 @@ import HomeModal, { HomeModalContent } from "./components/HomeModal";
  */
 export default function Home() {
   const [modalOpen, setModalOpen] = useState(true);
-  const [liveLivestreams, setLiveLivestreams] = React.useState<Livestream[]>([]);
-  const [exploreLivestreams, setExploreLivestreams] = React.useState<Livestream[]>([]);
+  const [liveLivestreams, setLiveLivestreams] = React.useState<LivestreamDataType[]>([]);
+  const [exploreLivestreams, setExploreLivestreams] = React.useState<LivestreamDataType[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
 
@@ -52,7 +54,7 @@ export default function Home() {
       </HomeModal>
       {/* Main content */}
       <main className="flex-1 overflow-y-auto">
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           {/* Top marquee bar */}
           <Marquee />
           {/* Header */}
@@ -84,7 +86,7 @@ export default function Home() {
             </div>
           )}
           {/* Grid of streams - Show ALL streams */}
-          <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+          <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-6">
             {exploreLivestreams.length > 0 ? (
               exploreLivestreams.map((stream) => (
                 <StreamCard key={stream.id} {...stream} status='live' />

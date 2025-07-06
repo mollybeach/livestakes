@@ -1,7 +1,7 @@
 import React from "react";
 
 const TradePanel: React.FC = () => (
-  <aside className="border-4 border-black bg-butter shadow-window-pixel w-64">
+  <aside className="border-4 border-black bg-butter shadow-window-pixel w-64 max-h-[22rem] h-fit overflow-auto">
     <div className="flex items-center justify-between bg-plum text-cream px-2 py-1 border-b-4 border-black">
       <span className="font-pixel text-xs">TRADE</span>
       <button className="bg-gold text-black px-1 border border-black leading-none font-pixel">

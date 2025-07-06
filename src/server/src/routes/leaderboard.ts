@@ -4,6 +4,21 @@ import { Contract, JsonRpcProvider } from 'ethers';
 
 const router = Router();
 
+// Livestream leaderboard entry interface
+interface LivestreamLeaderboardEntry {
+  rank: number;
+  livestreamId: number;
+  title: string;
+  creatorUsername: string;
+  totalBets: number;
+  totalVolume: string;
+  category: string;
+  status: string;
+  viewCount: number;
+  createdAt: number;
+  thumbnailUrl: string;
+}
+
 // Market leaderboard entry interface
 interface MarketLeaderboardEntry {
   rank: number;
@@ -17,7 +32,69 @@ interface MarketLeaderboardEntry {
   livestreamTitles: string[];
 }
 
-// Get market leaderboard data based on betting activity
+// Get livestream leaderboard data based on betting activity
+router.get('/livestreams', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit as string) || 20;
+    
+    const client = await pool.connect();
+    
+    try {
+      // Get livestreams with betting data
+      const result = await client.query(`
+        SELECT 
+          l.id,
+          l.title,
+          l.category,
+          l.status,
+          l.view_count,
+          l.thumbnail_url,
+          l.created_at,
+          l.creator_wallet_address,
+          u.username as creator_username,
+          COALESCE(COUNT(DISTINCT b.id), 0) as total_bets,
+          COALESCE(SUM(CAST(b.amount AS DECIMAL)), 0) as total_volume
+        FROM livestreams l
+        LEFT JOIN users u ON l.creator_wallet_address = u.wallet_address
+        LEFT JOIN bets b ON l.id = b.livestream_id
+        GROUP BY l.id, l.title, l.category, l.status, l.view_count, l.thumbnail_url, l.created_at, l.creator_wallet_address, u.username
+        ORDER BY total_volume DESC, total_bets DESC, l.view_count DESC
+        LIMIT $1
+      `, [limit]);
+      
+      const leaderboardData: LivestreamLeaderboardEntry[] = result.rows.map((row, index) => ({
+        rank: index + 1,
+        livestreamId: row.id,
+        title: row.title,
+        creatorUsername: row.creator_username || 'Anonymous',
+        totalBets: parseInt(row.total_bets),
+        totalVolume: parseFloat(row.total_volume).toFixed(2),
+        category: row.category || 'general',
+        status: row.status,
+        viewCount: row.view_count,
+        createdAt: new Date(row.created_at).getTime(),
+        thumbnailUrl: row.thumbnail_url
+      }));
+      
+      res.json({
+        success: true,
+        leaderboard: leaderboardData
+      });
+      
+    } finally {
+      client.release();
+    }
+    
+  } catch (error) {
+    console.error('Error fetching livestream leaderboard data:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch livestream leaderboard data'
+    });
+  }
+});
+
+// Get market leaderboard data based on betting activity (keeping for backward compatibility)
 router.get('/markets', async (req, res) => {
   try {
     const limit = parseInt(req.query.limit as string) || 20;

@@ -1,6 +1,6 @@
 "use client";
 //path: components/PredictionGraph.tsx
-import React from "react";
+import React, { useState, useEffect } from 'react';
 import {
   LineChart,
   Line,
@@ -10,8 +10,13 @@ import {
   ResponsiveContainer,
   CartesianGrid,
   Legend,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
 } from "recharts";
-import { Livestream } from "../data/livestreams";
+import type { LivestreamDataType } from '../../types/types';
 
 /**
  * PredictionGraph – pixel-window line chart
@@ -43,10 +48,11 @@ const COLORS = [
 /* ------------------------------------------------------------------ */
 interface PredictionGraphProps {
   series: Array<{ t: string } & Record<string, number | string>>;
-  streams: Livestream[]; // used for labels
+  streams: LivestreamDataType[]; // used for labels
+  marketAddress: string;
 }
 
-const PredictionGraph: React.FC<PredictionGraphProps> = ({ series, streams }) => {
+const PredictionGraph: React.FC<PredictionGraphProps> = ({ series, streams, marketAddress }) => {
   /* build legend mapping id → title */
   const legend = streams.reduce<Record<string, string>>((acc, s) => {
     if (s.id) {
@@ -54,6 +60,13 @@ const PredictionGraph: React.FC<PredictionGraphProps> = ({ series, streams }) =>
     }
     return acc;
   }, {});
+
+  const filteredSeries = series.filter(item => {
+    const streamId = Object.keys(item)[1] as string;
+    return item[streamId] !== undefined && typeof item[streamId] === 'number' && item[streamId] !== 0;
+  });
+
+  const filteredStreams = streams.filter(s => s.market_address === marketAddress);
 
   return (
     <section className="max-w-3xl mx-auto my-8">
@@ -70,7 +83,7 @@ const PredictionGraph: React.FC<PredictionGraphProps> = ({ series, streams }) =>
         {/* chart area */}
         <div className="bg-pink-100 p-4">
           <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={series}>
+            <LineChart data={filteredSeries}>
               <CartesianGrid
                 stroke="#8b5cf6"
                 strokeDasharray="1 6"
@@ -103,7 +116,7 @@ const PredictionGraph: React.FC<PredictionGraphProps> = ({ series, streams }) =>
                 }}
                 iconType="square"
               />
-              {streams.slice(0, COLORS.length).map((s, idx) => (
+              {filteredStreams.slice(0, COLORS.length).map((s, idx) => (
                 <Line
                   key={s.id}
                   type="monotone"

@@ -1,13 +1,15 @@
 'use client';
 
+import React from 'react';
 import Image from 'next/image';
-import { Livestream, formatLivestreamTime, getStatusColor, incrementViewCount } from '../lib/livestreamsApi';
+import { formatLivestreamTime, getStatusColor, incrementViewCount } from '../lib/livestreamsApi';
+import type { LivestreamDataType } from '../../types/types';
 
 
 
 interface LivestreamCardProps {
-  livestream: Livestream;
-  onView?: (livestream: Livestream) => void;
+  livestream: LivestreamDataType;
+  onView?: (livestream: LivestreamDataType) => void;
 }
 
 
@@ -28,7 +30,7 @@ export default function LivestreamCard({ livestream, onView }: LivestreamCardPro
   };
 
   const statusColor = getStatusColor(livestream.status);
-  const isLive = livestream.status === 'live';
+  const isActive = livestream.status === 'active';
 
   return (
     <div 
@@ -56,7 +58,7 @@ export default function LivestreamCard({ livestream, onView }: LivestreamCardPro
         {/* Status badge */}
         <div className="absolute top-3 left-3">
           <span className={`px-2 py-1 rounded-full text-xs font-semibold text-white ${statusColor}`}>
-            {isLive && <span className="mr-1">🔴</span>}
+            {isActive && <span className="mr-1">🔴</span>}
             {livestream.status.toUpperCase()}
           </span>
         </div>
@@ -71,11 +73,9 @@ export default function LivestreamCard({ livestream, onView }: LivestreamCardPro
         )}
 
         {/* Live indicator */}
-        {isLive && (
-          <div className="absolute bottom-3 left-3">
-            <div className="bg-red-600 px-2 py-1 rounded text-xs font-semibold text-white animate-pulse">
-              LIVE
-            </div>
+        {livestream.status === 'active' && (
+          <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-bold">
+            LIVE
           </div>
         )}
       </div>
@@ -118,10 +118,33 @@ export default function LivestreamCard({ livestream, onView }: LivestreamCardPro
           {livestream.status === 'ended' && livestream.end_time && (
             <div>Ended: {formatLivestreamTime(livestream.end_time)}</div>
           )}
-          {livestream.status === 'live' && livestream.start_time && (
+          {livestream.status === 'active' && livestream.start_time && (
             <div>Started: {formatLivestreamTime(livestream.start_time)}</div>
           )}
         </div>
+
+        {/* Watch Live button */}
+        {livestream.status === 'active' ? (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onView?.(livestream);
+            }}
+            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-semibold transition-colors w-full mt-3"
+          >
+            Watch Live
+          </button>
+        ) : (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onView?.(livestream);
+            }}
+            className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-semibold transition-colors w-full mt-3"
+          >
+            View Details
+          </button>
+        )}
       </div>
     </div>
   );

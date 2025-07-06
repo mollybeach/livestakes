@@ -60,8 +60,8 @@ export const viewport = {
   themeColor: "#fcd34d",
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false
+  maximumScale: 5,
+  userScalable: true
 };
 
 /* ------------------------------------------------------------------ */
@@ -117,9 +117,9 @@ export default function RootLayout({
       <body className="min-h-screen bg-pink-200 text-purple-900" suppressHydrationWarning={true}>
         <ClientWrapper>
           <Header />
-          <div className="flex">
+          <div className="flex flex-col lg:flex-row">
             <SideNav />
-            <main className="flex-1">
+            <main className="flex-1 min-h-screen">
               {children}
             </main>
           </div>

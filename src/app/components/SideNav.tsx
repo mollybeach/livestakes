@@ -16,6 +16,7 @@ import {
   BarChart3,
   Star,
   BookOpen,
+  Folder,
 } from "lucide-react";
 import Button from "./ui/button";
 import NavItem from "./NavItem";
@@ -35,6 +36,7 @@ const SideNav = () => {
     { icon: <Trophy size={16} />, label: "Leaderboard", href: "/leaderboard", active: pathname === "/leaderboard" },
     { icon: <BarChart3 size={16} />, label: "Chart", href: "/chart", active: pathname === "/chart" },
     { icon: <Store size={16} />, label: "Markets", href: "/markets", active: pathname === "/markets" },
+    { icon: <Folder size={16} />, label: "Projects", href: "/projects", active: pathname === "/projects" },
     { icon: <Star size={16} />, label: "Features", href: "/features", active: pathname === "/features" },
     { icon: <BookOpen size={16} />, label: "How It Works", href: "/howitworks", active: pathname === "/howitworks" },
     { icon: <MessageCircle size={16} />, label: "Chat", href: "/chat", active: pathname === "/chat" },
@@ -42,7 +44,7 @@ const SideNav = () => {
   ];
 
   return (
-    <aside className={`${isCollapsed ? 'w-16' : 'w-52'} bg-fuchsia text-cream flex flex-col gap-2 py-6 border-r-4 border-black transition-all duration-300 relative`}>
+    <aside className={`hidden lg:flex ${isCollapsed ? 'w-16' : 'w-52'} bg-fuchsia text-cream flex-col gap-2 py-6 border-r-4 border-black transition-all duration-300 relative`}>
       {/* Toggle Button */}
       <button
         onClick={toggleCollapse}
