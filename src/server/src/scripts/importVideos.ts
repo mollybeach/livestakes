@@ -90,23 +90,38 @@ class VideoImporter {
       return;
     }
     
-    console.log(`📁 Found ${files.length} video files to import (MP4/MOV)`);
+    // Sort files by size (smallest first)
+    const filesWithSize = files.map(file => {
+      const filePath = path.join(inputDirectory, file);
+      const stats = fs.statSync(filePath);
+      return {
+        name: file,
+        size: stats.size,
+        sizeFormatted: (stats.size / 1024 / 1024).toFixed(1) + ' MB'
+      };
+    }).sort((a, b) => a.size - b.size);
+    
+    console.log(`📁 Found ${filesWithSize.length} video files to import (MP4/MOV)`);
+    console.log('📏 Files ordered by size (smallest first):');
+    filesWithSize.forEach((file, index) => {
+      console.log(`   ${index + 1}. ${file.name} (${file.sizeFormatted})`);
+    });
     
     let successCount = 0;
     let errorCount = 0;
     
-    for (const file of files) {
+    for (const fileInfo of filesWithSize) {
       try {
-        const filePath = path.join(inputDirectory, file);
+        const filePath = path.join(inputDirectory, fileInfo.name);
         
-        console.log(`\n🎯 Processing: ${file}`);
+        console.log(`\n🎯 Processing: ${fileInfo.name} (${fileInfo.sizeFormatted})`);
         
         // Upload via API (handles MOV conversion, AI analysis, GCP upload, and database creation)
         const result = await this.uploadVideoViaAPI(filePath, marketAddress, creatorWalletAddress);
         
         if (result.success) {
           successCount++;
-          console.log(`✅ Successfully imported: ${file} (${successCount}/${files.length})`);
+          console.log(`✅ Successfully imported: ${fileInfo.name} (${successCount}/${filesWithSize.length})`);
           console.log(`   📹 Video URL: ${result.videoUrl}`);
           console.log(`   🆔 Livestream ID: ${result.livestream?.id}`);
           
@@ -117,19 +132,19 @@ class VideoImporter {
           }
         } else {
           errorCount++;
-          console.error(`❌ Failed to import ${file}: ${result.error}`);
+          console.error(`❌ Failed to import ${fileInfo.name}: ${result.error}`);
         }
         
       } catch (error) {
         errorCount++;
-        console.error(`❌ Failed to import ${file}:`, error);
+        console.error(`❌ Failed to import ${fileInfo.name}:`, error);
       }
     }
     
     console.log(`\n📊 Import Summary:`);
     console.log(`✅ Successfully imported: ${successCount} videos`);
     console.log(`❌ Failed to import: ${errorCount} videos`);
-    console.log(`📁 Total files processed: ${files.length}`);
+    console.log(`📁 Total files processed: ${filesWithSize.length}`);
   }
 
   public async importSingleVideo(
