@@ -9,6 +9,7 @@ import Head from "next/head";
 import SideNav from "./components/SideNav";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import BottomNavigation from "./components/BottomNavigation";
 
 /* ------------------------------------------------------------------ */
 /*  Global metadata                                                   */
@@ -99,7 +100,7 @@ export default function RootLayout({
         {/* Google Analytics */}
         <Script
           strategy="afterInteractive"
-          src="https://www.googletagmanager.com/gtag/js?id=G-KNZ740QZ04"
+          src="https://www.googletagmanager.com/gtag/js?id=G-VKE3E2JMVE"
         />
         <Script
           id="google-analytics"
@@ -109,7 +110,7 @@ export default function RootLayout({
               window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
               gtag('js', new Date());
-              gtag('config', 'G-KNZ740QZ04', { page_path: window.location.pathname });
+              gtag('config', 'G-VKE3E2JMVE', { page_path: window.location.pathname });
             `,
           }}
         />
@@ -120,14 +121,25 @@ export default function RootLayout({
       {/* ---------------------------------------------------------------- */}
       <body className="min-h-screen bg-pink-200 text-purple-900" suppressHydrationWarning={true}>
         <ClientWrapper>
-          <Header />
+          {/* Header - hidden on mobile */}
+          <div className="hidden md:block">
+            <Header />
+          </div>
           <div className="flex">
-            <SideNav />
-            <main className="flex-1">
+            {/* Hide SideNav on mobile (hidden lg:flex) */}
+            <div className="hidden lg:flex">
+              <SideNav />
+            </div>
+            <main className="flex-1 w-full md:pb-0 pb-20">
               {children}
             </main>
           </div>
-          <Footer />
+          {/* Footer - hidden on mobile */}
+          <div className="hidden md:block">
+            <Footer />
+          </div>
+          {/* Bottom Navigation - mobile only */}
+          <BottomNavigation />
           <PWAProvider />
         </ClientWrapper>
       </body>

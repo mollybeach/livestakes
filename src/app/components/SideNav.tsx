@@ -21,7 +21,7 @@ import Button from "./ui/button";
 import NavItem from "./NavItem";
 
 const SideNav = () => {
-  const [isCollapsed, setIsCollapsed] = useState(true);
+  const [isCollapsed, setIsCollapsed] = useState(false); // Default to expanded on desktop
   const pathname = usePathname();
 
   const toggleCollapse = () => {
@@ -42,16 +42,16 @@ const SideNav = () => {
   ];
 
   return (
-    <aside className={`${isCollapsed ? 'w-16' : 'w-52'} bg-fuchsia text-cream flex flex-col gap-2 py-6 border-r-4 border-black transition-all duration-300 relative`}>
+    <aside className={`${isCollapsed ? 'w-16' : 'w-52'} bg-fuchsia text-cream flex flex-col gap-2 py-4 lg:py-6 border-r-4 border-black transition-all duration-300 relative h-screen overflow-y-auto`}>
       {/* Toggle Button */}
       <button
         onClick={toggleCollapse}
-        className="absolute -right-3 top-6 bg-periwinkle text-cream p-1 rounded-full border-2 border-black hover:bg-purple-800 transition-colors"
+        className="absolute -right-3 top-4 lg:top-6 bg-periwinkle text-cream p-1 rounded-full border-2 border-black hover:bg-purple-800 transition-colors z-10"
       >
         {isCollapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
       </button>
 
-      <nav className="flex flex-col gap-3 px-3">
+      <nav className="flex flex-col gap-2 px-3 pt-8">
         {navItems.map((item) => (
           <Link key={item.href} href={item.href}>
             <NavItem 
@@ -65,7 +65,7 @@ const SideNav = () => {
       </nav>
       
       {!isCollapsed && (
-        <Button className="mx-3 mt-6 bg-gold hover:bg-butter text-black border border-black font-pixel uppercase tracking-wider">
+        <Button className="mx-3 mt-4 lg:mt-6 bg-gold hover:bg-butter text-black border border-black font-pixel uppercase tracking-wider text-xs">
           Create Market
         </Button>
       )}

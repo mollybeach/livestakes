@@ -152,8 +152,8 @@ const StreamCard: React.FC<StreamCardProps> = ({
           /* Fallback to placeholder if no video */
           <div className="w-full h-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center">
             <div className="text-white text-center">
-              <div className="text-4xl mb-2">🎬</div>
-              <div className="text-sm">No Video</div>
+              <div className="text-2xl sm:text-4xl mb-2">🎬</div>
+              <div className="text-xs sm:text-sm">No Video</div>
             </div>
           </div>
         )}
@@ -162,8 +162,8 @@ const StreamCard: React.FC<StreamCardProps> = ({
         {videoError && stream_url && (
           <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-red-400 to-pink-400 flex items-center justify-center">
             <div className="text-white text-center">
-              <div className="text-4xl mb-2">⚠️</div>
-              <div className="text-sm">Video Error</div>
+              <div className="text-2xl sm:text-4xl mb-2">⚠️</div>
+              <div className="text-xs sm:text-sm">Video Error</div>
             </div>
           </div>
         )}
@@ -172,11 +172,11 @@ const StreamCard: React.FC<StreamCardProps> = ({
         {stream_url && (
           <button
             onClick={toggleMute}
-            className="absolute top-3 right-3 w-8 h-8 bg-black bg-opacity-60 hover:bg-opacity-80 rounded-full flex items-center justify-center text-white transition-all duration-200"
+            className="absolute top-2 right-2 w-6 h-6 sm:w-8 sm:h-8 bg-black bg-opacity-60 hover:bg-opacity-80 rounded-full flex items-center justify-center text-white transition-all duration-200"
           >
             {isMuted ? (
               <svg
-                className="w-4 h-4"
+                className="w-3 h-3 sm:w-4 sm:h-4"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -197,7 +197,7 @@ const StreamCard: React.FC<StreamCardProps> = ({
               </svg>
             ) : (
               <svg
-                className="w-4 h-4"
+                className="w-3 h-3 sm:w-4 sm:h-4"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -217,7 +217,7 @@ const StreamCard: React.FC<StreamCardProps> = ({
         {/* Loading indicator */}
         {stream_url && !videoError && !isVideoReady && (
           <div className="absolute inset-0 flex items-center justify-center bg-gray-900">
-            <div className="w-8 h-8 border-4 border-purple-400 border-t-transparent rounded-full animate-spin"></div>
+            <div className="w-6 h-6 sm:w-8 sm:h-8 border-4 border-purple-400 border-t-transparent rounded-full animate-spin"></div>
           </div>
         )}
 
@@ -227,14 +227,14 @@ const StreamCard: React.FC<StreamCardProps> = ({
         )}
       </div>
 
-      {/* Content below video */}
-      <div className="p-4">
+      {/* Content below video - more compact on mobile */}
+      <div className="p-3 sm:p-4">
         {/* Creator info */}
-        <div className="flex items-center gap-3 mb-3">
+        <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
           <img 
             src="https://randomuser.me/api/portraits/men/32.jpg" 
             alt={title} 
-            className="w-8 h-8 rounded-full border border-gray-300" 
+            className="w-6 h-6 sm:w-8 sm:h-8 rounded-full border border-gray-300" 
           />
           <div className="flex-1 min-w-0">
             <p className="text-xs text-gray-500 truncate">
@@ -245,33 +245,33 @@ const StreamCard: React.FC<StreamCardProps> = ({
         </div>
 
         {/* Title and Description */}
-        <div className="mb-3">
-          <h3 className="text-sm font-semibold text-gray-900 mb-1 line-clamp-2 leading-tight">{title}</h3>
+        <div className="mb-2 sm:mb-3">
+          <h3 className="text-xs sm:text-sm font-semibold text-gray-900 mb-1 line-clamp-2 leading-tight">{title}</h3>
           {description && (
-            <p className="text-xs text-gray-600 line-clamp-3 leading-relaxed">{description}</p>
+            <p className="text-xs text-gray-600 line-clamp-2 sm:line-clamp-3 leading-relaxed">{description}</p>
           )}
         </div>
 
-        {/* Stats */}
-        <div className="flex flex-wrap gap-2 mb-3">
+        {/* Stats - more compact on mobile */}
+        <div className="flex flex-wrap gap-1 sm:gap-2 mb-2 sm:mb-3">
           {typeof view_count === 'number' && (
-            <span className="text-xs bg-purple-100 text-purple-700 font-medium px-2 py-1 rounded-full">
+            <span className="text-xs bg-purple-100 text-purple-700 font-medium px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full">
               👁️ {view_count}
             </span>
           )}
           {start_time && (
-            <span className="text-xs bg-gray-100 text-gray-700 font-medium px-2 py-1 rounded-full">
+            <span className="text-xs bg-gray-100 text-gray-700 font-medium px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full">
               {new Date(start_time).toLocaleDateString()}
             </span>
           )}
           {id && <BettingIndicator livestreamId={id} market={market} />}
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex gap-2">
+        {/* Action Buttons - stack on very small screens */}
+        <div className="flex flex-col sm:flex-row gap-1.5 sm:gap-2">
           <Button 
             onClick={() => setShowBettingModal(true)}
-            className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg font-medium text-sm py-2.5 transition-all duration-200 flex items-center justify-center gap-2"
+            className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg font-medium text-xs sm:text-sm py-2 sm:py-2.5 transition-all duration-200 flex items-center justify-center gap-1 sm:gap-2"
           >
             <span>🎯</span>
             <span>Bet on Project</span>
@@ -279,12 +279,13 @@ const StreamCard: React.FC<StreamCardProps> = ({
           {id && (
             <button
               onClick={() => setShowMarketAssociation(true)}
-              className="px-3 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-colors text-sm"
+              className="sm:flex-shrink-0 px-2 sm:px-3 py-2 sm:py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-colors text-sm flex items-center justify-center"
               title="Associate Market"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
               </svg>
+              <span className="ml-1 sm:hidden">Link</span>
             </button>
           )}
         </div>

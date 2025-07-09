@@ -1,27 +1,44 @@
 "use client";
 // path: pages/index.tsx    /* or app/page.tsx if you're on the App Router */
-import React, { useState } from "react";
+import React, { useState, useLayoutEffect } from "react";
 import DashboardHeader from "./components/DashboardHeader";
-import StreamCard from "./components/StreamCard";
+import MobileHeader from "./components/MobileHeader";
 import Marquee from "./components/Marquee";
 import { Livestream, getActiveLivestreams, getAllLivestreams } from './lib/livestreamsApi';
 import HomeModal, { HomeModalContent } from "./components/HomeModal";
+import MobileFeed from "./components/MobileFeed";
+import DesktopFeed from "./components/DesktopFeed";
+import LoadingScreen from "./components/LoadingScreen";
 
 /**
- * Home page – pixel-window aesthetic
- *
- * Depends on global Tailwind helpers:
- * @layer utilities {
- *   .font-pixel            { font-family: "Press Start 2P", system-ui, monospace; }
- *   .shadow-window-pixel   { box-shadow: 4px 4px 0 0 #000; }
- * }
+ * Home page – responsive video display
  */
 export default function Home() {
-  const [modalOpen, setModalOpen] = useState(true);
+  const [modalOpen, setModalOpen] = useState(false); // Start as false, will be set based on localStorage
   const [liveLivestreams, setLiveLivestreams] = React.useState<Livestream[]>([]);
   const [exploreLivestreams, setExploreLivestreams] = React.useState<Livestream[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
+  const [isMobile, setIsMobile] = React.useState(false);
+
+  // Detect mobile screen size
+  React.useLayoutEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768); // md breakpoint
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Check if user has already accepted disclaimer
+  React.useEffect(() => {
+    const hasAcceptedDisclaimer = localStorage.getItem('livestakes-disclaimer-accepted');
+    if (!hasAcceptedDisclaimer) {
+      setModalOpen(true);
+    }
+  }, []);
 
   React.useEffect(() => {
     const fetchLivestreams = async () => {
@@ -45,60 +62,111 @@ export default function Home() {
     fetchLivestreams();
   }, []);
 
+  const handleFilterClick = () => {
+    // TODO: Implement filter functionality
+    console.log('Filter clicked');
+  };
+
+  const handleSearchClick = () => {
+    // TODO: Implement search functionality
+    console.log('Search clicked');
+  };
+
+  const handleAcceptDisclaimer = () => {
+    localStorage.setItem('livestakes-disclaimer-accepted', 'true');
+    setModalOpen(false);
+  };
+
+  // Function to clear disclaimer acceptance (for development/testing)
+  const clearDisclaimerAcceptance = () => {
+    localStorage.removeItem('livestakes-disclaimer-accepted');
+    setModalOpen(true);
+  };
+
+  // Add to window for easy testing in console
+  React.useEffect(() => {
+    (window as any).clearDisclaimerAcceptance = clearDisclaimerAcceptance;
+  }, []);
+
   return (
     <div className="min-h-screen flex font-pixel bg-purple-200">
       <HomeModal isOpen={modalOpen} onClose={() => setModalOpen(false)}>
-        <HomeModalContent />
+        <HomeModalContent onClose={handleAcceptDisclaimer} />
       </HomeModal>
+      
+      {/* Mobile Header - only on mobile */}
+      {isMobile && (
+        <MobileHeader 
+          title="livestakes"
+          showFilters={true}
+          onFilterClick={handleFilterClick}
+          onSearchClick={handleSearchClick}
+        />
+      )}
+      
       {/* Main content */}
       <main className="flex-1 overflow-y-auto">
-        <div className="p-6">
-          {/* Top marquee bar */}
-          <Marquee />
-          {/* Header */}
-          <DashboardHeader 
-            title="LiveStakes - All Streams"
-            liveStreams={liveLivestreams.length}
-            totalStreams={exploreLivestreams.length}
-          />
-          {/* Loading state */}
-          {loading && (
-            <div className="text-center py-8">
-              <div className="text-4xl mb-4">🔄</div>
-              <p className="text-purple-800">Loading livestreams...</p>
-            </div>
-          )}
-          {/* Error state */}
-          {error && (
-            <div className="text-center py-8">
-              <div className="text-4xl mb-4">⚠️</div>
-              <p className="text-red-600">{error}</p>
-            </div>
-          )}
-          {/* Debug info */}
-          {!loading && !error && (
-            <div className="mb-4 p-4 bg-purple-100 rounded">
-              <p className="text-sm text-purple-800">
-                Debug: Found {liveLivestreams.length} live streams, {exploreLivestreams.length} total streams
-              </p>
-            </div>
-          )}
-          {/* Grid of streams - Show ALL streams */}
-          <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
-            {exploreLivestreams.length > 0 ? (
-              exploreLivestreams.map((stream) => (
-                <StreamCard key={stream.id} {...stream} status='live' />
-              ))
-            ) : (
-              !loading && !error && (
-                <div className="col-span-full text-center py-8">
-                  <div className="text-4xl mb-4">📺</div>
-                  <p className="text-purple-800">No livestreams found</p>
+        {/* Responsive Video Display */}
+        {!loading && !error && exploreLivestreams.length > 0 ? (
+          isMobile ? (
+            <>
+              {/* Mobile Header Space */}
+              <div className="h-14 bg-transparent" />
+              <MobileFeed livestreams={exploreLivestreams} />
+            </>
+          ) : (
+            <div className="p-3 sm:p-4 lg:p-6">
+              {/* Top marquee bar - desktop only */}
+              <div className="hidden sm:block">
+                <Marquee />
+              </div>
+              
+              {/* Header - desktop only */}
+              <DashboardHeader 
+                title="LiveStakes"
+                liveStreams={liveLivestreams.length}
+                totalStreams={exploreLivestreams.length}
+              />
+              
+              {/* Debug info - desktop only */}
+              {process.env.NODE_ENV === 'development' && (
+                <div className="hidden sm:block mb-4 p-4 bg-purple-100 rounded">
+                  <p className="text-sm text-purple-800">
+                    Debug: Found {liveLivestreams.length} live streams, {exploreLivestreams.length} total streams
+                  </p>
                 </div>
-              )
+              )}
+              
+              <DesktopFeed livestreams={exploreLivestreams} />
+            </div>
+          )
+        ) : (
+          <div className={`${isMobile ? 'pt-14' : 'p-3 sm:p-4 lg:p-6'}`}>
+            {/* Loading state */}
+            {loading && (
+              <div className="text-center py-8">
+                <div className="text-2xl sm:text-4xl mb-4">🔄</div>
+                <p className="text-purple-800 text-sm sm:text-base">Loading livestreams...</p>
+              </div>
             )}
-          </section>
-        </div>
+            
+            {/* Error state */}
+            {error && (
+              <div className="text-center py-8">
+                <div className="text-2xl sm:text-4xl mb-4">⚠️</div>
+                <p className="text-red-600 text-sm sm:text-base">{error}</p>
+              </div>
+            )}
+            
+            {/* No livestreams state */}
+            {!loading && !error && exploreLivestreams.length === 0 && (
+              <div className="text-center py-8">
+                <div className="text-2xl sm:text-4xl mb-4">📺</div>
+                <p className="text-purple-800 text-sm sm:text-base">No livestreams found</p>
+              </div>
+            )}
+          </div>
+        )}
       </main>
     </div>
   );

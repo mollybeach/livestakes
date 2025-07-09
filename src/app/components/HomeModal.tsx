@@ -1,6 +1,5 @@
 import React from 'react';
 import Image from 'next/image';
-import ConnectWallet from './ConnectWallet';
 
 interface HomeModalProps {
   isOpen: boolean;
@@ -8,68 +7,125 @@ interface HomeModalProps {
   children: React.ReactNode;
 }
 
-export const HomeModalContent: React.FC = () => (
-  <div className="flex flex-col items-center justify-center min-w-[420px] min-h-[340px] max-w-2xl mx-auto">
-    {/* Yellow Banner */}
-    <div className="w-full border-4 border-black bg-yellow-300 shadow-window-pixel px-4 py-2 mb-4 flex items-center justify-center">
-      <span className="text-2xl font-pixel tracking-wider">♡ WATCH. BET. WIN.</span>
+interface HomeModalContentProps {
+  onClose?: () => void;
+}
+
+export const HomeModalContent: React.FC<HomeModalContentProps> = ({ onClose }) => (
+  <div className="flex flex-col items-center justify-center min-w-[280px] md:min-w-[320px] max-w-sm md:max-w-md mx-auto">
+    {/* Logo and Title */}
+    <div className="flex flex-col items-center mb-4 md:mb-6">
+      <Image 
+        src="https://res.cloudinary.com/storagemanagementcontainer/image/upload/v1751729735/live-stakes-icon_cfc7t8.png" 
+        alt="LiveStakes Logo" 
+        width={80} 
+        height={80} 
+        className="md:w-[120px] md:h-[120px] mb-2 md:mb-3" 
+      />
+      <span className="font-pixel text-xl md:text-2xl text-fuchsia tracking-wide font-extrabold" style={{textShadow: '2px 2px 0 #000'}}>
+        livestakes.fun
+      </span>
     </div>
-    {/* Tri-split row */}
-    <div className="w-full flex flex-col md:flex-row items-center justify-between gap-4 mb-4">
-      {/* How it works */}
-      <div className="flex-1 flex flex-col items-center md:items-end text-right max-w-xs">
-        <div className="w-full border-2 border-black bg-periwinkle p-2 rounded shadow-window-pixel">
-          <div className="bg-cream p-2 rounded text-left">
-            <div className="text-plum font-bold text-base sm:text-lg mb-1">How it works:</div>
-            <div className="text-fuchsia text-[11px] sm:text-xs leading-tight">Watch a livestream, connect your wallet, and bet on outcomes—all on-chain and transparent.</div>
-          </div>
-        </div>
-      </div>
-      {/* Logo and Title */}
-      <div className="flex flex-col items-center flex-shrink-0 px-2">
-        <Image src="https://res.cloudinary.com/storagemanagementcontainer/image/upload/v1751729735/live-stakes-icon_cfc7t8.png" alt="LiveStakes Logo" width={160} height={160} className="mb-2" />
-        <span className="font-pixel text-3xl sm:text-4xl text-fuchsia tracking-widest leading-tight font-extrabold" style={{textShadow: '2px 2px 0 #000, 0 2px 0 #000, 2px 0 0 #000'}}>
-          livestakes.fun
-        </span>
-      </div>
-      {/* Why join */}
-      <div className="flex-1 flex flex-col items-center md:items-start text-left max-w-xs">
-        <div className="w-full border-2 border-black bg-periwinkle p-2 rounded shadow-window-pixel">
-          <div className="bg-cream p-2 rounded text-left">
-            <div className="text-plum font-bold text-base sm:text-lg mb-1">Why join?</div>
-            <div className="text-fuchsia text-[11px] sm:text-xs leading-tight">Earn FLOW, climb the leaderboard, and engage with hackathons in a new way. No crypto experience needed—just connect and play!</div>
-          </div>
+
+    {/* Disclaimer Banner */}
+    <div className="w-full border-2 md:border-4 border-black bg-yellow-300 shadow-window-pixel px-3 md:px-4 py-2 md:py-3 mb-4 md:mb-6">
+      <div className="text-center">
+        <div className="text-sm md:text-lg font-pixel font-bold text-black mb-1 md:mb-2">⚠️ DISCLAIMER</div>
+        <div className="text-xs md:text-sm font-pixel text-black leading-tight">
+          Betting platform with real money risks
         </div>
       </div>
     </div>
-    {/* Main description below tri-split */}
-    <div className="w-full max-w-xl text-xs sm:text-sm leading-relaxed text-center mb-6 text-purple-800">
-      LiveStakes is the world&apos;s first <b>AI-powered livestream betting platform</b> built for hackathons and live events.
+
+    {/* Platform Description - More compact on mobile */}
+    <div className="w-full space-y-3 md:space-y-4 mb-4 md:mb-6">
+      {/* Mobile: Combined description */}
+      <div className="md:hidden border-2 border-black bg-periwinkle p-2 rounded shadow-window-pixel">
+        <div className="bg-cream p-2 rounded">
+          <div className="text-purple-800 text-xs leading-relaxed">
+            <div className="font-bold text-sm mb-1 text-fuchsia">📱 Short Videos + Betting</div>
+            Watch videos, explore markets, place bets. Must be 18+. Only bet what you can afford to lose.
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop: Full descriptions */}
+      <div className="hidden md:block border-2 border-black bg-periwinkle p-3 rounded shadow-window-pixel">
+        <div className="bg-cream p-3 rounded">
+          <div className="text-purple-800 text-sm leading-relaxed">
+            <div className="font-bold text-base mb-2 text-fuchsia">📱 Short Video Platform</div>
+            Watch engaging short videos while exploring prediction markets and betting opportunities.
+          </div>
+        </div>
+      </div>
+
+      <div className="hidden md:block border-2 border-black bg-periwinkle p-3 rounded shadow-window-pixel">
+        <div className="bg-cream p-3 rounded">
+          <div className="text-purple-800 text-sm leading-relaxed">
+            <div className="font-bold text-base mb-2 text-fuchsia">🎯 Market Betting</div>
+            Place bets on live streams, events, and market outcomes. All transactions are on-chain and transparent.
+          </div>
+        </div>
+      </div>
+
+      <div className="hidden md:block border-2 border-black bg-periwinkle p-3 rounded shadow-window-pixel">
+        <div className="bg-cream p-3 rounded">
+          <div className="text-purple-800 text-sm leading-relaxed">
+            <div className="font-bold text-base mb-2 text-fuchsia">⚠️ Risk Warning</div>
+            Betting involves financial risk. Only bet what you can afford to lose. Must be 18+ to participate.
+          </div>
+        </div>
+      </div>
     </div>
-    {/* Connect Wallet at the bottom */}
-    <div className="mt-auto w-full flex justify-center">
-      <ConnectWallet style="header" color="fuchsia" />
+
+    {/* Ready to Bet Button */}
+    <button 
+      className="w-full bg-green-600 hover:bg-green-700 text-white font-pixel text-base md:text-lg py-3 md:py-4 px-4 md:px-6 border-2 md:border-4 border-black shadow-window-pixel transition-all duration-200 hover:transform hover:translate-y-1"
+      onClick={onClose}
+    >
+      🚀 I'M READY TO BET
+    </button>
+
+    {/* Small print */}
+    <div className="text-xs text-purple-600 text-center mt-3 md:mt-4 leading-tight">
+      By continuing, you acknowledge the risks and confirm you are 18+
     </div>
   </div>
 );
 
 const HomeModal: React.FC<HomeModalProps> = ({ isOpen, onClose, children }) => {
   if (!isOpen) return null;
+  
+  // Prevent background scrolling when modal is open
+  React.useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-      <div className="border-4 border-black bg-purple-100 shadow-window-pixel max-w-2xl w-full mx-4">
+    <div 
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 p-4"
+      onClick={(e) => {
+        // Prevent closing by clicking outside - force user to use button
+        e.stopPropagation();
+      }}
+    >
+      <div 
+        className="border-2 md:border-4 border-black bg-purple-100 shadow-window-pixel max-w-sm md:max-w-2xl w-full relative z-[10000]"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Title bar */}
-        <div className="flex items-center justify-between bg-purple-600 text-yellow-50 px-3 py-1 border-b-4 border-black">
-          <span className="font-pixel text-sm">♡ Action!</span>
-          <button
-            onClick={onClose}
-            className="bg-yellow-400 text-black px-2 border border-black leading-none font-pixel text-lg hover:bg-yellow-300 transition-colors"
-            aria-label="Close modal"
-          >
-            ✕
-          </button>
+        <div className="flex items-center justify-center bg-red-600 text-yellow-50 px-2 md:px-3 py-2 border-b-2 md:border-b-4 border-black">
+          <span className="font-pixel text-xs md:text-sm">⚠️ Platform Disclaimer</span>
         </div>
-        <div className="p-6">{children}</div>
+        <div className="p-4 md:p-6">{children}</div>
       </div>
     </div>
   );

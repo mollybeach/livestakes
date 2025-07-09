@@ -30,7 +30,7 @@ class VideoImporter {
   private defaultMarketAddress: string;
 
   constructor(apiBaseUrl?: string, marketAddress?: string) {
-    this.apiBaseUrl = apiBaseUrl || process.env.API_BASE_URL || 'https://livestakes.fun/api';
+    this.apiBaseUrl = apiBaseUrl || process.env.API_BASE_URL || 'http://localhost:3334/api';
     this.defaultMarketAddress = marketAddress || '0xb6B14E5651AE3637A81012024E3F7fEF0526fb6f';
     console.log(`📡 Using API Base URL: ${this.apiBaseUrl}`);
     console.log(`📄 Using Market Address: ${this.defaultMarketAddress}`);
