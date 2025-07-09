@@ -39,6 +39,20 @@ const MarketAssociationModal: React.FC<MarketAssociationModalProps> = ({
   const [marketInfo, setMarketInfo] = useState<MarketInfo | null>(null);
   const [associatedMarkets, setAssociatedMarkets] = useState<string[]>([]);
 
+  const loadAssociatedMarkets = React.useCallback(async () => {
+    try {
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+      const response = await fetch(`${API_BASE_URL}/markets?livestream_id=${livestreamId}`);
+      const data = await response.json();
+      
+      if (data.success) {
+        setAssociatedMarkets(data.market_addresses || []);
+      }
+    } catch (err) {
+      console.error('Error loading associated markets:', err);
+    }
+  }, [livestreamId]);
+
   // Lock body scroll when modal is open
   useEffect(() => {
     if (isOpen) {
@@ -51,7 +65,7 @@ const MarketAssociationModal: React.FC<MarketAssociationModalProps> = ({
     return () => {
       document.body.style.overflow = 'unset';
     };
-  }, [isOpen]);
+  }, [isOpen, loadAssociatedMarkets]);
 
   // Handle escape key to close modal
   useEffect(() => {
@@ -70,19 +84,7 @@ const MarketAssociationModal: React.FC<MarketAssociationModalProps> = ({
     };
   }, [isOpen, onClose]);
 
-  const loadAssociatedMarkets = async () => {
-    try {
-      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
-      const response = await fetch(`${API_BASE_URL}/markets?livestream_id=${livestreamId}`);
-      const data = await response.json();
-      
-      if (data.success) {
-        setAssociatedMarkets(data.market_addresses || []);
-      }
-    } catch (err) {
-      console.error('Error loading associated markets:', err);
-    }
-  };
+
 
   const validateMarketAddress = (address: string): boolean => {
     // Basic ETH address validation

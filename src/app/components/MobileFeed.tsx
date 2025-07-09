@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import { FaHeart, FaCommentDots, FaBullseye, FaWallet } from 'react-icons/fa';
+import { usePrivy } from '@privy-io/react-auth';
 import { Livestream } from '../lib/livestreamsApi';
 import VideoInfoOverlay from './VideoInfoOverlay';
 import ShareModal from './ShareModal';
@@ -14,6 +15,7 @@ interface MobileFeedProps {
  * TikTok-style Feed Component for Mobile with Full Screen Videos and Snap Scrolling
  */
 export default function MobileFeed({ livestreams }: MobileFeedProps) {
+  const { authenticated, login } = usePrivy();
   const [openComments, setOpenComments] = useState<{ [id: number]: boolean }>({});
   const [likeCounts, setLikeCounts] = useState<{ [id: number]: number }>({});
   const [liked, setLiked] = useState<{ [id: number]: boolean }>({});
@@ -55,13 +57,16 @@ export default function MobileFeed({ livestreams }: MobileFeedProps) {
         entries.forEach((entry) => {
           const videoId = parseInt(entry.target.getAttribute('data-video-id') || '0');
           if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
-            setCurrentVideoId(videoId);
+            // Only update if it's different from current video (avoid redundant updates)
+            if (videoId !== currentVideoId) {
+              setCurrentVideoId(videoId);
+            }
           }
         });
       },
       {
-        threshold: 0.5, // Video needs to be at least 50% visible
-        rootMargin: '0px'
+        threshold: [0.5, 0.75], // Multiple thresholds for better detection
+        rootMargin: '-10px 0px', // Slight margin to ensure video is really visible
       }
     );
 
@@ -75,7 +80,7 @@ export default function MobileFeed({ livestreams }: MobileFeedProps) {
     return () => {
       observer.disconnect();
     };
-  }, [livestreams]);
+  }, [livestreams, currentVideoId]);
 
   // Control video playback based on current video
   useEffect(() => {
@@ -102,19 +107,35 @@ export default function MobileFeed({ livestreams }: MobileFeedProps) {
   }, [currentVideoId]);
 
   const handleToggleComments = (id: number) => {
+    if (!authenticated) {
+      login();
+      return;
+    }
     setOpenComments((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
   const handleLike = (id: number) => {
+    if (!authenticated) {
+      login();
+      return;
+    }
     setLikeCounts((prev) => ({ ...prev, [id]: (prev[id] || 0) + (liked[id] ? -1 : 1) }));
     setLiked((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
   const handleCommentInput = (id: number, value: string) => {
+    if (!authenticated) {
+      login();
+      return;
+    }
     setCommentInputs((prev) => ({ ...prev, [id]: value }));
   };
 
   const handleSendComment = (id: number) => {
+    if (!authenticated) {
+      login();
+      return;
+    }
     const text = commentInputs[id]?.trim();
     if (!text) return;
     setAllComments((prev) => ({
@@ -139,7 +160,14 @@ export default function MobileFeed({ livestreams }: MobileFeedProps) {
     const video = videoRefs.current[id];
     if (video) {
       video.muted = isMuted[id] || false;
-      // Don't autoplay here - let the intersection observer control playback
+      // Preload adjacent videos for smoother transitions
+      const currentIndex = livestreams.findIndex(stream => stream.id === currentVideoId);
+      const videoIndex = livestreams.findIndex(stream => stream.id === id);
+      
+      // If this is the current video or an adjacent video, prepare it for smooth playback
+      if (Math.abs(videoIndex - currentIndex) <= 1) {
+        video.currentTime = 0;
+      }
     }
   };
 
@@ -147,24 +175,81 @@ export default function MobileFeed({ livestreams }: MobileFeedProps) {
     // Find the current video index
     const currentIndex = livestreams.findIndex(stream => stream.id === id);
     
-    // If there's a next video, scroll to it
+    // If there's a next video, scroll to it and immediately start playing
     if (currentIndex !== -1 && currentIndex < livestreams.length - 1) {
       const nextVideoId = livestreams[currentIndex + 1].id;
       const nextContainer = containerRefs.current[nextVideoId];
+      const nextVideo = videoRefs.current[nextVideoId];
       
       if (nextContainer) {
+        // Immediately set the next video as current
+        setCurrentVideoId(nextVideoId);
+        
+        // Scroll to the next video
         nextContainer.scrollIntoView({ 
           behavior: 'smooth',
           block: 'start'
         });
+        
+        // Immediately start playing the next video
+        if (nextVideo) {
+          nextVideo.currentTime = 0;
+          nextVideo.muted = isMuted[nextVideoId] || false;
+          const playPromise = nextVideo.play();
+          if (playPromise !== undefined) {
+            playPromise.catch(() => {
+              // If autoplay fails, try muted
+              nextVideo.muted = true;
+              setIsMuted((prev) => ({ ...prev, [nextVideoId]: true }));
+              nextVideo.play().catch(console.error);
+            });
+          }
+        }
       }
     }
-    // If it's the last video, optionally loop back to first or do nothing
-    // For now, we'll just stay on the last video
+    // If it's the last video, optionally loop back to first
+    else if (currentIndex === livestreams.length - 1 && livestreams.length > 0) {
+      // Optional: Loop back to the first video
+      const firstVideoId = livestreams[0].id;
+      const firstContainer = containerRefs.current[firstVideoId];
+      const firstVideo = videoRefs.current[firstVideoId];
+      
+      if (firstContainer) {
+        setCurrentVideoId(firstVideoId);
+        firstContainer.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'start'
+        });
+        
+        if (firstVideo) {
+          firstVideo.currentTime = 0;
+          firstVideo.muted = isMuted[firstVideoId] || false;
+          const playPromise = firstVideo.play();
+          if (playPromise !== undefined) {
+            playPromise.catch(() => {
+              firstVideo.muted = true;
+              setIsMuted((prev) => ({ ...prev, [firstVideoId]: true }));
+              firstVideo.play().catch(console.error);
+            });
+          }
+        }
+      }
+    }
   };
 
   const handleShare = (id: number) => {
     setShareModalOpen(id);
+  };
+
+  const handleBet = (id: number) => {
+    if (!authenticated) {
+      login();
+      return;
+    }
+    // TODO: Implement betting functionality
+    console.log('Betting on stream:', id);
+    // For now, show an alert
+    alert('Betting feature coming soon!');
   };
 
   return (
@@ -173,6 +258,16 @@ export default function MobileFeed({ livestreams }: MobileFeedProps) {
         const comments = allComments[stream.id] || [];
         const isCommentsOpen = openComments[stream.id];
         const isCurrentVideo = currentVideoId === stream.id;
+        const currentIndex = livestreams.findIndex(s => s.id === currentVideoId);
+        const videoDistance = Math.abs(index - currentIndex);
+        
+        // Preload strategy: current video gets "auto", adjacent videos get "metadata", others get "none"
+        const preloadStrategy = isCurrentVideo 
+          ? "auto" 
+          : videoDistance <= 1 
+            ? "metadata" 
+            : "none";
+            
         return (
           <div
             key={stream.id}
@@ -189,7 +284,7 @@ export default function MobileFeed({ livestreams }: MobileFeedProps) {
                 style={{ height: 'calc(100vh - 130px)' }}
                 muted={isMuted[stream.id] || false}
                 playsInline
-                preload="metadata"
+                preload={preloadStrategy}
                 onLoadedData={() => handleVideoLoadedData(stream.id)}
                 onEnded={() => handleVideoEnded(stream.id)}
               />
@@ -282,7 +377,10 @@ export default function MobileFeed({ livestreams }: MobileFeedProps) {
               </button>
 
               {/* Bet Button */}
-              <button className="flex flex-col items-center transition-all duration-200 hover:scale-105">
+              <button 
+                onClick={() => handleBet(stream.id)}
+                className="flex flex-col items-center transition-all duration-200 hover:scale-105"
+              >
                 <div className="w-10 h-10 rounded-none bg-green-600/80 backdrop-blur-sm border border-black/60 flex items-center justify-center hover:bg-green-600/90">
                   <FaBullseye className="text-white text-lg" />
                 </div>

@@ -65,43 +65,36 @@ const BettingModal: React.FC<BettingModalProps> = ({
 
   // Load markets when modal opens
   useEffect(() => {
-    if (isOpen) {
-      loadMarkets();
-    }
+    if (!isOpen) return;
+    
+    const loadMarkets = async () => {
+      try {
+        console.log(`🔍 BettingModal: Loading markets for livestream ${livestreamId}...`);
+        console.log(`📊 Markets data:`, market);
+        
+        // Always set the current livestream as selected for betting
+        setSelectedLivestreamId(livestreamId);
+        
+        if (market && market.contract_address) {
+          console.log(`✅ Found market ${market.contract_address}`);
+          setSelectedMarket(market.contract_address);
+          setShowCreateMarket(false);
+        } else {
+          console.log(`⚠️ No market found for livestream ${livestreamId}, showing create market interface`);
+          // Set a default market question for hackathon projects
+          setNewMarketQuestion(`Which hackathon project will win?`);
+          setShowCreateMarket(true);
+        }
+      } catch (error) {
+        console.error('Error loading markets:', error);
+        setError('Failed to load markets');
+      }
+    };
+
+    loadMarkets();
   }, [isOpen, livestreamId, market]);
 
-  const loadMarkets = async () => {
-    try {
-      console.log(`🔍 BettingModal: Loading markets for livestream ${livestreamId}...`);
-      console.log(`📊 Markets data:`, market);
-      
-      // Always set the current livestream as selected for betting
-      setSelectedLivestreamId(livestreamId);
-      
-      if (market && market.contract_address) {
-        console.log(`✅ Found market ${market.contract_address}`);
-        setSelectedMarket(market.contract_address);
-        setShowCreateMarket(false);
-      } else {
-        console.log(`⚠️ No market found for livestream ${livestreamId}, showing create market interface`);
-        // Set a default market question for hackathon projects
-        setNewMarketQuestion(`Which hackathon project will win?`);
-        setShowCreateMarket(true);
-      }
-    } catch (error) {
-      console.error('Error loading markets:', error);
-      setError('Failed to load markets');
-    }
-  };
-
-  // Load market info when market selection changes
-  useEffect(() => {
-    if (selectedMarket && isOpen) {
-      loadMarketInfo();
-    }
-  }, [selectedMarket, isOpen]);
-
-  const loadMarketInfo = async () => {
+  const loadMarketInfo = React.useCallback(async () => {
     if (!selectedMarket) return;
     
     try {
@@ -160,7 +153,14 @@ const BettingModal: React.FC<BettingModalProps> = ({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [selectedMarket, market, livestreamId, livestreamTitle, authenticated, user?.wallet?.address]);
+
+  // Load market info when market selection changes
+  useEffect(() => {
+    if (selectedMarket && isOpen) {
+      loadMarketInfo();
+    }
+  }, [selectedMarket, isOpen, loadMarketInfo]);
 
   // Convert slider value to FLOW amount
   const convertSliderToFlow = (value: number) => {

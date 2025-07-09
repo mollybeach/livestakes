@@ -41,16 +41,23 @@ export default function ClientWrapper({
     <PrivyProvider
       appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID || ''}
       config={{
-        loginMethods: ['wallet', 'email'],
+        loginMethods: ['email', 'telegram', 'google', 'wallet'],
         appearance: {
           theme: 'dark',
           accentColor: '#8B5CF6',
           logo: 'https://res.cloudinary.com/storagemanagementcontainer/image/upload/v1751729735/live-stakes-icon_cfc7t8.png',
+          showWalletLoginFirst: false,
+          walletChainType: 'ethereum-only',
         },
         defaultChain: flowEvmTestnet,
         supportedChains: [flowEvmTestnet],
         embeddedWallets: {
           createOnLogin: 'users-without-wallets',
+          requireUserPasswordOnCreate: false,
+          noPromptOnSignature: true,
+        },
+        mfa: {
+          noPromptOnMfaRequired: false,
         },
       }}
     >

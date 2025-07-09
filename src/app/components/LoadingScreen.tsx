@@ -21,11 +21,7 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ isLoading }) => {
   useEffect(() => {
     if (!isLoading) return;
 
-    let progressInterval: NodeJS.Timeout;
-    let messageInterval: NodeJS.Timeout;
-    
-    // Simulate loading progress
-    progressInterval = setInterval(() => {
+    const progressInterval: NodeJS.Timeout = setInterval(() => {
       setProgress(prev => {
         if (prev >= 100) {
           clearInterval(progressInterval);
@@ -37,7 +33,7 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ isLoading }) => {
 
     // Cycle through loading messages
     let messageIndex = 0;
-    messageInterval = setInterval(() => {
+    const messageInterval: NodeJS.Timeout = setInterval(() => {
       messageIndex = (messageIndex + 1) % loadingMessages.length;
       setLoadingText(loadingMessages[messageIndex]);
     }, 800);
@@ -46,7 +42,7 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ isLoading }) => {
       clearInterval(progressInterval);
       clearInterval(messageInterval);
     };
-  }, [isLoading]);
+  }, [isLoading, loadingMessages]);
 
   if (!isLoading) return null;
 

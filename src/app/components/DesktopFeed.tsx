@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from 'react';
+import { usePrivy } from '@privy-io/react-auth';
 import { Livestream } from '../lib/livestreamsApi';
 
 interface DesktopFeedProps {
@@ -11,7 +12,7 @@ interface DesktopFeedProps {
  */
 export default function DesktopFeed({ livestreams }: DesktopFeedProps) {
   return (
-    <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 lg:gap-6">
+    <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 lg:gap-4">
       {livestreams.map((stream) => (
         <div key={stream.id} className="w-full">
           <DesktopStreamCard {...stream} status='live' />
@@ -51,6 +52,7 @@ function DesktopStreamCard({
   category?: string;
   market?: any;
 }) {
+  const { authenticated, login } = usePrivy();
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const [isHovered, setIsHovered] = useState(false);
   const [videoError, setVideoError] = useState(false);
@@ -111,18 +113,24 @@ function DesktopStreamCard({
     setVideoError(true);
   };
 
+  const handleBet = () => {
+    if (!authenticated) {
+      login();
+      return;
+    }
+    // TODO: Implement betting functionality
+    console.log('Betting on project:', id);
+    alert('Betting feature coming soon!');
+  };
+
+
+
   return (
     <div className="relative">
       <div className="rounded-lg shadow-lg bg-white transition-transform overflow-hidden border-0 hover:-translate-y-1">
-        {status === 'live' && (
-          <div className="absolute top-2 left-2 z-10 px-2 py-1 bg-red-500 text-white text-xs font-bold rounded">
-            LIVE
-          </div>
-        )}
-      
-        {/* Video/Thumbnail Container - Reduced height aspect ratio */}
+        {/* Video/Thumbnail Container - Portrait aspect ratio for bigger videos */}
         <div 
-          className="relative w-full aspect-[16/9] overflow-hidden bg-gray-900"
+          className="relative w-full aspect-[3/4] overflow-hidden bg-gray-900"
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
@@ -186,61 +194,23 @@ function DesktopStreamCard({
         </div>
 
         {/* Content below video */}
-        <div className="p-4">
-          {/* Creator info */}
-          <div className="flex items-center gap-3 mb-3">
-            <img 
-              src="https://randomuser.me/api/portraits/men/32.jpg" 
-              alt={title} 
-              className="w-8 h-8 rounded-full border border-gray-300" 
-            />
-            <div className="flex-1 min-w-0">
-              <p className="text-xs text-gray-500 truncate">
-                {creator_wallet_address.slice(0, 6)}...{creator_wallet_address.slice(-4)}
-              </p>
-              {category && <p className="text-xs text-purple-600 font-medium capitalize">{category}</p>}
-            </div>
-          </div>
-
-          {/* Title and Description */}
-          <div className="mb-3">
+        <div className="p-3">
+          {/* Title */}
+          <div className="mb-2">
             <h3 className="text-sm font-semibold text-gray-900 mb-1 line-clamp-2 leading-tight">{title}</h3>
-            {description && (
-              <p className="text-xs text-gray-600 line-clamp-3 leading-relaxed">{description}</p>
-            )}
+            <p className="text-xs text-gray-500 truncate">
+              {creator_wallet_address.slice(0, 6)}...{creator_wallet_address.slice(-4)}
+            </p>
           </div>
 
-          {/* Stats */}
-          <div className="flex flex-wrap gap-2 mb-3">
-            {typeof view_count === 'number' && (
-              <span className="text-xs bg-purple-100 text-purple-700 font-medium px-2 py-1 rounded-full">
-                👁️ {view_count}
-              </span>
-            )}
-            {start_time && (
-              <span className="text-xs bg-gray-100 text-gray-700 font-medium px-2 py-1 rounded-full">
-                {new Date(start_time).toLocaleDateString()}
-              </span>
-            )}
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex gap-2">
-            <button className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg font-medium text-sm py-2.5 transition-all duration-200 flex items-center justify-center gap-2">
-              <span>🎯</span>
-              <span>Bet on Project</span>
-            </button>
-            {id && (
-              <button
-                className="flex-shrink-0 px-3 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-colors text-sm flex items-center justify-center"
-                title="Associate Market"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                </svg>
-              </button>
-            )}
-          </div>
+          {/* Action Button */}
+          <button 
+            onClick={handleBet}
+            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg font-medium text-sm py-2 transition-all duration-200 flex items-center justify-center gap-2"
+          >
+            <span>🎯</span>
+            <span>Bet</span>
+          </button>
         </div>
       </div>
     </div>

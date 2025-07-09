@@ -125,19 +125,21 @@ export default function RootLayout({
           <div className="hidden md:block">
             <Header />
           </div>
-          <div className="flex">
+          
+          <div className="flex min-h-[calc(100vh-theme(spacing.16))] md:min-h-[calc(100vh-120px)]">
             {/* Hide SideNav on mobile (hidden lg:flex) */}
             <div className="hidden lg:flex">
               <SideNav />
             </div>
             <main className="flex-1 w-full md:pb-0 pb-20">
               {children}
+              {/* Footer - hidden on mobile, inside main content */}
+              <div className="hidden md:block">
+                <Footer />
+              </div>
             </main>
           </div>
-          {/* Footer - hidden on mobile */}
-          <div className="hidden md:block">
-            <Footer />
-          </div>
+          
           {/* Bottom Navigation - mobile only */}
           <BottomNavigation />
           <PWAProvider />

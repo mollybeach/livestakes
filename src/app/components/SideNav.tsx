@@ -1,48 +1,48 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
-  MonitorPlay,
   Home,
   Store,
   MessageCircle,
   UserCircle2,
   HelpCircle,
-  MoreHorizontal,
   ChevronLeft,
   ChevronRight,
-  Trophy,
-  BarChart3,
-  Star,
-  BookOpen,
 } from "lucide-react";
-import Button from "./ui/button";
+import { usePrivy } from '@privy-io/react-auth';
 import NavItem from "./NavItem";
 
 const SideNav = () => {
   const [isCollapsed, setIsCollapsed] = useState(false); // Default to expanded on desktop
   const pathname = usePathname();
+  const router = useRouter();
+  const { authenticated, login } = usePrivy();
 
   const toggleCollapse = () => {
     setIsCollapsed(!isCollapsed);
   };
 
   const navItems = [
-    { icon: <Home size={16} />, label: "Home", href: "/", active: pathname === "/" },
-    { icon: <UserCircle2 size={16} />, label: "Profile", href: "/profile", active: pathname === "/profile" },
-    { icon: <MonitorPlay size={16} />, label: "Livestreams", href: "/livestreams", active: pathname === "/livestreams" },
-    { icon: <Trophy size={16} />, label: "Leaderboard", href: "/leaderboard", active: pathname === "/leaderboard" },
-    { icon: <BarChart3 size={16} />, label: "Chart", href: "/chart", active: pathname === "/chart" },
-    { icon: <Store size={16} />, label: "Markets", href: "/markets", active: pathname === "/markets" },
-    { icon: <Star size={16} />, label: "Features", href: "/features", active: pathname === "/features" },
-    { icon: <BookOpen size={16} />, label: "How It Works", href: "/howitworks", active: pathname === "/howitworks" },
-    { icon: <MessageCircle size={16} />, label: "Chat", href: "/chat", active: pathname === "/chat" },
-    { icon: <HelpCircle size={16} />, label: "Support", href: "/support", active: pathname === "/support" },
+    { icon: <Home size={16} />, label: "Home", href: "/", active: pathname === "/", requiresAuth: false },
+    { icon: <UserCircle2 size={16} />, label: "Profile", href: "/profile", active: pathname === "/profile", requiresAuth: true },
+    { icon: <Store size={16} />, label: "Markets", href: "/markets", active: pathname === "/markets", requiresAuth: false },
+    { icon: <MessageCircle size={16} />, label: "Chat", href: "/chat", active: pathname === "/chat", requiresAuth: true },
+    { icon: <HelpCircle size={16} />, label: "Support", href: "/support", active: pathname === "/support", requiresAuth: false },
   ];
 
+  const handleNavClick = (item: typeof navItems[0], e: React.MouseEvent) => {
+    if (item.requiresAuth && !authenticated) {
+      e.preventDefault();
+      login();
+      return;
+    }
+    // For non-auth required routes, let the Link handle navigation
+  };
+
   return (
-    <aside className={`${isCollapsed ? 'w-16' : 'w-52'} bg-fuchsia text-cream flex flex-col gap-2 py-4 lg:py-6 border-r-4 border-black transition-all duration-300 relative h-screen overflow-y-auto`}>
+    <aside className={`${isCollapsed ? 'w-16' : 'w-52'} bg-fuchsia text-cream flex flex-col gap-2 py-4 lg:py-6 border-r-4 border-black transition-all duration-300 relative min-h-full overflow-y-auto`}>
       {/* Toggle Button */}
       <button
         onClick={toggleCollapse}
@@ -53,7 +53,7 @@ const SideNav = () => {
 
       <nav className="flex flex-col gap-2 px-3 pt-8">
         {navItems.map((item) => (
-          <Link key={item.href} href={item.href}>
+          <Link key={item.href} href={item.href} onClick={(e) => handleNavClick(item, e)}>
             <NavItem 
               icon={item.icon} 
               label={item.label} 
@@ -64,11 +64,7 @@ const SideNav = () => {
         ))}
       </nav>
       
-      {!isCollapsed && (
-        <Button className="mx-3 mt-4 lg:mt-6 bg-gold hover:bg-butter text-black border border-black font-pixel uppercase tracking-wider text-xs">
-          Create Market
-        </Button>
-      )}
+
 
       {/* Social Links */}
       <div className="mt-auto px-3 pb-4">

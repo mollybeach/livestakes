@@ -4,14 +4,8 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import {
   MonitorPlay,
-  Trophy,
-  BarChart3,
   Info,
-  Wallet,
-  Wrench,
-  Star,
   Store,
-  PlaySquare,
   User,
   Menu,
   X,
@@ -24,9 +18,6 @@ const Header = () => {
 
   const navigationLinks = [
     { href: "/", icon: <MonitorPlay size={16} />, label: "Home" },
-    { href: "/livestreams", icon: <MonitorPlay size={16} />, label: "Livestreams" },
-    { href: "/leaderboard", icon: <Trophy size={16} />, label: "Leaderboard" },
-    { href: "/chart", icon: <BarChart3 size={16} />, label: "Chart" },
     { href: "/markets", icon: <Store size={16} />, label: "Markets" },
     { href: "/profile", icon: <User size={16} />, label: "Profile" },
   ];

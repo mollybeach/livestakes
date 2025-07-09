@@ -83,7 +83,7 @@ export const HomeModalContent: React.FC<HomeModalContentProps> = ({ onClose }) =
       className="w-full bg-green-600 hover:bg-green-700 text-white font-pixel text-base md:text-lg py-3 md:py-4 px-4 md:px-6 border-2 md:border-4 border-black shadow-window-pixel transition-all duration-200 hover:transform hover:translate-y-1"
       onClick={onClose}
     >
-      🚀 I'M READY TO BET
+      🚀 I&apos;M READY TO BET
     </button>
 
     {/* Small print */}
@@ -94,8 +94,6 @@ export const HomeModalContent: React.FC<HomeModalContentProps> = ({ onClose }) =
 );
 
 const HomeModal: React.FC<HomeModalProps> = ({ isOpen, onClose, children }) => {
-  if (!isOpen) return null;
-  
   // Prevent background scrolling when modal is open
   React.useEffect(() => {
     if (isOpen) {
@@ -108,6 +106,8 @@ const HomeModal: React.FC<HomeModalProps> = ({ isOpen, onClose, children }) => {
       document.body.style.overflow = 'unset';
     };
   }, [isOpen]);
+
+  if (!isOpen) return null;
 
   return (
     <div 
