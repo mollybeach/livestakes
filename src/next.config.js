@@ -80,15 +80,15 @@ const nextConfig = {
           },
         ],
       },
-      {
-        source: "/:path*",
-        headers: [
-          {
-            key: "Content-Security-Policy",
-            value: cspValue,
-          },
-        ],
-      },
+      // {
+      //   source: "/:path*",
+      //   headers: [
+      //     {
+      //       key: "Content-Security-Policy",
+      //       value: cspValue,
+      //     },
+      //   ],
+      // },
     ];
   },
 };
