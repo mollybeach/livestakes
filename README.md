@@ -2,6 +2,8 @@
 
 *Real-time prediction markets for hackathon projects*
 
+🌐 [www.livestakes.fun](https://www.livestakes.fun)
+
 ---
 
 ### 👤 Created by Molly Beach, Ziz Khu, and Joao Santos
