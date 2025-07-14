@@ -10,7 +10,7 @@
 
 ## 1. Overview 🔍
 
-LiveStakes is an open source platform that lets viewers watch every ETHGlobal hackathon project in real time and place on-chain predictions on which ones will win prizes. Teams broadcast live demos through WebRTC while the Hedera Agent Kit analyzes livestream environment and voice data to automatically create betting markets and predict winners using an automated market maker. When the AI makes final decisions, the Flow blockchain contracts settle and payout bettors instantly.
+🏆 ETHGlobal Cannes Finalist 🏆 A real-time 📈 prediction market 💰 & livestream dashboard engagement 🎥 for hackathons. View live project demos, place on-chain predictions, & earn crypto rewards for accurate forecasts. All interactions are powered by smart contracts & decentralized video infrastructure. Created by Molly Beach, Ziz Khu, Joao Santos. LiveStakes is an open source platform that lets viewers watch every ETHGlobal hackathon project in real time and place on-chain predictions on which ones will win prizes. Teams broadcast live demos through WebRTC while the Hedera Agent Kit analyzes livestream environment and voice data to automatically create betting markets and predict winners using an automated market maker. When the AI makes final decisions, the Flow blockchain contracts settle and payout bettors instantly.
 
 It contains the Next.js frontend, Flow  smart contracts, Hedera Agent Kit integration, WebRTC streaming server, and infrastructure as code required to deploy the complete system.
 
